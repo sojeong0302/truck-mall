@@ -1,6 +1,6 @@
-// src/app/layout.tsx
 import "./globals.css";
-import Header from "../components/Header"; // 경로는 실제 위치에 맞게 조정해줘
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
 export const metadata = {
     title: "새마을 트럭",
@@ -13,6 +13,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <body>
                 <Header />
                 {children}
+                <Footer />
             </body>
         </html>
     );
