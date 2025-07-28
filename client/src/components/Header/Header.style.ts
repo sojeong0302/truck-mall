@@ -2,27 +2,33 @@
 
 import styled from "styled-components";
 
+export const AuthContainer = styled.div`
+    display: flex;
+    width: 100%;
+    justify-content: flex-end;
+    gap: 1%;
+    padding: 1%;
+`;
+export const Home = styled.div`
+    cursor: pointer;
+`;
+export const Login = styled.div`
+    cursor: pointer;
+`;
 export const HeaderContainer = styled.div`
     display: flex;
-    background: yellow;
     padding: 1%;
     width: 100%;
     height: 100%;
 `;
-export const AuthContainer = styled.div`
-    display: flex;
-    width: 5%;
-    justify-content: flex-end;
-    gap: 10%;
-`;
-export const Home = styled.div``;
-export const Login = styled.div``;
+
 export const LogoContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
     gap: 2%;
+    cursor: pointer;
 `;
 export const LogoImage = styled.img`
     width: 120px;
@@ -33,7 +39,7 @@ export const LogoImage = styled.img`
 `;
 export const LoginTxtContainer = styled.div``;
 export const LogoTxt1 = styled.div`
-    font-size: 40px;
+    font-size: 50px;
     font-weight: bold;
 `;
 export const LogoTxt2 = styled.div`
