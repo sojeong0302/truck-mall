@@ -42,6 +42,41 @@ export default function Header() {
                     </div>
                 </div>
             </div>
+
+            {/* 메뉴바 */}
+            <div className="flex bg-[#2E7D32] text-white p-4 justify-center w-full gap-28 shadow-[0_8px_20px_rgba(0,0,0,0.2)]">
+                <div
+                    onClick={() => router.push("/CarSearchPage")}
+                    className="text-3xl font-bold cursor-pointer transition transform duration-200 hover:scale-110 active:scale-95"
+                >
+                    차량검색
+                </div>
+
+                <div
+                    onClick={() => router.push("/AdvicePage")}
+                    className="text-3xl font-bold cursor-pointer transition transform duration-200 hover:scale-110 active:scale-95"
+                >
+                    상담하기
+                </div>
+                <div
+                    onClick={() => router.push("/CarTIPPage")}
+                    className="text-3xl font-bold cursor-pointer transition transform duration-200 hover:scale-110 active:scale-95"
+                >
+                    차량관리TIP
+                </div>
+                <div
+                    onClick={() => router.push("/ReviewPage")}
+                    className="text-3xl font-bold cursor-pointer transition transform duration-200 hover:scale-110 active:scale-95"
+                >
+                    후기
+                </div>
+                <div
+                    onClick={() => router.push("/IntroPage")}
+                    className="text-3xl font-bold cursor-pointer transition transform duration-200 hover:scale-110 active:scale-95"
+                >
+                    회사소개
+                </div>
+            </div>
         </>
     );
 }
