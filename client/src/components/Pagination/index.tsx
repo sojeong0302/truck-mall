@@ -16,7 +16,7 @@ export default function Pagination({ totalPages }: PaginationProps) {
             <button
                 onClick={() => setPage(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="w-9 h-9 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50 transition"
+                className="w-9 h-9 rounded-full text-gray-700 hover:bg-gray-300 disabled:opacity-50 transition"
             >
                 &lt;
             </button>
@@ -26,10 +26,9 @@ export default function Pagination({ totalPages }: PaginationProps) {
                 <button
                     key={page}
                     onClick={() => setPage(page)}
-                    className={`w-9 h-9 rounded-full text-sm font-medium transition ${
-                        currentPage === page
-                            ? "bg-green-700 text-white"
-                            : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-100"
+                    style={currentPage === page ? { backgroundColor: "rgba(46,125,50,0.5)" } : undefined}
+                    className={`px-3 py-1 rounded-full transition-transform transition-colors duration-150 ease-in-out active:scale-95 ${
+                        currentPage === page ? "text-white" : "text-gray-700 hover:bg-gray-200"
                     }`}
                 >
                     {page}
@@ -40,7 +39,7 @@ export default function Pagination({ totalPages }: PaginationProps) {
             <button
                 onClick={() => setPage(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="w-9 h-9 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50 transition"
+                className="w-9 h-9 rounded-full text-gray-700 hover:bg-gray-300 disabled:opacity-50 transition"
             >
                 &gt;
             </button>
