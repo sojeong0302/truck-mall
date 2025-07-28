@@ -1,5 +1,11 @@
 "use client";
 
+import Pagination from "@/components/Pagination";
+
 export default function CarTIPPage() {
-    return <div>차량관리TIP 페이지입니다.</div>;
+    return (
+        <>
+            <Pagination totalPages={10} />
+        </>
+    );
 }
