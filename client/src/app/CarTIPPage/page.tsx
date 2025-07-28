@@ -3,6 +3,7 @@
 import Pagination from "@/components/Pagination";
 import Bulletin from "@/components/Bulletin";
 import { BulletinProps } from "@/components/Bulletin/Bulletin.types";
+import { usePaginationStore } from "@/store/paginationStore";
 
 const dummyData: BulletinProps[] = [
     {
@@ -91,11 +92,22 @@ const dummyData: BulletinProps[] = [
     },
 ];
 
+const ITEMS_PER_PAGE = 10;
+
 export default function CarTIPPage() {
+    const { currentPage } = usePaginationStore();
+
+    // 현재 페이지에 맞게 데이터 자르기
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const pagedData = dummyData.slice(startIndex, endIndex);
+
+    const totalPages = Math.ceil(dummyData.length / ITEMS_PER_PAGE);
+
     return (
         <>
-            <Bulletin posts={dummyData} />
-            <Pagination totalPages={10} />
+            <Bulletin posts={pagedData} />
+            <Pagination totalPages={totalPages} />
         </>
     );
 }
