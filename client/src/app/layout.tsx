@@ -1,6 +1,8 @@
 import "./globals.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import "swiper/css";
+import "swiper/css/navigation";
 
 export const metadata = {
     title: "새마을 트럭",
@@ -12,7 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <html lang="ko">
             <body className="bg-[#F5F5F5]">
                 <Header />
-                <div className="w-[80%] mx-auto">{children}</div>
+                <div className="w-[80%]">{children}</div>
                 <Footer />
             </body>
         </html>

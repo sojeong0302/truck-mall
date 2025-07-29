@@ -1,12 +1,19 @@
 import { BulletinProps } from "@/components/Bulletin/Bulletin.types";
 
-export const dummyData: BulletinProps[] = [
+export const dummyData: (BulletinProps & { images?: string[] })[] = [
     {
         id: 1,
         title: "차량, 후측면 유리의 유막 제거 및 관리",
         content: "매서운 호우가 지나가고 연일 계속",
         date: "2025 / 07 / 24",
         views: 10,
+        images: [
+            "/truckImg/truck1.png",
+            "/truckImg/truck2.png",
+            "/truckImg/truck3.png",
+            "/truckImg/truck4.png",
+            "/truckImg/truck5.png",
+        ],
     },
     {
         id: 2,
@@ -14,6 +21,13 @@ export const dummyData: BulletinProps[] = [
         content: "고속도로 주행 전 반드시 확인해야 할 점검 항목",
         date: "2025 / 07 / 25",
         views: 25,
+        images: [
+            "/truckImg/truck1.png",
+            "/truckImg/truck2.png",
+            "/truckImg/truck3.png",
+            "/truckImg/truck4.png",
+            "/truckImg/truck5.png",
+        ],
     },
     {
         id: 3,
@@ -21,6 +35,13 @@ export const dummyData: BulletinProps[] = [
         content: "장거리 운행 시 꼭 확인하세요.",
         date: "2025 / 07 / 26",
         views: 14,
+        images: [
+            "/truckImg/truck1.png",
+            "/truckImg/truck2.png",
+            "/truckImg/truck3.png",
+            "/truckImg/truck4.png",
+            "/truckImg/truck5.png",
+        ],
     },
     {
         id: 4,
@@ -28,6 +49,13 @@ export const dummyData: BulletinProps[] = [
         content: "매서운 호우가 지나가고 연일 계속",
         date: "2025 / 07 / 24",
         views: 10,
+        images: [
+            "/truckImg/truck1.png",
+            "/truckImg/truck2.png",
+            "/truckImg/truck3.png",
+            "/truckImg/truck4.png",
+            "/truckImg/truck5.png",
+        ],
     },
     {
         id: 5,
@@ -35,6 +63,13 @@ export const dummyData: BulletinProps[] = [
         content: "고속도로 주행 전 반드시 확인해야 할 점검 항목",
         date: "2025 / 07 / 25",
         views: 25,
+        images: [
+            "/truckImg/truck1.png",
+            "/truckImg/truck2.png",
+            "/truckImg/truck3.png",
+            "/truckImg/truck4.png",
+            "/truckImg/truck5.png",
+        ],
     },
     {
         id: 6,
@@ -42,6 +77,13 @@ export const dummyData: BulletinProps[] = [
         content: "장거리 운행 시 꼭 확인하세요.",
         date: "2025 / 07 / 26",
         views: 14,
+        images: [
+            "/truckImg/truck1.png",
+            "/truckImg/truck2.png",
+            "/truckImg/truck3.png",
+            "/truckImg/truck4.png",
+            "/truckImg/truck5.png",
+        ],
     },
     {
         id: 7,
@@ -49,6 +91,13 @@ export const dummyData: BulletinProps[] = [
         content: "고속도로 주행 전 반드시 확인해야 할 점검 항목",
         date: "2025 / 07 / 25",
         views: 25,
+        images: [
+            "/truckImg/truck1.png",
+            "/truckImg/truck2.png",
+            "/truckImg/truck3.png",
+            "/truckImg/truck4.png",
+            "/truckImg/truck5.png",
+        ],
     },
     {
         id: 8,
@@ -56,13 +105,28 @@ export const dummyData: BulletinProps[] = [
         content: "장거리 운행 시 꼭 확인하세요.",
         date: "2025 / 07 / 26",
         views: 14,
+        images: [
+            "/truckImg/truck1.png",
+            "/truckImg/truck2.png",
+            "/truckImg/truck3.png",
+            "/truckImg/truck4.png",
+            "/truckImg/truck5.png",
+        ],
     },
+
     {
         id: 9,
         title: "타이어 관리 요령",
         content: "고속도로 주행 전 반드시 확인해야 할 점검 항목",
         date: "2025 / 07 / 25",
         views: 25,
+        images: [
+            "/truckImg/truck1.png",
+            "/truckImg/truck2.png",
+            "/truckImg/truck3.png",
+            "/truckImg/truck4.png",
+            "/truckImg/truck5.png",
+        ],
     },
     {
         id: 10,
@@ -70,6 +134,13 @@ export const dummyData: BulletinProps[] = [
         content: "장거리 운행 시 꼭 확인하세요.",
         date: "2025 / 07 / 26",
         views: 14,
+        images: [
+            "/truckImg/truck1.png",
+            "/truckImg/truck2.png",
+            "/truckImg/truck3.png",
+            "/truckImg/truck4.png",
+            "/truckImg/truck5.png",
+        ],
     },
     {
         id: 11,
@@ -77,6 +148,13 @@ export const dummyData: BulletinProps[] = [
         content: "고속도로 주행 전 반드시 확인해야 할 점검 항목",
         date: "2025 / 07 / 25",
         views: 25,
+        images: [
+            "/truckImg/truck1.png",
+            "/truckImg/truck2.png",
+            "/truckImg/truck3.png",
+            "/truckImg/truck4.png",
+            "/truckImg/truck5.png",
+        ],
     },
     {
         id: 12,
@@ -84,5 +162,12 @@ export const dummyData: BulletinProps[] = [
         content: "장거리 운행 시 꼭 확인하세요.",
         date: "2025 / 07 / 26",
         views: 14,
+        images: [
+            "/truckImg/truck1.png",
+            "/truckImg/truck2.png",
+            "/truckImg/truck3.png",
+            "/truckImg/truck4.png",
+            "/truckImg/truck5.png",
+        ],
     },
 ];

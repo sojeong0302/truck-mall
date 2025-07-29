@@ -4,6 +4,7 @@ export interface BulletinProps {
     content: string;
     date: string;
     views: number;
+    images?: string[];
 }
 
 export interface BulletinComponentProps {
