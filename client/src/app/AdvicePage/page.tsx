@@ -130,9 +130,9 @@ export default function AdvicePage() {
                         </div>
                         <div className="flex flex-col gap-1">
                             <div className="text-xl">기타사항</div>
-                            <input
+                            <textarea
                                 placeholder="기타사항을 입력해 주세요."
-                                className="shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-5"
+                                className="shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-5 min-h-[200px]"
                             />
                         </div>
                         <div className="flex flex-col gap-4">
