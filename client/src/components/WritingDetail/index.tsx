@@ -4,6 +4,8 @@ import { WritingDetailProps } from "./WritingDetail.types";
 import { dummyData } from "@/data/dummy";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation"; // navigation 쓰는 경우
 
 export default function WritingDetail({ id }: WritingDetailProps) {
     const post = dummyData.find((item) => item.id === Number(id));
@@ -13,9 +15,9 @@ export default function WritingDetail({ id }: WritingDetailProps) {
     }
 
     return (
-        <div className="w-[100%] flex">
-            <div className="w-[100%] flex flex-col">
-                <div className="">{post.title}</div>
+        <div className="w-[100%] ">
+            <div className="w-[100%] flex flex-col justify-center items-center">
+                <div>{post.title}</div>
                 {post.images && post.images.length > 0 && (
                     <Swiper
                         modules={[Navigation]}
@@ -38,6 +40,7 @@ export default function WritingDetail({ id }: WritingDetailProps) {
                 )}
                 <div className="">{post.content}</div>
             </div>
+            <div>버튼</div>
         </div>
     );
 }
