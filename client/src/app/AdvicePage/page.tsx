@@ -2,9 +2,21 @@
 
 import ShortButton from "@/components/ShortButton";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+const categories = ["트럭팔기", "트럭할부", "트럭구매", "기타"];
 
 export default function AdvicePage() {
     const router = useRouter();
+    const [selected, setSelected] = useState<string[]>([]);
+
+    const handleSelect = (category: string) => {
+        setSelected([...selected, category]);
+    };
+
+    const handleRemove = (category: string) => {
+        setSelected(selected.filter((item) => item !== category));
+    };
     return (
         <div className="w-[100%] flex flex-col items-center gap-10 p-10">
             {/* 개인정보 수집 */}
@@ -76,26 +88,6 @@ export default function AdvicePage() {
                                 ))}
                             </div>
                         </div>
-                        {/* <div className="w-[100%] flex gap-2 items-center">
-                            <div className="flex justify-center w-[50%] text-lg">담당자: </div>
-                            <div className="w-[30%] p-2 text-[#6B6B6B] rounded-md">
-                                <div className="flex justify-between text-base">
-                                    <div>김</div>
-                                    <div>달</div>
-                                    <div>영</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="w-[100%] flex gap-2 items-center">
-                            <div className="flex justify-center w-[50%] text-lg">날 짜: </div>
-                            <div className="w-[30%] p-2 text-[#6B6B6B] rounded-md">
-                                <div className="flex justify-between text-base">
-                                    {["2", "0", "2", "5", "/", "0", "7", "/", "2", "4"].map((char, idx) => (
-                                        <span key={idx}>{char}</span>
-                                    ))}
-                                </div>
-                            </div>
-                        </div> */}
                     </div>
                 </div>
                 <div className="w-[100%] flex flex-col bg-white p-15 gap-10 rounded-b-4xl shadow-lg">
@@ -142,9 +134,39 @@ export default function AdvicePage() {
                                 className="shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-5"
                             />
                         </div>
-                        <div className="flex flex-col gap-1">
-                            <div className="text-xl">카테고리</div>
-                            <input className="shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-5" />
+                        <div className="flex flex-col gap-4">
+                            <div className="text-xl font-semibold">카테고리</div>
+
+                            {/* 선택된 항목 */}
+                            <div className="shadow-md text-xl p-5 border border-2 border-[#2E7D32] rounded-xl  flex gap-2 flex-wrap">
+                                {selected.length === 0 && <span className="text-gray-400 ">카테고리를 선택하세요</span>}
+                                {selected.map((item) => (
+                                    <div
+                                        key={item}
+                                        className="bg-[rgba(46,125,50,0.75)] shadow-md text-white p-3 rounded-full flex items-center gap-2"
+                                    >
+                                        <button onClick={() => handleRemove(item)} className="text-xl cursor-pointer">
+                                            x
+                                        </button>
+                                        <span className="text-xl justify-center flex min-w-[50px] ">{item}</span>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* 선택 가능한 버튼들 */}
+                            <div className="flex gap-4 flex-wrap">
+                                {categories
+                                    .filter((cat) => !selected.includes(cat))
+                                    .map((cat) => (
+                                        <button
+                                            key={cat}
+                                            onClick={() => handleSelect(cat)}
+                                            className="shadow-md bg-[rgba(46,125,50,0.75)] text-white p-3 rounded-full flex items-center gap-2 cursor-pointer min-w-[100px] justify-center text-xl"
+                                        >
+                                            {cat}
+                                        </button>
+                                    ))}
+                            </div>
                         </div>
                     </div>
                     {/* 이후 수정 필요 */}
