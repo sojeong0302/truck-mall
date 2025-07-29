@@ -44,7 +44,8 @@ export default function AdvicePage() {
             return;
         }
 
-        console.log("상담신청 선공");
+        alert("상담신청이 완료되었습니다.\n담당자가 연락을 드리겠습니다.");
+        router.push("/");
     };
 
     return (
