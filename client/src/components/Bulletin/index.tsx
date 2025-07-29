@@ -1,8 +1,15 @@
 "use client";
 
 import { BulletinComponentProps } from "./Bulletin.types";
+import { useRouter } from "next/navigation";
 
 export default function Bulletin({ posts }: BulletinComponentProps) {
+    const router = useRouter();
+
+    const handleClick = (id: number) => {
+        router.push(`/CarTIPDetailPage/${id}`);
+    };
+
     return (
         <div className="w-[100%] h-[100%] flex items-center w-full flex-col p-20">
             <div className="w-[100%] h-[100%] flex flex-col justify-center items-center">
@@ -16,6 +23,7 @@ export default function Bulletin({ posts }: BulletinComponentProps) {
                 {posts.map((post) => (
                     <div
                         key={post.id}
+                        onClick={() => handleClick(post.id)}
                         className="cursor-pointer text-2xl w-full flex border-b-2 border-[#575757] justify-between py-2 hover:bg-gray-50 transition"
                     >
                         <div className="p-2 font-bold w-[30%] text-center truncate overflow-hidden whitespace-nowrap">
