@@ -44,72 +44,107 @@ export default function AdvicePage() {
 
             {/* 상담지 */}
             <div className="w-[70%] border-4 border-[#2E7D32] rounded-4xl">
-                <div className="flex justify-between p-10 flex bg-[rgba(46,125,50,0.25)] rounded-t-3xl">
-                    <div className="flex flex-col gap-2 justify-center">
-                        <div className="text-4xl">상담하기</div>
-                        <div className="flex">
-                            <div className="text-[#D7263D]">*</div>
+                <div className="w-[100%] flex justify-between p-10 flex bg-[rgba(46,125,50,0.25)] rounded-t-3xl">
+                    <div className="flex flex-col gap-3 justify-center">
+                        <div className="text-4xl font-bold">상담하기</div>
+                        <div className="flex gap-1">
+                            <div className="text-2xl text-[#D7263D]">*</div>
                             <div className="text-xl">표시된 항목은 필수 입력사항 입니다.</div>
                         </div>
                     </div>
-                    <div className="flex flex-col justify-center gap-3">
-                        <div className="flex gap-2 items-center">
-                            <div>담당자</div>
-                            <div className="bg-white p-2 text-[#6B6B6B] rounded-md">김 달 영</div>
+                    <div className="w-[20%] flex flex-col justify-center gap-3">
+                        <div className="w-full flex items-center gap-3">
+                            <div className="w-[30%] flex justify-between font-medium text-lg">
+                                <div>담</div>
+                                <div>당</div>
+                                <div>자</div>
+                            </div>
+                            <div className="w-[70%] flex justify-between bg-white p-1 rounded-md p-2 text-[#6B6B6B] text-sm">
+                                <div>김</div>
+                                <div>달</div>
+                                <div>영</div>
+                            </div>
                         </div>
-                        <div className="flex gap-2 items-center">
-                            <div>날짜</div>
-                            <div className="bg-white p-2 text-[#6B6B6B] rounded-md">2025 / 07 / 24</div>
+                        <div className="w-full flex items-center gap-3">
+                            <div className="w-[30%] flex justify-between font-medium text-lg">
+                                <div>날</div>
+                                <div>짜</div>
+                            </div>
+                            <div className="w-[70%] flex justify-between bg-white p-1 rounded-md p-2 text-[#6B6B6B] text-sm">
+                                {["2", "0", "2", "5", "/", "0", "7", "/", "2", "4"].map((char, idx) => (
+                                    <span key={idx}>{char}</span>
+                                ))}
+                            </div>
                         </div>
+                        {/* <div className="w-[100%] flex gap-2 items-center">
+                            <div className="flex justify-center w-[50%] text-lg">담당자: </div>
+                            <div className="w-[30%] p-2 text-[#6B6B6B] rounded-md">
+                                <div className="flex justify-between text-base">
+                                    <div>김</div>
+                                    <div>달</div>
+                                    <div>영</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="w-[100%] flex gap-2 items-center">
+                            <div className="flex justify-center w-[50%] text-lg">날 짜: </div>
+                            <div className="w-[30%] p-2 text-[#6B6B6B] rounded-md">
+                                <div className="flex justify-between text-base">
+                                    {["2", "0", "2", "5", "/", "0", "7", "/", "2", "4"].map((char, idx) => (
+                                        <span key={idx}>{char}</span>
+                                    ))}
+                                </div>
+                            </div>
+                        </div> */}
                     </div>
                 </div>
-                <div className="flex flex-col bg-white p-10 gap-10 rounded-b-4xl shadow-lg">
-                    <div className="flex flex-col gap-5">
-                        <div className="flex flex-col gap-1">
+                <div className="w-[100%] flex flex-col bg-white p-15 gap-10 rounded-b-4xl shadow-lg">
+                    <div className="w-[100%] flex flex-col gap-10">
+                        <div className="w-[100%] flex flex-col gap-1">
                             <div className="flex gap-1">
                                 <div className="text-xl">성함</div>
-                                <div className="text-[#D7263D]">*</div>
+                                <div className="text-2xl text-[#D7263D]">*</div>
                             </div>
                             <input
                                 placeholder="성함을 입력해 주세요."
-                                className="shadow-md text-xl border-2 border-[#2E7D32] rounded-md p-4"
+                                className="w-[50%] shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-5"
                             />
                         </div>
                         <div className="flex flex-col gap-1">
-                            <div className="flex gap-1">
-                                <div className="text-xl">전화번호</div>
-                                <div className="text-[#D7263D]">*</div>
+                            <div className="flex gap-1 ">
+                                <div className="text-xl ">전화번호</div>
+                                <div className="text-[#D7263D] text-2xl">*</div>
                             </div>
                             <input
                                 type="tel"
                                 placeholder="예: 01012345678"
-                                className="shadow-md text-xl border-2 border-[#2E7D32] rounded-md p-4"
+                                className="w-[50%] shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-5"
                             />
                         </div>
                         <div className="flex flex-col gap-1">
                             <div className="text-xl">차량명</div>
                             <input
                                 placeholder="차량명을 입력해 주세요."
-                                className="shadow-md text-xl border-2 border-[#2E7D32] rounded-md p-4"
+                                className="shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-5"
                             />
                         </div>
                         <div className="flex flex-col gap-1">
                             <div className="text-xl">톤수</div>
                             <input
                                 placeholder="톤수를 입력해 주세요."
-                                className="shadow-md text-xl border-2 border-[#2E7D32] rounded-md p-4"
+                                className="shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-5"
                             />
                         </div>
                         <div className="flex flex-col gap-1">
                             <div className="text-xl">기타사항</div>
                             <input
                                 placeholder="기타사항을 입력해 주세요."
-                                className="shadow-md text-xl border-2 border-[#2E7D32] rounded-md p-4"
+                                className="shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-5"
                             />
                         </div>
                         <div className="flex flex-col gap-1">
                             <div className="text-xl">카테고리</div>
-                            <input className="shadow-md text-xl border-2 border-[#2E7D32] rounded-md p-4" />
+                            <input className="shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-5" />
                         </div>
                     </div>
                     {/* 이후 수정 필요 */}
