@@ -13,6 +13,7 @@ export const dummyData: (BulletinProps & { images?: string[] })[] = [
             "/truckImg/truck3.png",
             "/truckImg/truck4.png",
             "/truckImg/truck5.png",
+            "/truckImg/truck6.png",
         ],
     },
     {
@@ -27,6 +28,7 @@ export const dummyData: (BulletinProps & { images?: string[] })[] = [
             "/truckImg/truck3.png",
             "/truckImg/truck4.png",
             "/truckImg/truck5.png",
+            "/truckImg/truck6.png",
         ],
     },
     {
@@ -41,6 +43,7 @@ export const dummyData: (BulletinProps & { images?: string[] })[] = [
             "/truckImg/truck3.png",
             "/truckImg/truck4.png",
             "/truckImg/truck5.png",
+            "/truckImg/truck6.png",
         ],
     },
     {
@@ -55,6 +58,7 @@ export const dummyData: (BulletinProps & { images?: string[] })[] = [
             "/truckImg/truck3.png",
             "/truckImg/truck4.png",
             "/truckImg/truck5.png",
+            "/truckImg/truck6.png",
         ],
     },
     {
@@ -69,6 +73,7 @@ export const dummyData: (BulletinProps & { images?: string[] })[] = [
             "/truckImg/truck3.png",
             "/truckImg/truck4.png",
             "/truckImg/truck5.png",
+            "/truckImg/truck6.png",
         ],
     },
     {
@@ -83,6 +88,7 @@ export const dummyData: (BulletinProps & { images?: string[] })[] = [
             "/truckImg/truck3.png",
             "/truckImg/truck4.png",
             "/truckImg/truck5.png",
+            "/truckImg/truck6.png",
         ],
     },
     {
@@ -97,6 +103,7 @@ export const dummyData: (BulletinProps & { images?: string[] })[] = [
             "/truckImg/truck3.png",
             "/truckImg/truck4.png",
             "/truckImg/truck5.png",
+            "/truckImg/truck6.png",
         ],
     },
     {
@@ -111,6 +118,7 @@ export const dummyData: (BulletinProps & { images?: string[] })[] = [
             "/truckImg/truck3.png",
             "/truckImg/truck4.png",
             "/truckImg/truck5.png",
+            "/truckImg/truck6.png",
         ],
     },
 
@@ -126,6 +134,7 @@ export const dummyData: (BulletinProps & { images?: string[] })[] = [
             "/truckImg/truck3.png",
             "/truckImg/truck4.png",
             "/truckImg/truck5.png",
+            "/truckImg/truck6.png",
         ],
     },
     {
@@ -140,6 +149,7 @@ export const dummyData: (BulletinProps & { images?: string[] })[] = [
             "/truckImg/truck3.png",
             "/truckImg/truck4.png",
             "/truckImg/truck5.png",
+            "/truckImg/truck6.png",
         ],
     },
     {
@@ -154,6 +164,7 @@ export const dummyData: (BulletinProps & { images?: string[] })[] = [
             "/truckImg/truck3.png",
             "/truckImg/truck4.png",
             "/truckImg/truck5.png",
+            "/truckImg/truck6.png",
         ],
     },
     {
@@ -168,6 +179,7 @@ export const dummyData: (BulletinProps & { images?: string[] })[] = [
             "/truckImg/truck3.png",
             "/truckImg/truck4.png",
             "/truckImg/truck5.png",
+            "/truckImg/truck6.png",
         ],
     },
 ];
