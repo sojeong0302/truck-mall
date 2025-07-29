@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import ShortButton from "@/components/ShortButton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -18,6 +19,34 @@ export default function AdvicePage() {
     const handleRemove = (category: string) => {
         setSelected(selected.filter((item) => item !== category));
     };
+
+    const checkboxRef = useRef<HTMLInputElement>(null);
+    const nameInputRef = useRef<HTMLInputElement>(null);
+    const numberInputRef = useRef<HTMLInputElement>(null);
+
+    const handleSubmit = () => {
+        const isAgreed = checkboxRef.current?.checked;
+        const nameValue = nameInputRef.current?.value.trim();
+        const numberValue = numberInputRef.current?.value.trim();
+
+        if (!isAgreed) {
+            alert("개인정보 수집 및 이용에 동의해 주세요.");
+            return;
+        }
+
+        if (!nameValue) {
+            alert("성함을 입력해 주세요.");
+            return;
+        }
+
+        if (!numberValue) {
+            alert("전화번호를 입력해 주세요.");
+            return;
+        }
+
+        console.log("상담신청 선공");
+    };
+
     return (
         <div className="w-[100%] flex flex-col items-center gap-10 p-10">
             {/* 개인정보 수집 */}
@@ -48,8 +77,8 @@ export default function AdvicePage() {
                     <input
                         type="checkbox"
                         id="privacyAgree"
-                        required
-                        className="w-5 h-5 accent-[#2E7D32] transition transform duration-200 hover:scale-110 active:scale-95" // 체크 색상 커스터마이징
+                        ref={checkboxRef}
+                        className="w-5 h-5 accent-[#2E7D32] transition transform duration-200 hover:scale-110 active:scale-95"
                     />
                     <div> 개인정보 수집 및 이용에 동의합니다.</div>
                 </div>
@@ -95,41 +124,49 @@ export default function AdvicePage() {
                     <div className="w-[100%] flex flex-col gap-10">
                         <div className="w-[100%] flex flex-col gap-1">
                             <div className="flex gap-1">
-                                <div className="text-xl">성함</div>
+                                <div className="text-xl font-semibold">성함</div>
                                 <div className="text-2xl text-[#D7263D]">*</div>
                             </div>
                             <input
+                                ref={nameInputRef}
                                 placeholder="성함을 입력해 주세요."
                                 className="w-[50%] shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-5"
                             />
                         </div>
                         <div className="flex flex-col gap-1">
-                            <div className="flex gap-1 ">
-                                <div className="text-xl ">전화번호</div>
+                            <div className="flex gap-1">
+                                <div className="text-xl font-semibold">전화번호</div>
                                 <div className="text-[#D7263D] text-2xl">*</div>
                             </div>
                             <input
                                 type="tel"
-                                placeholder="예: 01012345678"
+                                pattern="[0-9]*"
+                                inputMode="numeric"
+                                ref={numberInputRef}
+                                placeholder="전화번호를 입력해 주세요. (숫자만 입력)"
+                                onInput={(e) => {
+                                    const input = e.target as HTMLInputElement;
+                                    input.value = input.value.replace(/[^0-9]/g, "");
+                                }}
                                 className="w-[50%] shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-5"
                             />
                         </div>
                         <div className="flex flex-col gap-1">
-                            <div className="text-xl">차량명</div>
+                            <div className="text-xl font-semibold">차량명</div>
                             <input
                                 placeholder="차량명을 입력해 주세요."
                                 className="shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-5"
                             />
                         </div>
                         <div className="flex flex-col gap-1">
-                            <div className="text-xl">톤수</div>
+                            <div className="text-xl font-semibold">톤수</div>
                             <input
                                 placeholder="톤수를 입력해 주세요."
                                 className="shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-5"
                             />
                         </div>
                         <div className="flex flex-col gap-1">
-                            <div className="text-xl">기타사항</div>
+                            <div className="text-xl font-semibold">기타사항</div>
                             <textarea
                                 placeholder="기타사항을 입력해 주세요."
                                 className="shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-5 min-h-[200px]"
@@ -177,7 +214,7 @@ export default function AdvicePage() {
 
                     {/* 이후 수정 필요 */}
                     <div className="flex justify-end">
-                        <ShortButton onClick={() => router.back()} className="bg-[#2E7D32] text-white">
+                        <ShortButton onClick={handleSubmit} className="bg-[#2E7D32] text-white">
                             상담하기
                         </ShortButton>
                     </div>
