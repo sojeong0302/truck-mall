@@ -9,4 +9,5 @@ export interface BulletinProps {
 
 export interface BulletinComponentProps {
     posts: BulletinProps[];
+    basePath: string;
 }

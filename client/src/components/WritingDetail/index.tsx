@@ -11,8 +11,7 @@ import { useLightboxStore } from "@/store/lightboxStore";
 import ShortButton from "@/components/ShortButton";
 import { useRouter } from "next/navigation";
 
-export default function WritingDetail({ id }: WritingDetailProps) {
-    const post = dummyData.find((item) => item.id === Number(id));
+export default function WritingDetail({ post }: { post: any }) {
     const { open, selectedIndex, setOpen, setSelectedIndex } = useLightboxStore();
     if (!post) {
         return <div className="p-10 text-red-600">해당 글을 찾을 수 없습니다.</div>;
@@ -35,7 +34,7 @@ export default function WritingDetail({ id }: WritingDetailProps) {
                                 slidesPerView={4}
                                 loop
                             >
-                                {post.images.map((src, index) => (
+                                {post.images.map((src: string, index: number) => (
                                     <SwiperSlide key={index}>
                                         <img
                                             onClick={() => {
@@ -44,7 +43,7 @@ export default function WritingDetail({ id }: WritingDetailProps) {
                                             }}
                                             src={src}
                                             alt={`truck-${index}`}
-                                            className="border border-black w-full h-[200px] object-cover shadow cursor-pointer"
+                                            className="w-full h-[200px] object-cover rounded shadow cursor-pointer"
                                         />
                                     </SwiperSlide>
                                 ))}
@@ -61,7 +60,7 @@ export default function WritingDetail({ id }: WritingDetailProps) {
                                 open={open}
                                 close={() => setOpen(false)}
                                 index={selectedIndex}
-                                slides={post.images.map((src) => ({ src }))}
+                                slides={post.images.map((src: string) => ({ src }))}
                             />
                         </div>
                     </>
