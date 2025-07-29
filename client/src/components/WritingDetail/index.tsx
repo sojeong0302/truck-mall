@@ -43,17 +43,17 @@ export default function WritingDetail({ post }: { post: any }) {
                                             }}
                                             src={src}
                                             alt={`truck-${index}`}
-                                            className="w-full h-[200px] object-cover rounded shadow cursor-pointer"
+                                            className="w-full h-[200px] object-cover shadow cursor-pointer border border-black"
                                         />
                                     </SwiperSlide>
                                 ))}
                             </Swiper>
 
                             {/* 사진 영역 바깥에 화살표 수동 배치 */}
-                            <div className="custom-prev absolute -left-0 top-1/2 -translate-y-1/2 text-[#2E7D32] text-4xl z-10 cursor-pointer">
+                            <div className="custom-prev absolute -left-0 top-1/2 -translate-y-1/2 text-[#2E7D32] text-4xl z-10 cursor-pointer transition transform duration-200 hover:scale-110 active:scale-95">
                                 ❮
                             </div>
-                            <div className="custom-next absolute -right-0 top-1/2 -translate-y-1/2 text-[#2E7D32] text-4xl z-10 cursor-pointer">
+                            <div className="custom-next absolute -right-0 top-1/2 -translate-y-1/2 text-[#2E7D32] text-4xl z-10 cursor-pointer transition transform duration-200 hover:scale-110 active:scale-95">
                                 ❯
                             </div>
                             <Lightbox
