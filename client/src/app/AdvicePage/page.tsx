@@ -3,6 +3,7 @@
 import ShortButton from "@/components/ShortButton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { motion } from "framer-motion";
 
 const categories = ["트럭팔기", "트럭할부", "트럭구매", "기타"];
 
@@ -139,17 +140,21 @@ export default function AdvicePage() {
 
                             {/* 선택된 항목 */}
                             <div className="shadow-md text-xl p-5 border border-2 border-[#2E7D32] rounded-xl  flex gap-2 flex-wrap">
-                                {selected.length === 0 && <span className="text-gray-400 ">카테고리를 선택하세요</span>}
+                                {selected.length === 0 && (
+                                    <span className="text-gray-400 ">카테고리를 선택해 주세요.</span>
+                                )}
                                 {selected.map((item) => (
-                                    <div
+                                    <motion.div
                                         key={item}
-                                        className="bg-[rgba(46,125,50,0.75)] shadow-md text-white p-3 rounded-full flex items-center gap-2"
+                                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        transition={{ duration: 0.3 }}
+                                        onClick={() => handleRemove(item)}
+                                        className="cursor-pointer bg-[rgba(46,125,50,0.75)] text-white p-3 rounded-full flex items-center gap-2 min-w-[100px] shadow-md"
                                     >
-                                        <button onClick={() => handleRemove(item)} className="text-xl cursor-pointer">
-                                            x
-                                        </button>
+                                        <button className="text-xl ">x</button>
                                         <span className="text-xl justify-center flex min-w-[50px] ">{item}</span>
-                                    </div>
+                                    </motion.div>
                                 ))}
                             </div>
 
@@ -161,7 +166,7 @@ export default function AdvicePage() {
                                         <button
                                             key={cat}
                                             onClick={() => handleSelect(cat)}
-                                            className="shadow-md bg-[rgba(46,125,50,0.75)] text-white p-3 rounded-full flex items-center gap-2 cursor-pointer min-w-[100px] justify-center text-xl"
+                                            className="shadow-md bg-[rgba(46,125,50,0.75)] text-white p-3 rounded-full flex items-center gap-2 cursor-pointer min-w-[100px] justify-center text-xl transition-all duration-300 hover:scale-105"
                                         >
                                             {cat}
                                         </button>
@@ -169,6 +174,7 @@ export default function AdvicePage() {
                             </div>
                         </div>
                     </div>
+
                     {/* 이후 수정 필요 */}
                     <div className="flex justify-end">
                         <ShortButton onClick={() => router.back()} className="bg-[#2E7D32] text-white">
