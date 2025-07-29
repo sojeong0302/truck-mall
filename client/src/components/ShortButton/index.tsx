@@ -1,9 +1,5 @@
 "use client";
-interface ShortButtonProps {
-    className?: string;
-    children: React.ReactNode;
-    onClick?: () => void;
-}
+import { ShortButtonProps } from "./ShortButton.types";
 
 export default function ShortButton({ className, children, onClick }: ShortButtonProps) {
     return (
