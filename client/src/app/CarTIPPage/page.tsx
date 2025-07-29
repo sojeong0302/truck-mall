@@ -2,7 +2,6 @@
 
 import Pagination from "@/components/Pagination";
 import Bulletin from "@/components/Bulletin";
-import { BulletinProps } from "@/components/Bulletin/Bulletin.types";
 import { usePaginationStore } from "@/store/paginationStore";
 import { dummyData } from "@/data/dummy";
 
@@ -20,7 +19,7 @@ export default function CarTIPPage() {
 
     return (
         <>
-            <Bulletin posts={pagedData} />
+            <Bulletin posts={pagedData} basePath="CarTIPDetailPage" />
             <Pagination totalPages={totalPages} />
         </>
     );

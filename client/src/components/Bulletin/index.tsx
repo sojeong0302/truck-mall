@@ -3,11 +3,11 @@
 import { BulletinComponentProps } from "./Bulletin.types";
 import { useRouter } from "next/navigation";
 
-export default function Bulletin({ posts }: BulletinComponentProps) {
+export default function Bulletin({ posts, basePath }: BulletinComponentProps) {
     const router = useRouter();
 
     const handleClick = (id: number) => {
-        router.push(`/CarTIPDetailPage/${id}`);
+        router.push(`/${basePath}/${id}`);
     };
 
     return (
