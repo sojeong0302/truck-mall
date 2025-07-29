@@ -12,7 +12,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <html lang="ko">
             <body className="bg-[#F5F5F5]">
                 <Header />
-                <div className="w-[80%] mx-auto">{children}</div>
+                <div className="w-[100%] mx-auto">{children}</div>
                 <Footer />
             </body>
         </html>

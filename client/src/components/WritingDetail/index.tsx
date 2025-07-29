@@ -18,8 +18,8 @@ export default function WritingDetail({ post }: { post: any }) {
     }
     const router = useRouter();
     return (
-        <div className="w-[100%] p-10 flex flex-col gap-5">
-            <div className="w-[100%] flex flex-col justify-center items-center gap-10">
+        <div className="w-[100%] p-10 flex flex-col gap-5 items-center">
+            <div className="w-[80%] flex flex-col justify-center items-center gap-10">
                 <div className="font-medium w-[100%] text-3xl border-b-2 border-[#575757] p-4">{post.title}</div>
                 {post.images && post.images.length > 0 && (
                     <>
@@ -67,7 +67,7 @@ export default function WritingDetail({ post }: { post: any }) {
                 )}
                 <div className="text-2xl w-full bg-white border-4 border-[#2E7D32] p-4 rounded-md">{post.content}</div>
             </div>
-            <div className="flex justify-end">
+            <div className="flex justify-end w-[80%]">
                 <ShortButton onClick={() => router.back()} className="bg-[#2E7D32] text-white">
                     뒤로가기
                 </ShortButton>

@@ -12,7 +12,7 @@ export default function Bulletin({ posts, basePath }: BulletinComponentProps) {
 
     return (
         <div className="w-[100%] h-[100%] flex items-center w-full flex-col p-20">
-            <div className="w-[100%] h-[100%] flex flex-col justify-center items-center">
+            <div className="w-[80%] h-[100%] flex flex-col justify-center items-center">
                 <div className="text-3xl w-full flex border-b-2 border-[#575757] justify-around py-2 font-bold">
                     <div className="w-[30%] text-center">제목</div>
                     <div className="w-[30%] text-center">내용</div>
