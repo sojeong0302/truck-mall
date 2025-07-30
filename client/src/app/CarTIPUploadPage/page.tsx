@@ -3,7 +3,7 @@ import WritingUpload from "@/components/WritingUpload";
 
 export default function CarTIPUploadPage() {
     return (
-        <div>
+        <div className="w-full">
             <WritingUpload />
         </div>
     );
