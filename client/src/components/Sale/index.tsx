@@ -1,8 +1,6 @@
 "use client";
 
-import { SaleProps } from "./Sale.types";
 import { SaleComponentProps } from "./Sale.types";
-import ShortButton from "@/components/ShortButton";
 import Pagination from "../Pagination";
 import { usePaginationStore } from "@/store/paginationStore";
 import { dummyData3 } from "@/data/dummy";
@@ -12,7 +10,6 @@ const ITEMS_PER_PAGE = 5;
 export default function Sale({ posts, basePath }: SaleComponentProps) {
     const { currentPage } = usePaginationStore();
 
-    // 현재 페이지에 맞게 데이터 자르기
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
     const pagedData = dummyData3.slice(startIndex, endIndex);
