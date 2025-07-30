@@ -24,3 +24,18 @@ body {
     color: var(--foreground);
     font-family: Arial, Helvetica, sans-serif;
 }
+
+.swiper-pagination-bullet {
+    background-color: #d1d5db; /* gray-300 */
+    opacity: 1;
+}
+
+.swiper-pagination-bullet-active {
+    background-color: #2e7d32 !important;
+}
+
+/* Swiper 기본 화살표 스타일 커스터마이징 */
+.swiper-button-prev,
+.swiper-button-next {
+    color: #2e7d32 !important; /* 화살표 색상 */
+}
