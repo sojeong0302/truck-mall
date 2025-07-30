@@ -8,7 +8,9 @@ import "swiper/css/effect-fade";
 import Sns from "@/components/Sns";
 import { dummyData } from "@/data/dummy";
 import { useEffect, useState } from "react";
-import "swiper/css/navigation"; // 👈 이거 꼭 추가!
+import "swiper/css/navigation";
+import Sale from "@/components/Sale";
+import { dummyData3 } from "@/data/dummy";
 
 const images = ["/images/mainPoto/poto1.jpg", "/images/mainPoto/poto2.jpg", "/images/mainPoto/poto3.jpg"];
 
@@ -86,7 +88,9 @@ export default function MainPage() {
                 </div>
             </div>
 
-            <div className="">매물</div>
+            <div className="w-full">
+                <Sale posts={dummyData3} basePath="" />
+            </div>
         </div>
     );
 }
