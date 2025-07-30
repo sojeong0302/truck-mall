@@ -7,9 +7,7 @@ export default function EtcPoto() {
     const [previews, setPreviews] = useState<string[]>([]);
 
     const handleClick = () => {
-        if (fileInputRef.current) {
-            fileInputRef.current.click(); // ✅ 여기서 반드시 동작
-        }
+        fileInputRef.current?.click();
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -23,9 +21,13 @@ export default function EtcPoto() {
         reader.readAsDataURL(file);
     };
 
+    const handleDelete = (idx: number) => {
+        setPreviews((prev) => prev.filter((_, i) => i !== idx));
+    };
+
     return (
         <div className="w-full">
-            {/* ✅ input은 항상 렌더링 */}
+            {/* input 항상 렌더링 */}
             <input type="file" ref={fileInputRef} onChange={handleChange} className="hidden" accept="image/*" />
 
             {previews.length === 0 ? (
@@ -40,7 +42,12 @@ export default function EtcPoto() {
             ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-5 gap-y-10 w-fit mx-auto">
                     {previews.map((src, idx) => (
-                        <div key={idx} className="w-[200px] h-[200px]">
+                        <div
+                            key={idx}
+                            className="w-[200px] h-[200px] cursor-pointer"
+                            onClick={() => handleDelete(idx)}
+                            title="클릭하면 삭제됩니다"
+                        >
                             <img
                                 src={src}
                                 alt={`미리보기 ${idx + 1}`}
