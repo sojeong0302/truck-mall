@@ -1,34 +1,43 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
+import { useImageStore } from "@/store/imageStore"; // 경로 맞게 수정해줘!
 
 export default function EtcPoto() {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const [previews, setPreviews] = useState<string[]>([]);
+    const { previews, addPreview, removePreview } = useImageStore();
 
     const handleClick = () => {
         fileInputRef.current?.click();
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
 
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setPreviews((prev) => [...prev, reader.result as string]);
-        };
-        reader.readAsDataURL(file);
+        Array.from(files).forEach((file) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                addPreview(reader.result as string); // Zustand에 저장
+            };
+            reader.readAsDataURL(file);
+        });
     };
 
     const handleDelete = (idx: number) => {
-        setPreviews((prev) => prev.filter((_, i) => i !== idx));
+        removePreview(idx); // ✅ Zustand로 삭제
     };
 
     return (
-        <div className="w-full">
-            {/* input 항상 렌더링 */}
-            <input type="file" ref={fileInputRef} onChange={handleChange} className="hidden" accept="image/*" />
+        <div className="w-full p-20">
+            <input
+                type="file"
+                multiple
+                ref={fileInputRef}
+                onChange={handleChange}
+                className="hidden"
+                accept="image/*"
+            />
 
             {previews.length === 0 ? (
                 <div className="flex justify-center">
