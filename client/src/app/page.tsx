@@ -10,7 +10,7 @@ const images = ["/images/mainPoto/poto1.jpg", "/images/mainPoto/poto2.jpg", "/im
 
 export default function MainPage() {
     return (
-        <div>
+        <div className="w-[100%]">
             {/* 메인 사진 */}
             <div className="relative w-full h-[600px]">
                 <Swiper
@@ -32,11 +32,11 @@ export default function MainPage() {
                 </Swiper>
             </div>
 
-            <div className="flex">
+            <div className="flex w-[80%] justify-center">
                 <Sns />
                 <div>중간 오른쪽</div>
             </div>
-            <div className="text-center text-2xl">매물</div>
+            <div className="">매물</div>
         </div>
     );
 }
