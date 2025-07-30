@@ -15,7 +15,16 @@ export default function Header() {
                     홈
                 </div>
                 |
-                <div className="cursor-pointer" onClick={toggleAuth}>
+                <div
+                    className="cursor-pointer"
+                    onClick={() => {
+                        if (!isLoggedIn) {
+                            router.push("/LoginPage");
+                        } else {
+                            toggleAuth();
+                        }
+                    }}
+                >
                     {isLoggedIn ? "로그아웃" : "로그인"}
                 </div>
             </div>
