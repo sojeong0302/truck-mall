@@ -1,11 +1,22 @@
 "use client";
 
-import { useRef } from "react";
-import { useImageStore } from "@/store/imageStore"; // 경로 맞게 수정해줘!
+import { useEffect, useRef } from "react";
+import { useImageStore } from "@/store/imageStore";
 
-export default function EtcPoto() {
+interface EtcPotoProps {
+    initialImages?: string[];
+}
+
+export default function EtcPoto({ initialImages = [] }: EtcPotoProps) {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const { previews, addPreview, removePreview } = useImageStore();
+    const { previews, addPreview, removePreview, setPreviews } = useImageStore();
+
+    // 초기 이미지 설정 (post.images[])
+    useEffect(() => {
+        if (initialImages.length > 0) {
+            setPreviews(initialImages);
+        }
+    }, [initialImages, setPreviews]);
 
     const handleClick = () => {
         fileInputRef.current?.click();
@@ -18,14 +29,14 @@ export default function EtcPoto() {
         Array.from(files).forEach((file) => {
             const reader = new FileReader();
             reader.onloadend = () => {
-                addPreview(reader.result as string); // Zustand에 저장
+                addPreview(reader.result as string);
             };
             reader.readAsDataURL(file);
         });
     };
 
     const handleDelete = (idx: number) => {
-        removePreview(idx); // ✅ Zustand로 삭제
+        removePreview(idx);
     };
 
     return (
