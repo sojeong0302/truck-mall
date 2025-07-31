@@ -1,6 +1,7 @@
 "use client";
 import EtcPoto from "../EtcPoto";
 import ShortButton from "../ShortButton";
+import TextArea from "../TextArea";
 
 export default function WritingUpload() {
     const handleSubmit = () => {
@@ -14,7 +15,7 @@ export default function WritingUpload() {
                 className="font-medium w-full text-3xl border-b-2 border-[#575757] p-4 focus:outline-none"
             />
             <EtcPoto />
-            <textarea className="h-[400px] text-2xl w-full bg-white border-4 border-[#2E7D32] p-4 rounded-md" />
+            <TextArea />
             <div className="flex gap-3 justify-end">
                 <ShortButton onClick={handleSubmit} className="bg-[#2E7D32] text-white">
                     등록하기
