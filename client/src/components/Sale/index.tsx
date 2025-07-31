@@ -4,6 +4,7 @@ import { SaleComponentProps } from "./Sale.types";
 import Pagination from "../Pagination";
 import { usePaginationStore } from "@/store/paginationStore";
 import { dummyData3 } from "@/data/dummy";
+import { useRouter } from "next/navigation";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -16,6 +17,8 @@ export default function Sale({ posts, basePath }: SaleComponentProps) {
 
     const totalPages = Math.ceil(dummyData3.length / ITEMS_PER_PAGE);
 
+    const router = useRouter();
+
     return (
         <div className="w-[100%] flex flex-col items-center justify-center">
             <div className="w-[70%] p-3 flex items-center gap-3  border-b-2 border-[#575757]">
@@ -24,7 +27,11 @@ export default function Sale({ posts, basePath }: SaleComponentProps) {
             </div>
             <div className="w-[70%] flex flex-col gap-5 p-10 ">
                 {pagedData.map((post, idx) => (
-                    <div key={idx} className="flex w-full p-3 justify-between items-center cursor-pointer">
+                    <div
+                        onClick={() => router.push(`/SaleDetailPage/${post.id}`)}
+                        key={idx}
+                        className="flex w-full p-3 justify-between items-center cursor-pointer"
+                    >
                         {post.thumbnail && (
                             <img
                                 src={post.thumbnail}
