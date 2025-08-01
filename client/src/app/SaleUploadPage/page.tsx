@@ -6,6 +6,7 @@ import TextArea from "@/components/TextArea";
 import ShortButton from "@/components/ShortButton";
 import Filter from "@/components/Filter";
 import { useFilterStore } from "@/components/Filter/Filter.types";
+import SimpleFilter from "@/components/SimpleFilter";
 
 export default function WritingUpload() {
     const { manufacturer, model, subModel, grade } = useFilterStore();
@@ -37,6 +38,7 @@ export default function WritingUpload() {
 
     return (
         <div className="w-[80%] h-[100%] mx-auto flex flex-col justify-center p-20 gap-7">
+            <SimpleFilter />
             <Filter />
             {selectedTags.length > 0 && (
                 <div className="flex flex-wrap gap-3 text-lg font-semibold text-[#2E7D32] px-1">
