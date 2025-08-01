@@ -4,14 +4,14 @@ import { useState } from "react";
 import EtcPoto from "../EtcPoto";
 import ShortButton from "../ShortButton";
 import TextArea from "../TextArea";
+import { WritingCrystalPropsStore } from "./WritingCrystal.types";
 
 export default function WritingCrystal({ post }: { post: any }) {
-    const [title, setTitle] = useState(post.title);
-    const [content, setContent] = useState(post.content);
-
     const handleSubmit = () => {
         alert("수정 되었습니다.");
     };
+    const store = WritingCrystalPropsStore();
+    const { title, setTitle, content, setContent } = store;
 
     return (
         <div className="w-[80%] h-[100%] mx-auto flex flex-col justify-center p-20 gap-7">
