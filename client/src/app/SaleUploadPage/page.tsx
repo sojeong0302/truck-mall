@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import EtcPoto from "@/components/EtcPoto";
 import TextArea from "@/components/TextArea";
 import ShortButton from "@/components/ShortButton";
+import Filter from "@/components/Filter";
 
 export default function WritingUpload() {
     const handleSubmit = () => {
@@ -32,6 +33,7 @@ export default function WritingUpload() {
 
     return (
         <div className="w-[80%] h-[100%] mx-auto flex flex-col justify-center p-20 gap-7">
+            <Filter />
             <div className="w-full flex justify-center gap-15">
                 <div
                     className="flex justify-center items-center cursor-pointer shadow-lg rounded-xl w-[50%] aspect-square min-w-[150px] bg-[rgba(179,179,179,0.25)] overflow-hidden"
