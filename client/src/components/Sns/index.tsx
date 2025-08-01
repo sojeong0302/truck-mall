@@ -2,7 +2,7 @@
 import { SnsProps } from "./Sns.types";
 import { ChatBubbleLeftEllipsisIcon } from "@heroicons/react/24/solid";
 
-export default function ShortButton() {
+export default function Sns() {
     return (
         <div className="shadow-lg bg-[rgba(46,125,50,0.75)] flex flex-col gap-5 p-6 w-auto items-start rounded-4xl">
             {/* 네이버 블로그 아이콘 */}

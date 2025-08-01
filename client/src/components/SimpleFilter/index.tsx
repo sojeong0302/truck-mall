@@ -13,7 +13,7 @@ export default function SimpleFilter() {
     };
 
     return (
-        <div className="p-10 w-full">
+        <div className="p-15 w-full ">
             <div className="grid grid-cols-8 gap-6">
                 {data.map((truck) => {
                     const grades = truck.grades[0].split(", ");
