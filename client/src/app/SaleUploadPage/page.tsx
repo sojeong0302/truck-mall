@@ -5,8 +5,12 @@ import EtcPoto from "@/components/EtcPoto";
 import TextArea from "@/components/TextArea";
 import ShortButton from "@/components/ShortButton";
 import Filter from "@/components/Filter";
+import { useFilterStore } from "@/components/Filter/Filter.types";
 
 export default function WritingUpload() {
+    const { manufacturer, model, subModel, grade } = useFilterStore();
+
+    const selectedTags = [manufacturer, model, subModel, grade].filter(Boolean);
     const handleSubmit = () => {
         alert("등록 되었습니다.");
     };
@@ -34,6 +38,15 @@ export default function WritingUpload() {
     return (
         <div className="w-[80%] h-[100%] mx-auto flex flex-col justify-center p-20 gap-7">
             <Filter />
+            {selectedTags.length > 0 && (
+                <div className="flex flex-wrap gap-3 text-lg font-semibold text-[#2E7D32] px-1">
+                    {selectedTags.map((tag, idx) => (
+                        <span key={idx} className="bg-[#2E7D32]/10 px-3 py-1 rounded-full">
+                            #{tag}
+                        </span>
+                    ))}
+                </div>
+            )}
             <div className="w-full flex justify-center gap-15">
                 <div
                     className="flex justify-center items-center cursor-pointer shadow-lg rounded-xl w-[50%] aspect-square min-w-[150px] bg-[rgba(179,179,179,0.25)] overflow-hidden"
