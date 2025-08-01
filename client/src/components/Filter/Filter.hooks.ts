@@ -307,7 +307,7 @@ export const data = [
         manufacturer: "중대형버스",
         models: [
             {
-                name: "소형현대버스카운티 일렉트릭",
+                name: "소형현대버스",
                 subModels: [
                     {
                         name: "카운티 일렉트릭",
