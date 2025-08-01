@@ -27,7 +27,7 @@ export default function SimpleFilter() {
                                     <button
                                         key={grade}
                                         onClick={() => handleSelect(truck.type, grade)}
-                                        className={`cursor-pointer px-3 py-1 rounded-full text-sm font-medium border 
+                                        className={`transition transform duration-200 active:scale-95 cursor-pointer px-3 py-1 rounded-full text-sm font-medium border 
                                             ${
                                                 selected === grade
                                                     ? "bg-[#2E7D32] text-white border-[#2E7D32]"
