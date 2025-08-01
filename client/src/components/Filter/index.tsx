@@ -39,7 +39,7 @@ function SelectBox({
               w-full rounded-lg border-2 px-4 py-3 transition-all duration-200
               peer-checked:bg-[#2E7D32]/10 peer-checked:border-[#2E7D32]
               hover:border-[#2E7D32]/70 hover:bg-[#2E7D32]/5
-              text-[1.5rem] leading-snug
+              text-[1.5rem] leading-snug transition transform duration-200 active:scale-95
             `}
                         >
                             {option}
