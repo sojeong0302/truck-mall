@@ -3,7 +3,7 @@ export interface BulletinProps {
     title: string;
     content: string;
     date: string;
-    views: number;
+    view: number;
     images?: string[];
 }
 
