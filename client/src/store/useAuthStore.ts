@@ -1,13 +1,16 @@
 import { create } from "zustand";
 
-interface AuthStore {
+interface AuthState {
     isLoggedIn: boolean;
     login: () => void;
     logout: () => void;
 }
 
-export const useAuthStore = create<AuthStore>((set) => ({
+export const useAuthStore = create<AuthState>((set) => ({
     isLoggedIn: false,
     login: () => set({ isLoggedIn: true }),
-    logout: () => set({ isLoggedIn: false }),
+    logout: () => {
+        localStorage.removeItem("token");
+        set({ isLoggedIn: false });
+    },
 }));
