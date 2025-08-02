@@ -6,7 +6,7 @@ import { useModalStore } from "@/store/ModalStateStroe";
 export default function Modal({ text, url }: { text: string; url?: string }) {
     const router = useRouter();
     const store = useModalStore();
-    const { isModalOpen, setIsModalOpen } = store;
+    const { setIsModalOpen } = store;
     const handleYes = () => {
         setIsModalOpen(false);
         if (url) router.push(url);

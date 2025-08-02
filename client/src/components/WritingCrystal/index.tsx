@@ -7,7 +7,7 @@ import { WritingCrystalPropsStore } from "./WritingCrystal.types";
 import Modal from "../Modal";
 import { useModalStore } from "@/store/ModalStateStroe";
 
-export default function WritingCrystal({ post }: { post: any }) {
+export default function WritingCrystal({ post, url }: { post: any; url?: string }) {
     const store = useModalStore();
     const { isModalOpen, setIsModalOpen } = store;
     const { title, setTitle, content, setContent } = WritingCrystalPropsStore();
@@ -37,9 +37,7 @@ export default function WritingCrystal({ post }: { post: any }) {
                     취소
                 </ShortButton>
             </div>
-            {isModalOpen && (
-                <Modal url="/your-target-url" text={"수정 중인 내용이 모두 삭제됩니다.\n그래도 취소하시겠습니까?"} />
-            )}
+            {isModalOpen && <Modal url={url} text={"수정 중인 내용이 모두 삭제됩니다.\n그래도 취소하시겠습니까?"} />}
         </div>
     );
 }
