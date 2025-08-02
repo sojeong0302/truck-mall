@@ -1,4 +1,5 @@
 "use client";
+
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { LoginPagePropStore } from "./LoginPage.types";
@@ -9,7 +10,9 @@ export default function LoginPage() {
     const { username, setUsername, password, setPassword } = LoginPagePropStore();
     const { login } = useAuthStore();
 
-    const handleLogin = async () => {
+    const handleLogin = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+
         try {
             const response = await axios.post("http://localhost:5000/auth/login", {
                 username,
@@ -28,7 +31,10 @@ export default function LoginPage() {
 
     return (
         <div className="w-full p-25 flex justify-center">
-            <div className="min-w-[500px] shadow-lg w-[40%] flex flex-col border-4 border-[#2E7D32] p-5 items-center gap-15 rounded-4xl ">
+            <form
+                onSubmit={handleLogin}
+                className="min-w-[500px] shadow-lg w-[40%] flex flex-col border-4 border-[#2E7D32] p-5 items-center gap-15 rounded-4xl"
+            >
                 <div className="text-4xl mt-20 font-bold">로그인</div>
                 <div className="w-[80%] flex flex-col gap-10">
                     <input
@@ -44,14 +50,14 @@ export default function LoginPage() {
                         placeholder="비밀번호"
                         className="w-[100%] border-1 border-[#2E7D32] shadow-md rounded-xl p-5"
                     />
-                    <div
-                        onClick={handleLogin}
+                    <button
+                        type="submit"
                         className="mb-20 bg-[#2E7D32] text-white w-[100%] flex justify-center shadow-lg text-2xl cursor-pointer p-5 rounded-xl font-medium transition transform duration-200 hover:scale-103 active:scale-97"
                     >
                         로그인
-                    </div>
+                    </button>
                 </div>
-            </div>
+            </form>
         </div>
     );
 }
