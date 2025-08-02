@@ -2,5 +2,7 @@ venv/
 __pycache__/
 *.pyc
 .env
-.db
+# .gitignore
+server/instance/users.db
+
 uploads/
