@@ -54,3 +54,23 @@ def create_review():
     db.session.commit()
 
     return jsonify({"message": "리뷰가 등록되었습니다."}), 201
+
+
+@review_bp.route("/list", methods=["GET"])
+def get_review_list():
+    reviews = Review.query.order_by(Review.id.desc()).all()  # 최신순
+    result = []
+
+    for review in reviews:
+        result.append(
+            {
+                "id": review.id,
+                "title": review.title,
+                "content": review.content,
+                "images": review.images,  # JSON으로 저장된 리스트
+                "date": review.date,
+                "view": review.view,
+            }
+        )
+
+    return jsonify(result), 200
