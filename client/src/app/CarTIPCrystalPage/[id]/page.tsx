@@ -9,5 +9,5 @@ export default function CarTIPCrystalPage() {
     const { id } = useParams();
     const post = dummyData.find((item) => String(item.id) === String(id));
 
-    return <WritingCrystal post={post} />;
+    return <WritingCrystal url="/CarTIPPage/" post={post} />;
 }

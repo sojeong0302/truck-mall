@@ -1,18 +1,24 @@
 // components/WritingCrystal.tsx
 "use client";
-import { useState } from "react";
 import EtcPoto from "../EtcPoto";
 import ShortButton from "../ShortButton";
 import TextArea from "../TextArea";
 import { WritingCrystalPropsStore } from "./WritingCrystal.types";
+import Modal from "../Modal";
+import { useModalStore } from "@/store/ModalStateStroe";
 
-export default function WritingCrystal({ post }: { post: any }) {
+export default function WritingCrystal({ post, url }: { post: any; url?: string }) {
+    const store = useModalStore();
+    const { isModalOpen, setIsModalOpen } = store;
+    const { title, setTitle, content, setContent } = WritingCrystalPropsStore();
+
     const handleSubmit = () => {
         alert("수정 되었습니다.");
     };
-    const store = WritingCrystalPropsStore();
-    const { title, setTitle, content, setContent } = store;
 
+    const handleCancellation = () => {
+        setIsModalOpen(true);
+    };
     return (
         <div className="w-[80%] h-[100%] mx-auto flex flex-col justify-center p-20 gap-7">
             <input
@@ -27,10 +33,11 @@ export default function WritingCrystal({ post }: { post: any }) {
                 <ShortButton onClick={handleSubmit} className="bg-[#2E7D32] text-white">
                     수정하기
                 </ShortButton>
-                <ShortButton onClick={handleSubmit} className="bg-white border-3 border-[#2E7D32]">
+                <ShortButton onClick={handleCancellation} className="bg-white border-3 border-[#2E7D32]">
                     취소
                 </ShortButton>
             </div>
+            {isModalOpen && <Modal url={url} text={"수정 중인 내용이 모두 삭제됩니다.\n그래도 취소하시겠습니까?"} />}
         </div>
     );
 }

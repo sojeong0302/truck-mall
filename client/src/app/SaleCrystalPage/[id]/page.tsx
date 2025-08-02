@@ -8,10 +8,14 @@ import TextArea from "@/components/TextArea";
 import { SaleCrystalPagePropStore } from "./SaleCrystalPage.types";
 import { useEffect } from "react";
 import { useRef } from "react";
+import Modal from "@/components/Modal";
+import { useModalStore } from "@/store/ModalStateStroe";
 
 export default function SaleCrystalPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
     const post = dummyData3.find((item) => item.id === Number(id));
+    const modalStore = useModalStore();
+    const { isModalOpen, setIsModalOpen } = modalStore;
 
     if (!post) {
         return <div className="p-10 text-red-600">해당 매물을 찾을 수 없습니다.</div>;
@@ -173,6 +177,9 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                     </ShortButton>
                 </div>
             </div>
+            {isModalOpen && (
+                <Modal url="/CarSearchPage" text={"수정 중인 내용이 모두 삭제됩니다.\n그래도 취소하시겠습니까?"} />
+            )}
         </div>
     );
 }

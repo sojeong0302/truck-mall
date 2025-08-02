@@ -8,5 +8,5 @@ export default function ReviewCrystalPage() {
     const { id } = useParams();
     const post = dummyData2.find((item) => String(item.id) === String(id));
 
-    return <WritingCrystal post={post} />;
+    return <WritingCrystal url="/ReviewPage" post={post} />;
 }
