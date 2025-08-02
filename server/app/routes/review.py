@@ -77,6 +77,8 @@ def get_review(review_id):
     if not review:
         return jsonify({"error": "Review not found"}), 404
 
+    db.session.commit()
+
     return (
         jsonify(
             {
@@ -90,6 +92,17 @@ def get_review(review_id):
         ),
         200,
     )
+
+
+@review_bp.route("/<int:review_id>/view", methods=["POST"])
+def increment_view(review_id):
+    review = Review.query.get(review_id)
+    if not review:
+        return jsonify({"error": "Review not found"}), 404
+
+    review.view += 1
+    db.session.commit()
+    return jsonify({"message": "View incremented"}), 200
 
 
 # ✅ 이미지 파일 서빙
