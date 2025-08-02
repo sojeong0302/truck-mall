@@ -4,7 +4,7 @@ import WritingUpload from "@/components/WritingUpload";
 export default function ReviewUploadPage() {
     return (
         <div className="w-full h-full">
-            <WritingUpload />
+            <WritingUpload url="ReviewPage" />
         </div>
     );
 }

@@ -8,5 +8,5 @@ export default function CarTIPDetailPage({ params }: { params: { id: string } })
         return <div className="p-10 text-red-500">해당 글을 찾을 수 없습니다.</div>;
     }
 
-    return <WritingDetail post={post} />;
+    return <WritingDetail id={params.id} crystalPath="ReviewCrystalPage" post={post} />;
 }

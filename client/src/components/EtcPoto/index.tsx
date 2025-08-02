@@ -2,14 +2,11 @@
 
 import { useEffect, useRef } from "react";
 import { useImageStore } from "@/store/imageStore";
+import { EtcPotoProps } from "./EtcPoto.types";
 
-interface EtcPotoProps {
-    initialImages?: string[];
-}
-
-export default function EtcPoto({ initialImages = [] }: EtcPotoProps) {
+export default function EtcPoto({ initialImages = [], setImages }: EtcPotoProps) {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const { previews, addPreview, removePreview, setPreviews } = useImageStore();
+    const { previews, addPreview, removePreview, addFile, setPreviews } = useImageStore();
 
     // 초기 이미지 설정 (post.images[])
     useEffect(() => {
@@ -29,7 +26,8 @@ export default function EtcPoto({ initialImages = [] }: EtcPotoProps) {
         Array.from(files).forEach((file) => {
             const reader = new FileReader();
             reader.onloadend = () => {
-                addPreview(reader.result as string);
+                addPreview(reader.result as string); // base64 저장
+                addFile(file); // File 객체도 저장
             };
             reader.readAsDataURL(file);
         });
