@@ -31,7 +31,7 @@ export default function WritingUpload({ url }: { url?: string }) {
                     취소
                 </ShortButton>
             </div>
-            {isModalOpen && <Modal url={url} text={"수정 중인 내용이 모두 삭제됩니다.\n그래도 취소하시겠습니까?"} />}
+            {isModalOpen && <Modal url={url} text={"작성 중인 내용이 모두 삭제됩니다.\n그래도 취소하시겠습니까?"} />}
         </div>
     );
 }
