@@ -49,7 +49,7 @@ export default function Bulletin({ posts, basePath, uploadPath }: BulletinCompon
                             {post.date}
                         </div>
                         <div className="p-2 w-[15%] text-center truncate overflow-hidden whitespace-nowrap">
-                            {post.views}
+                            {post.view}
                         </div>
                     </div>
                 ))}
