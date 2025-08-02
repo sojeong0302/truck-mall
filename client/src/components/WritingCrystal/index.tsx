@@ -1,4 +1,3 @@
-// components/WritingCrystal.tsx
 "use client";
 import EtcPoto from "../EtcPoto";
 import ShortButton from "../ShortButton";
@@ -19,6 +18,9 @@ export default function WritingCrystal({ post, url }: { post: any; url?: string 
     const handleCancellation = () => {
         setIsModalOpen(true);
     };
+    if (!post) {
+        return <div className="p-10 text-red-600">해당 글을 찾을 수 없습니다.</div>;
+    }
     return (
         <div className="w-[80%] h-[100%] mx-auto flex flex-col justify-center p-20 gap-7">
             <input

@@ -10,16 +10,14 @@ const ITEMS_PER_PAGE = 10;
 export default function ReviewPage() {
     const { currentPage } = usePaginationStore();
 
-    // 현재 페이지에 맞게 데이터 자르기
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
     const pagedData = dummyData2.slice(startIndex, endIndex);
-
     const totalPages = Math.ceil(dummyData2.length / ITEMS_PER_PAGE);
 
     return (
         <>
-            <Bulletin posts={dummyData2} basePath="ReviewDetailPage" />
+            <Bulletin uploadPath="ReviewUploadPage" posts={dummyData2} basePath="ReviewDetailPage" />
             <Pagination totalPages={totalPages} />
         </>
     );
