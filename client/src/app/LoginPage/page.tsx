@@ -1,12 +1,13 @@
 "use client";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { useState } from "react";
 import { LoginPagePropStore } from "./LoginPage.types";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function LoginPage() {
     const router = useRouter();
     const { username, setUsername, password, setPassword } = LoginPagePropStore();
+    const { login } = useAuthStore();
 
     const handleLogin = async () => {
         try {
@@ -17,6 +18,7 @@ export default function LoginPage() {
 
             const token = response.data.access_token;
             localStorage.setItem("token", token);
+            login();
             router.push("/");
             console.log(response.data);
         } catch (error) {
