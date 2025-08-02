@@ -1,4 +1,3 @@
-// components/WritingCrystal.tsx
 "use client";
 import EtcPoto from "../EtcPoto";
 import ShortButton from "../ShortButton";
