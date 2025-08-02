@@ -2,14 +2,15 @@
 import EtcPoto from "../EtcPoto";
 import ShortButton from "../ShortButton";
 import TextArea from "../TextArea";
-import { WritingCrystalPropsStore } from "./WritingCrystal.types";
+import { useWritingCrystalPropsStore } from "./WritingCrystal.types";
 import Modal from "../Modal";
 import { useModalStore } from "@/store/ModalStateStroe";
+import { useEffect, useState } from "react";
 
 export default function WritingCrystal({ post, url }: { post: any; url?: string }) {
     const store = useModalStore();
     const { isModalOpen, setIsModalOpen } = store;
-    const { title, setTitle, content, setContent } = WritingCrystalPropsStore();
+    const { title, setTitle, content, setContent } = useWritingCrystalPropsStore();
 
     const handleSubmit = () => {
         alert("수정 되었습니다.");

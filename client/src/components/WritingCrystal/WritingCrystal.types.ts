@@ -1,3 +1,4 @@
+// store/WritingCrystalPropsStore.ts
 import { create } from "zustand";
 
 export interface WritingCrystalProps {
@@ -7,9 +8,9 @@ export interface WritingCrystalProps {
     setContent: (value: string) => void;
 }
 
-export const WritingCrystalPropsStore = create<WritingCrystalProps>((set) => ({
-    content: "",
-    setContent: (value) => set({ content: value }),
+export const useWritingCrystalPropsStore = create<WritingCrystalProps>((set) => ({
     title: "",
     setTitle: (value) => set({ title: value }),
+    content: "",
+    setContent: (value) => set({ content: value }),
 }));

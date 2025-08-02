@@ -109,3 +109,44 @@ def increment_view(review_id):
 @review_bp.route("/uploads/<path:filename>")
 def serve_image(filename):
     return send_from_directory(UPLOAD_DIR, filename)
+
+
+# ✅ 리뷰 수정
+@review_bp.route("/<int:review_id>", methods=["PATCH"])
+def update_review(review_id):
+    review = Review.query.get(review_id)
+    if not review:
+        return jsonify({"error": "Review not found"}), 404
+
+    # 폼 데이터
+    title = request.form.get("title")
+    content = request.form.get("content")
+    new_images = request.files.getlist("images")
+    prev_images = request.form.getlist(
+        "prevImages"
+    )  # 클라이언트에서 유지할 기존 이미지 URL 리스트
+
+    # 기존 값 유지 or 수정
+    if title:
+        review.title = title
+    if content:
+        review.content = content
+
+    image_urls = prev_images if prev_images else []
+
+    for image in new_images:
+        ext = os.path.splitext(image.filename)[1]
+        unique_filename = (
+            f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex}{ext}"
+        )
+        save_path = os.path.join(UPLOAD_DIR, unique_filename)
+        image.save(save_path)
+
+        image_url = f"http://localhost:5000/review/uploads/{unique_filename}"
+        image_urls.append(image_url)
+
+    review.images = image_urls
+
+    db.session.commit()
+
+    return jsonify({"message": "리뷰가 수정되었습니다."}), 200
