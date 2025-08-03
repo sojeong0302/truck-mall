@@ -11,12 +11,14 @@ import { useEffect, useState } from "react";
 import "swiper/css/navigation";
 import Sale from "@/components/Sale";
 import { dummyData3 } from "@/data/dummy";
+import axios from "axios";
 
 const images = ["/images/mainPoto/poto1.jpg", "/images/mainPoto/poto2.jpg", "/images/mainPoto/poto3.jpg"];
 
 export default function MainPage() {
     const [currentIndex, setCurrentIndex] = useState(0);
     const dataLength = dummyData.length;
+    const [carTIPs, setCarTIPs] = useState<any[]>([]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -25,6 +27,21 @@ export default function MainPage() {
 
         return () => clearInterval(interval);
     }, [dataLength]);
+
+    // TIP가져오기
+    useEffect(() => {
+        const fetchReviews = async () => {
+            try {
+                const res = await axios.get("http://localhost:5000/carTIP/list");
+                setCarTIPs(res.data);
+                console.log(res.data);
+            } catch (err) {
+                console.error("리뷰 불러오기 실패:", err);
+            }
+        };
+
+        fetchReviews();
+    }, []);
 
     const current = dummyData[currentIndex];
 
@@ -67,7 +84,7 @@ export default function MainPage() {
                         loop={true}
                         className="w-full"
                     >
-                        {dummyData.map((item, i) => (
+                        {carTIPs.map((item, i) => (
                             <SwiperSlide key={i}>
                                 <div className="flex items-center justify-center gap-10 p-15">
                                     {item.images && item.images.length > 0 && (
@@ -77,7 +94,7 @@ export default function MainPage() {
                                             className="shadow-lg w-[200px] h-[150px] object-cover rounded-xl mb-4"
                                         />
                                     )}
-                                    <div className="flex flex-col gap-5 i justify-center">
+                                    <div className="flex flex-col gap-5 justify-center">
                                         <p className="font-semibold text-2xl">{item.title}</p>
                                         <p className="text-gray-500 line-clamp-3 text-xl">{item.content}</p>
                                     </div>
