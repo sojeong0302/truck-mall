@@ -46,8 +46,15 @@ export default function WritingCrystal({ post, url }: { post: any; url?: string 
         formData.append("content", content);
         currentPrevImageURLs.forEach((url) => formData.append("prevImages", url));
         files.forEach((file) => formData.append("images", file));
+
+        // ✅ URL에 따라 API 경로 다르게 설정
+        const baseURL =
+            url === "ReviewPage"
+                ? `http://localhost:5000/review/${post.id}`
+                : `http://localhost:5000/carTIP/${post.id}`;
+
         try {
-            const res = await fetch(`http://localhost:5000/review/${post.id}`, {
+            const res = await fetch(baseURL, {
                 method: "PATCH",
                 body: formData,
             });

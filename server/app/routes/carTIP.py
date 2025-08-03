@@ -107,3 +107,66 @@ def increment_carTIP_view(carTIP_id):
 @carTIP_bp.route("/uploads/<path:filename>")
 def serve_image(filename):
     return send_from_directory(UPLOAD_DIR, filename)
+
+
+# ✅ 차량 TIP 조회수 증가
+@carTIP_bp.route("/<int:carTIP_id>/view", methods=["POST"])
+def increment_cartip_view(carTIP_id):
+    cartip = CarTIP.query.get(carTIP_id)
+    if not cartip:
+        return jsonify({"error": "CarTIP not found"}), 404
+
+    cartip.view += 1
+    db.session.commit()
+    return jsonify({"message": "View incremented"}), 200
+
+
+# ✅ 이미지 파일 서빙
+@carTIP_bp.route("/uploads/<path:filename>")
+def serve_cartip_image(filename):
+    return send_from_directory(UPLOAD_DIR, filename)
+
+
+# ✅ 차량 TIP 수정
+@carTIP_bp.route("/<int:carTIP_id>", methods=["PATCH"])
+def update_cartip(cartip_id):
+    cartip = CarTIP.query.get(cartip_id)
+    if not cartip:
+        return jsonify({"error": "CarTIP not found"}), 404
+
+    title = request.form.get("title")
+    content = request.form.get("content")
+    prev_images = request.form.getlist("prevImages")
+    new_images = request.files.getlist("images")
+
+    cartip.title = title
+    cartip.content = content
+
+    new_image_urls = []
+    for image in new_images:
+        ext = os.path.splitext(image.filename)[1]
+        unique_filename = (
+            f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex}{ext}"
+        )
+        save_path = os.path.join(UPLOAD_DIR, unique_filename)
+        image.save(save_path)
+        image_url = f"http://localhost:5000/carTIP/uploads/{unique_filename}"
+        new_image_urls.append(image_url)
+
+    cartip.images = prev_images + new_image_urls
+
+    db.session.commit()
+
+    return jsonify({"message": "차량 TIP이 수정되었습니다."}), 200
+
+
+# ✅ 차량 TIP 삭제
+@carTIP_bp.route("/<int:carTIP_id>", methods=["DELETE"])
+def delete_cartip(cartip_id):
+    cartip = CarTIP.query.get(cartip_id)
+    if not cartip:
+        return jsonify({"error": "CarTIP not found"}), 404
+
+    db.session.delete(cartip)
+    db.session.commit()
+    return jsonify({"message": "차량 TIP이 삭제되었습니다."}), 200
