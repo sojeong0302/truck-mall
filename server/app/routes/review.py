@@ -109,3 +109,52 @@ def increment_view(review_id):
 @review_bp.route("/uploads/<path:filename>")
 def serve_image(filename):
     return send_from_directory(UPLOAD_DIR, filename)
+
+
+# ✅ 리뷰 수정
+@review_bp.route("/<int:review_id>", methods=["PATCH"])
+def update_review(review_id):
+    review = Review.query.get(review_id)
+    if not review:
+        return jsonify({"error": "Review not found"}), 404
+
+    # 폼 데이터
+    title = request.form.get("title")
+    content = request.form.get("content")
+    # 클라이언트에서 유지할 기존 이미지들
+    prev_images = request.form.getlist("prevImages")
+    new_images = request.files.getlist("images")
+
+    # ✅ 제목과 내용 반영
+    review.title = title
+    review.content = content
+
+    # 새 이미지 저장
+    new_image_urls = []
+    for image in new_images:
+        ext = os.path.splitext(image.filename)[1]
+        unique_filename = (
+            f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex}{ext}"
+        )
+        save_path = os.path.join(UPLOAD_DIR, unique_filename)
+        image.save(save_path)
+        image_url = f"http://localhost:5000/review/uploads/{unique_filename}"
+        new_image_urls.append(image_url)
+
+    # ✅ 완전 새로운 이미지 배열로 덮어쓰기 (삭제된 이미지 제거됨)
+    review.images = prev_images + new_image_urls
+
+    db.session.commit()
+
+    return jsonify({"message": "리뷰가 수정되었습니다."}), 200
+
+
+@review_bp.route("/<int:review_id>", methods=["DELETE"])
+def delete_review(review_id):
+    review = Review.query.get(review_id)
+    if not review:
+        return jsonify({"error": "Review not found"}), 404
+
+    db.session.delete(review)
+    db.session.commit()
+    return jsonify({"message": "리뷰가 삭제되었습니다."}), 200
