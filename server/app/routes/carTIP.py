@@ -6,17 +6,17 @@ import os
 import uuid
 from werkzeug.utils import secure_filename
 
-review_bp = Blueprint("review", __name__)
+carTIP_bp = Blueprint("carTIP", __name__)
 
 UPLOAD_DIR = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "uploads", "review")
+    os.path.join(os.path.dirname(__file__), "..", "..", "uploads", "carTIP")
 )
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
 # ✅ 리뷰 업로드
-@review_bp.route("/uploadReview", methods=["POST"])
-def create_review():
+@carTIP_bp.route("/uploadCarTIP", methods=["POST"])
+def create_carTIP():
     title = request.form.get("title")
     content = request.form.get("content")
     images = request.files.getlist("images")
@@ -34,17 +34,17 @@ def create_review():
         image.save(save_path)
 
         # ✅ 저장할 경로는 외부에서 접근 가능한 URL로
-        image_url = f"http://localhost:5000/review/uploads/{unique_filename}"
+        image_url = f"http://localhost:5000/carTIP/uploads/{unique_filename}"
         saved_image_paths.append(image_url)
 
-    new_review = Review(
+    new_carTIP = Review(
         title=title,
         images=saved_image_paths,
         content=content,
         date=date,
         view=view,
     )
-    db.session.add(new_review)
+    db.session.add(new_carTIP)
     db.session.commit()
 
     return jsonify({"message": "리뷰가 등록되었습니다."}), 201

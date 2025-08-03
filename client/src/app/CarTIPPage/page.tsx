@@ -19,7 +19,7 @@ export default function CarTIPPage() {
 
     return (
         <>
-            <Bulletin posts={pagedData} basePath="CarTIPDetailPage" />
+            <Bulletin uploadPath="CarTIPUploadPage" posts={pagedData} basePath="CarTIPDetailPage" />
             <Pagination totalPages={totalPages} />
         </>
     );
