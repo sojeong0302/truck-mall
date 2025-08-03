@@ -24,19 +24,30 @@ export default function WritingUpload({ url }: { url?: string }) {
             formData.append("images", file);
         });
 
+        // ✅ 경로 결정
+        const uploadPath =
+            url === "ReviewPage"
+                ? "http://localhost:5000/review/uploadReview"
+                : "http://localhost:5000/carTIP/uploadCarTIP";
+
         try {
-            await axios.post("http://localhost:5000/review/uploadReview", formData, {
+            await axios.post(uploadPath, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
             });
 
             alert("등록되었습니다.");
+            setTitle("");
+            setContent("");
+            setImages([]);
+            useImageStore.getState().clear();
         } catch (error) {
             console.error("등록 실패:", error);
             alert("등록에 실패했습니다.");
         }
     };
+
     const store = useModalStore();
     const { isModalOpen, setIsModalOpen } = store;
     const handleCancellation = () => {

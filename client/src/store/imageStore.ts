@@ -40,6 +40,6 @@ export const useImageStore = create<ImageStoreState>((set) => ({
         }),
 
     addFile: (file) => set((state) => ({ files: [...state.files, file] })),
-    clear: () => set({ previews: [], files: [], originURLs: [] }),
+    clear: () => set({ files: [], previews: [], originURLs: [] }),
     setPreviews: (urls) => set({ previews: urls }),
 }));

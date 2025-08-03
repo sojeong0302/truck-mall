@@ -8,9 +8,10 @@ from werkzeug.utils import secure_filename
 
 review_bp = Blueprint("review", __name__)
 
-UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "uploads")
-UPLOAD_DIR = os.path.abspath(UPLOAD_DIR)
-os.makedirs(UPLOAD_DIR, exist_ok=True)  # ❗ uploads 폴더 없으면 생성
+UPLOAD_DIR = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "uploads", "review")
+)
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
 # ✅ 리뷰 업로드

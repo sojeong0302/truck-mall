@@ -3,11 +3,22 @@
 
 import { useParams } from "next/navigation";
 import WritingCrystal from "@/components/WritingCrystal";
-import { dummyData } from "@/data/dummy";
+import { useEffect, useState } from "react";
 
 export default function CarTIPCrystalPage() {
     const { id } = useParams();
-    const post = dummyData.find((item) => String(item.id) === String(id));
+    const [post, setPost] = useState<any | null>(null);
+
+    useEffect(() => {
+        const fetchReview = async () => {
+            const res = await fetch(`http://localhost:5000/carTIP/${id}`);
+            const data = await res.json();
+            setPost(data);
+        };
+        fetchReview();
+    }, [id]);
+
+    if (!post) return <div className="p-10">로딩 중...</div>;
 
     return <WritingCrystal url="/CarTIPPage/" post={post} />;
 }
