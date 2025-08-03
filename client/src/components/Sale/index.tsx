@@ -5,6 +5,7 @@ import Pagination from "../Pagination";
 import { usePaginationStore } from "@/store/paginationStore";
 import { dummyData3 } from "@/data/dummy";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -19,12 +20,28 @@ export default function Sale({ posts, basePath }: SaleComponentProps) {
 
     const router = useRouter();
 
+    const { isLoggedIn } = useAuthStore();
+
+    const handleGoUpload = () => {
+        router.push("/SaleUploadPage");
+    };
+
     return (
         <div className="w-[100%] flex flex-col items-center justify-center">
-            <div className="w-[70%] p-3 flex items-center gap-3  border-b-2 border-[#575757]">
-                <div className="text-[#D7263D] text-xl font-medium">등록 매물</div>
-                <div className="text-base">허위 없은 100% 실매물만 등록됩니다.</div>
+            <div className="w-[70%] p-3 flex items-center justify-between border-b-2 border-[#575757]">
+                <div className="flex items-center gap-3">
+                    <div className="text-[#D7263D] text-xl font-medium">등록 매물</div>
+                    <div className="text-base">허위 없은 100% 실매물만 등록됩니다.</div>
+                </div>
+                {isLoggedIn && (
+                    <div className="text-sm">
+                        <div onClick={handleGoUpload} className="cursor-pointer">
+                            등록하기
+                        </div>
+                    </div>
+                )}
             </div>
+
             <div className="w-[70%] flex flex-col gap-5 p-10 ">
                 {pagedData.map((post, idx) => (
                     <div
@@ -49,7 +66,9 @@ export default function Sale({ posts, basePath }: SaleComponentProps) {
                         <div className="text-xl font-semibold">상담문의: 010-8191-8244</div>
                         <div>
                             <div
-                                className={`flex justify-center shadow-lg text-2xl  w-[120px]  p-2.5 rounded-md font-medium text-white ${post.status ? "bg-[#2E7D32]" : "bg-[#C62828]"}`}
+                                className={`flex justify-center shadow-lg text-2xl  w-[120px]  p-2.5 rounded-md font-medium text-white ${
+                                    post.status ? "bg-[#2E7D32]" : "bg-[#C62828]"
+                                }`}
                             >
                                 {post.status ? "판매중" : "판매완료"}
                             </div>
