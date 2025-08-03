@@ -1,15 +1,14 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { data } from "./SimpleFilter.hooks";
+import { useSimpleTagStore } from "@/store/simpleTagStore";
 
 export default function SimpleFilter() {
-    const [selectedGrades, setSelectedGrades] = useState<Record<string, string>>({});
+    const { simpleTag, setSimpleTag } = useSimpleTagStore();
 
     const handleSelect = (type: string, grade: string) => {
-        setSelectedGrades((prev) => ({
-            ...prev,
-            [type]: grade,
-        }));
+        setSimpleTag(type, grade);
+        console.log("현재 simpleTag 상태:", useSimpleTagStore.getState().simpleTag);
     };
 
     return (
@@ -17,7 +16,7 @@ export default function SimpleFilter() {
             <div className="grid grid-cols-8 gap-6">
                 {data.map((truck) => {
                     const grades = truck.grades[0].split(", ");
-                    const selected = selectedGrades[truck.type];
+                    const selected = simpleTag.find((t) => t.type === truck.type)?.grade;
 
                     return (
                         <div key={truck.type} className="bg-white p-3 shadow-md rounded-lg">
