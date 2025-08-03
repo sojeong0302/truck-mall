@@ -1,7 +1,11 @@
-# server/app/models/sale_model.py
-
+from enum import Enum
+from sqlalchemy import Boolean, Column, Integer, String, Text
 from ..extensions import db
-from datetime import datetime
+
+
+class SaleStatusEnum(Enum):
+    판매중 = "판매중"
+    판매완료 = "판매완료"
 
 
 class Sale(db.Model):
@@ -14,7 +18,7 @@ class Sale(db.Model):
     trim = db.Column(db.String(50))
     year = db.Column(db.String(20))
     mileage = db.Column(db.String(50))
-    color = db.Column(db.String(50))
+    color = db.Column(db.String(30))
     price = db.Column(db.String(50))
     manufacturer = db.Column(db.String(50))
     model = db.Column(db.String(50))
@@ -22,7 +26,7 @@ class Sale(db.Model):
     grade = db.Column(db.String(50))
     thumbnail = db.Column(db.Text)
     content = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(Boolean, default=True, nullable=False)
 
     def to_dict(self):
         return {
@@ -37,9 +41,9 @@ class Sale(db.Model):
             "price": self.price,
             "manufacturer": self.manufacturer,
             "model": self.model,
-            "subModel": self.sub_model,
+            "sub_model": self.sub_model,
             "grade": self.grade,
             "thumbnail": self.thumbnail,
             "content": self.content,
-            "created_at": self.created_at.isoformat(),
+            "status": self.status,  # enum의 문자열 값 반환
         }
