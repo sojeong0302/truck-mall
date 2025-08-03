@@ -26,7 +26,7 @@ export default function WritingUpload({ url }: { url?: string }) {
 
         // ✅ 경로 결정
         const uploadPath =
-            url === "/ReviewPage"
+            url === "ReviewPage"
                 ? "http://localhost:5000/review/uploadReview"
                 : "http://localhost:5000/carTIP/uploadCarTIP";
 
