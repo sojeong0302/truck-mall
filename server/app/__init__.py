@@ -6,6 +6,8 @@ from flask_cors import CORS
 from .routes.review import review_bp
 from .routes.carTIP import carTIP_bp
 from flask_migrate import Migrate
+from .routes.sale import sale_bp
+
 
 migrate = Migrate()  # 먼저 migrate 객체만 생성해두고
 
@@ -30,5 +32,5 @@ def create_app():
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(review_bp, url_prefix="/review")
     app.register_blueprint(carTIP_bp, url_prefix="/carTIP")
-
+    app.register_blueprint(sale_bp, url_prefix="/sale")
     return app
