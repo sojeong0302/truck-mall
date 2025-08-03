@@ -4,6 +4,7 @@ from .extensions import db, jwt
 from .routes.auth import auth_bp
 from flask_cors import CORS
 from .routes.review import review_bp
+from .routes.carTIP import carTIP_bp
 
 
 def create_app():
@@ -23,5 +24,6 @@ def create_app():
     # 블루프린트 등록
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(review_bp, url_prefix="/review")
+    app.register_blueprint(carTIP_bp, url_prefix="/carTIP")
 
     return app
