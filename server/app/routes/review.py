@@ -147,3 +147,14 @@ def update_review(review_id):
     db.session.commit()
 
     return jsonify({"message": "리뷰가 수정되었습니다."}), 200
+
+
+@review_bp.route("/<int:review_id>", methods=["DELETE"])
+def delete_review(review_id):
+    review = Review.query.get(review_id)
+    if not review:
+        return jsonify({"error": "Review not found"}), 404
+
+    db.session.delete(review)
+    db.session.commit()
+    return jsonify({"message": "리뷰가 삭제되었습니다."}), 200
