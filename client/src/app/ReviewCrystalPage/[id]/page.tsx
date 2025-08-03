@@ -2,23 +2,22 @@
 
 import { useParams } from "next/navigation";
 import WritingCrystal from "@/components/WritingCrystal";
-import { dummyData2 } from "@/data/dummy";
-import { useEffect } from "react";
-import { useWritingCrystalPropsStore } from "@/components/WritingCrystal/WritingCrystal.types";
+import { useEffect, useState } from "react";
 
 export default function ReviewCrystalPage() {
     const { id } = useParams();
-    const post = dummyData2.find((item) => String(item.id) === String(id));
+    const [post, setPost] = useState<any | null>(null);
 
-    const { setTitle, setContent } = useWritingCrystalPropsStore();
-
-    // ✅ Zustand에 post 값 주입
     useEffect(() => {
-        if (post) {
-            setTitle(post.title);
-            setContent(post.content);
-        }
-    }, [post, setTitle, setContent]);
+        const fetchReview = async () => {
+            const res = await fetch(`http://localhost:5000/review/${id}`);
+            const data = await res.json();
+            setPost(data);
+        };
+        fetchReview();
+    }, [id]);
+
+    if (!post) return <div className="p-10">로딩 중...</div>;
 
     return <WritingCrystal url="/ReviewPage" post={post} />;
 }

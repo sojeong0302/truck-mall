@@ -5,15 +5,67 @@ import TextArea from "../TextArea";
 import { useWritingCrystalPropsStore } from "./WritingCrystal.types";
 import Modal from "../Modal";
 import { useModalStore } from "@/store/ModalStateStroe";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useImageStore } from "@/store/imageStore";
+import { useRouter } from "next/navigation";
 
 export default function WritingCrystal({ post, url }: { post: any; url?: string }) {
     const store = useModalStore();
     const { isModalOpen, setIsModalOpen } = store;
-    const { title, setTitle, content, setContent } = useWritingCrystalPropsStore();
+    const { previews, files, originURLs } = useImageStore();
+    const {
+        title,
+        setTitle,
+        content,
+        setContent,
+        prevImages,
+        setPrevImages,
+        removePrevImage,
+        newImages,
+        setNewImages,
+    } = useWritingCrystalPropsStore();
+    const router = useRouter();
 
-    const handleSubmit = () => {
-        alert("수정 되었습니다.");
+    useEffect(() => {
+        if (post) {
+            useWritingCrystalPropsStore.getState().clearAll();
+
+            setTimeout(() => {
+                setTitle(post.title);
+                setContent(post.content);
+                setPrevImages(post.images || []);
+            }, 0);
+        }
+    }, [post?.id]);
+
+    const handleSubmit = async () => {
+        const currentPrevImageURLs = previews.filter((p) => originURLs.includes(p));
+
+        const formData = new FormData();
+        formData.append("title", title);
+        formData.append("content", content);
+        currentPrevImageURLs.forEach((url) => formData.append("prevImages", url));
+        files.forEach((file) => formData.append("images", file));
+        try {
+            const res = await fetch(`http://localhost:5000/review/${post.id}`, {
+                method: "PATCH",
+                body: formData,
+            });
+            console.log("전송되는 제목:", title);
+            console.log("전송되는 내용:", content);
+
+            if (res.ok) {
+                alert("수정 되었습니다.");
+                useWritingCrystalPropsStore.getState().clearAll();
+                router.back();
+            } else {
+                const err = await res.json();
+                alert(`수정 실패: ${err.error || "알 수 없는 오류"}`);
+            }
+        } catch (e) {
+            console.error("수정 실패", e);
+            alert("서버 오류");
+        }
     };
 
     const handleCancellation = () => {

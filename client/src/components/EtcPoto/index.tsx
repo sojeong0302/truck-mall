@@ -6,7 +6,7 @@ import { EtcPotoProps } from "./EtcPoto.types";
 
 export default function EtcPoto({ initialImages = [], setImages }: EtcPotoProps) {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const { previews, addPreview, removePreview, addFile, setPreviews } = useImageStore();
+    const { previews, addPreview, removePreview, addFile, setPreviews, setOriginURLs } = useImageStore();
 
     // 초기 이미지 설정 (post.images[])
     useEffect(() => {
@@ -36,6 +36,12 @@ export default function EtcPoto({ initialImages = [], setImages }: EtcPotoProps)
     const handleDelete = (idx: number) => {
         removePreview(idx);
     };
+
+    useEffect(() => {
+        if (initialImages.length > 0) {
+            setOriginURLs(initialImages); // ✅ previews와 originURLs 동시 설정
+        }
+    }, [initialImages]);
 
     return (
         <div className="w-full p-20">
