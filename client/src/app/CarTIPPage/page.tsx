@@ -3,7 +3,6 @@
 import Pagination from "@/components/Pagination";
 import Bulletin from "@/components/Bulletin";
 import { usePaginationStore } from "@/store/paginationStore";
-import { dummyData } from "@/data/dummy";
 import axios from "axios";
 import { useEffect, useState } from "react";
 

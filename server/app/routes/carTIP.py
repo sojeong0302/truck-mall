@@ -15,6 +15,25 @@ UPLOAD_DIR = os.path.abspath(
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
+# ✅ 차량 TIP 전체 리스트 조회
+@carTIP_bp.route("/list", methods=["GET"])
+def get_carTIP_list():
+    carTIPs = CarTIP.query.order_by(CarTIP.id.desc()).all()
+
+    result = [
+        {
+            "id": tip.id,
+            "title": tip.title,
+            "content": tip.content,
+            "images": tip.images,
+            "date": tip.date,
+            "view": tip.view,
+        }
+        for tip in carTIPs
+    ]
+    return jsonify(result), 200
+
+
 # ✅ 리뷰 업로드
 @carTIP_bp.route("/uploadCarTIP", methods=["POST"])
 def create_carTIP():
@@ -51,25 +70,38 @@ def create_carTIP():
     return jsonify({"message": "리뷰가 등록되었습니다."}), 201
 
 
-# ✅ 전체 리뷰 리스트
-@carTIP_bp.route("/list", methods=["GET"])
-def get_carTIP_list():
-    carTIPs = CarTIP.query.order_by(CarTIP.id.desc()).all()
-    result = []
+# ✅ 특정 차량 TIP 상세 조회
+@carTIP_bp.route("/<int:carTIP_id>", methods=["GET"])
+def get_carTIP(carTIP_id):
+    carTIP = CarTIP.query.get(carTIP_id)
+    if not carTIP:
+        return jsonify({"error": "CarTIP not found"}), 404
 
-    for tip in carTIPs:
-        result.append(
+    return (
+        jsonify(
             {
-                "id": tip.id,
-                "title": tip.title,
-                "content": tip.content,
-                "images": tip.images,
-                "date": tip.date,
-                "view": tip.view,
+                "id": carTIP.id,
+                "title": carTIP.title,
+                "content": carTIP.content,
+                "images": carTIP.images,
+                "date": carTIP.date,
+                "view": carTIP.view,
             }
-        )
+        ),
+        200,
+    )
 
-    return jsonify(result), 200
+
+# ✅ 차량 TIP 조회수 증가
+@carTIP_bp.route("/<int:carTIP_id>/view", methods=["POST"])
+def increment_carTIP_view(carTIP_id):
+    carTIP = CarTIP.query.get(carTIP_id)
+    if not carTIP:
+        return jsonify({"error": "CarTIP not found"}), 404
+
+    carTIP.view += 1
+    db.session.commit()
+    return jsonify({"message": "View incremented"}), 200
 
 
 @carTIP_bp.route("/uploads/<path:filename>")
