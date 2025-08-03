@@ -5,11 +5,11 @@ import EtcPoto from "@/components/EtcPoto";
 import TextArea from "@/components/TextArea";
 import ShortButton from "@/components/ShortButton";
 import Filter from "@/components/Filter";
-import { useFilterStore } from "@/components/Filter/Filter.types";
+import { useFilterTagStore } from "@/components/Filter/Filter.types";
 import SimpleFilter from "@/components/SimpleFilter";
 
 export default function WritingUpload() {
-    const { manufacturer, model, subModel, grade } = useFilterStore();
+    const { manufacturer, model, subModel, grade } = useFilterTagStore();
 
     const selectedTags = [manufacturer, model, subModel, grade].filter(Boolean);
     const handleSubmit = () => {
