@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, send_from_directory
 from app.extensions import db
 from app.models.review_model import Review
+from app.models.carTIP_model import CarTIP
 from datetime import datetime
 import os
 import uuid
@@ -37,7 +38,7 @@ def create_carTIP():
         image_url = f"http://localhost:5000/carTIP/uploads/{unique_filename}"
         saved_image_paths.append(image_url)
 
-    new_carTIP = Review(
+    new_carTIP = CarTIP(
         title=title,
         images=saved_image_paths,
         content=content,
@@ -48,6 +49,27 @@ def create_carTIP():
     db.session.commit()
 
     return jsonify({"message": "리뷰가 등록되었습니다."}), 201
+
+
+# ✅ 전체 리뷰 리스트
+@carTIP_bp.route("/list", methods=["GET"])
+def get_carTIP_list():
+    carTIPs = CarTIP.query.order_by(CarTIP.id.desc()).all()
+    result = []
+
+    for tip in carTIPs:
+        result.append(
+            {
+                "id": tip.id,
+                "title": tip.title,
+                "content": tip.content,
+                "images": tip.images,
+                "date": tip.date,
+                "view": tip.view,
+            }
+        )
+
+    return jsonify(result), 200
 
 
 @carTIP_bp.route("/uploads/<path:filename>")
