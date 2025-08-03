@@ -7,33 +7,54 @@ import ShortButton from "@/components/ShortButton";
 import Filter from "@/components/Filter";
 import { useFilterTagStore } from "@/components/Filter/Filter.types";
 import SimpleFilter from "@/components/SimpleFilter";
+import { useCarFormStore } from "@/store/carFormStore";
 
 export default function WritingUpload() {
     const { manufacturer, model, subModel, grade } = useFilterTagStore();
 
+    const { thumbnail, name, fuel, type, trim, year, mileage, color, price, images, content, setField } =
+        useCarFormStore();
+
     const selectedTags = [manufacturer, model, subModel, grade].filter(Boolean);
-    const handleSubmit = () => {
-        alert("등록 되었습니다.");
-    };
 
     const [image, setImage] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-    // 파일 선택 핸들러
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                setImage(reader.result as string); // base64 문자열로 이미지 설정
+                setImage(reader.result as string);
+                setField("thumbnail", reader.result as string); // 썸네일도 store에 반영
             };
             reader.readAsDataURL(file);
         }
     };
 
-    // 이미지 클릭 시 파일 탐색기 열기
     const handleClick = () => {
         fileInputRef.current?.click();
+    };
+
+    const handleSubmit = () => {
+        const formData = {
+            simpleTags: selectedTags,
+            tag: { manufacturer, model, subModel, grade },
+            name,
+            fuel,
+            type,
+            trim,
+            year,
+            mileage,
+            color,
+            price,
+            thumbnail: image,
+            images,
+            content,
+        };
+
+        console.log("🚗 최종 등록 데이터:", formData);
+        alert("등록 되었습니다.");
     };
 
     return (
@@ -75,8 +96,8 @@ export default function WritingUpload() {
                     <div className="flex flex-col justify-around">
                         <input
                             className="font-bold text-4xl border-b-2 border-[#575757] p-2"
-                            // value={name}
-                            // onChange={(e) => setName(e.target.value)}
+                            value={name}
+                            onChange={(e) => setField("name", e.target.value)}
                             placeholder="차량명을 입력해 주세요."
                         />
                         <div className="flex flex-col text-2xl p-2 gap-5">
@@ -84,8 +105,8 @@ export default function WritingUpload() {
                                 <div className="font-bold">연료:</div>
                                 <input
                                     className="flex-1 shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-2"
-                                    // value={fuel}
-                                    // onChange={(e) => setFuel(e.target.value)}
+                                    value={fuel}
+                                    onChange={(e) => setField("fuel", e.target.value)}
                                     placeholder="연료를 입력해 주세요."
                                 />
                             </div>
@@ -93,16 +114,16 @@ export default function WritingUpload() {
                                 <div className="font-bold">차체 타입:</div>
                                 <input
                                     className="flex-1 shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-2"
-                                    // value={type}
-                                    // onChange={(e) => setType(e.target.value)}
+                                    value={type}
+                                    onChange={(e) => setField("type", e.target.value)}
                                     placeholder="차체 타입을 입력해 주세요."
                                 />
                             </div>
                             <div className="flex gap-3 items-center">
                                 <div className="font-bold">트림:</div>
                                 <input
-                                    // value={trim}
-                                    // onChange={(e) => setTrim(e.target.value)}
+                                    value={trim}
+                                    onChange={(e) => setField("trim", e.target.value)}
                                     placeholder="트림을 입력해 주세요."
                                     className="flex-1 shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-2"
                                 />
@@ -111,8 +132,8 @@ export default function WritingUpload() {
                                 <div className="font-bold">연식:</div>
                                 <input
                                     className="flex-1 shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-2"
-                                    // value={year}
-                                    // onChange={(e) => setYear(e.target.value)}
+                                    value={year}
+                                    onChange={(e) => setField("year", e.target.value)}
                                     placeholder="연식을 입력해 주세요."
                                 />
                             </div>
@@ -120,8 +141,8 @@ export default function WritingUpload() {
                                 <div className="font-bold">주행거리:</div>
                                 <input
                                     className="flex-1 shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-2"
-                                    // value={mileage}
-                                    // onChange={(e) => setMileage(e.target.value)}
+                                    value={mileage}
+                                    onChange={(e) => setField("mileage", e.target.value)}
                                     placeholder="주행거리를 입력해 주세요."
                                 />
                             </div>
@@ -129,8 +150,8 @@ export default function WritingUpload() {
                                 <div className="font-bold">색상:</div>
                                 <input
                                     className="flex-1 shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-2"
-                                    // value={color}
-                                    // onChange={(e) => setColor(e.target.value)}
+                                    value={color}
+                                    onChange={(e) => setField("color", e.target.value)}
                                     placeholder="색상을 입력해 주세요."
                                 />
                             </div>
@@ -138,8 +159,8 @@ export default function WritingUpload() {
                                 <div className="font-bold">가격:</div>
                                 <input
                                     className="flex-1 shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-2"
-                                    // value={price}
-                                    // onChange={(e) => setPrice(e.target.value)}
+                                    value={price}
+                                    onChange={(e) => setField("price", e.target.value)}
                                     placeholder="가격을 입력해 주세요."
                                 />
                             </div>
