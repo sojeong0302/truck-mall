@@ -8,11 +8,12 @@ import Filter from "@/components/Filter";
 import { useFilterTagStore } from "@/components/Filter/Filter.types";
 import SimpleFilter from "@/components/SimpleFilter";
 import { useCarFormStore } from "@/store/carFormStore";
+import { useImageStore } from "@/store/imageStore";
 
 export default function WritingUpload() {
     const { manufacturer, model, subModel, grade } = useFilterTagStore();
-
-    const { thumbnail, name, fuel, type, trim, year, mileage, color, price, images, content, setField } =
+    const { files, clear } = useImageStore();
+    const { thumbnail, name, fuel, type, trim, year, mileage, color, price, images, content, setField, clearForm } =
         useCarFormStore();
 
     const selectedTags = [manufacturer, model, subModel, grade].filter(Boolean);
@@ -25,8 +26,8 @@ export default function WritingUpload() {
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                setImage(reader.result as string);
-                setField("thumbnail", reader.result as string); // 썸네일도 store에 반영
+                const base64 = reader.result as string;
+                setField("thumbnail", base64);
             };
             reader.readAsDataURL(file);
         }
@@ -37,6 +38,8 @@ export default function WritingUpload() {
     };
 
     const handleSubmit = () => {
+        setField("images", files);
+
         const formData = {
             simpleTags: selectedTags,
             tag: { manufacturer, model, subModel, grade },
@@ -48,13 +51,21 @@ export default function WritingUpload() {
             mileage,
             color,
             price,
-            thumbnail: image,
-            images,
+            thumbnail,
+            images: files, // 👈 files에서 온 값
             content,
         };
 
         console.log("🚗 최종 등록 데이터:", formData);
         alert("등록 되었습니다.");
+
+        clearForm();
+        clear();
+
+        // ✅ 썸네일 input 자체도 초기화 (파일 input은 수동으로 초기화 필요)
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
     };
 
     return (
@@ -83,8 +94,8 @@ export default function WritingUpload() {
                             onChange={handleImageChange}
                             className="hidden"
                         />
-                        {image ? (
-                            <img src={image} alt="선택된 이미지" className="w-full h-full object-cover" />
+                        {thumbnail ? (
+                            <img src={thumbnail} alt="선택된 이미지" className="w-full h-full object-cover" />
                         ) : (
                             <img
                                 src="/images/addToPhoto.png"
@@ -167,9 +178,9 @@ export default function WritingUpload() {
                         </div>
                     </div>
                 </div>
-
                 <EtcPoto />
-                <TextArea />
+                <TextArea value={content} setContent={(v) => setField("content", v)} />
+
                 <div className="flex gap-3 justify-end">
                     <ShortButton onClick={handleSubmit} className="bg-[#2E7D32] text-white">
                         등록하기
