@@ -38,6 +38,10 @@ export default function WritingUpload({ url }: { url?: string }) {
             });
 
             alert("등록되었습니다.");
+            setTitle("");
+            setContent("");
+            setImages([]);
+            useImageStore.getState().clear();
         } catch (error) {
             console.error("등록 실패:", error);
             alert("등록에 실패했습니다.");

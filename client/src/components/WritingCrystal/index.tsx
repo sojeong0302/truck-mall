@@ -23,6 +23,7 @@ export default function WritingCrystal({ post, url }: { post: any; url?: string 
         removePrevImage,
         newImages,
         setNewImages,
+        clearAll,
     } = useWritingCrystalPropsStore();
     const router = useRouter();
 

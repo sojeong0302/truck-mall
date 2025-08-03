@@ -129,8 +129,8 @@ def serve_cartip_image(filename):
 
 # ✅ 차량 TIP 수정
 @carTIP_bp.route("/<int:carTIP_id>", methods=["PATCH"])
-def update_cartip(cartip_id):
-    cartip = CarTIP.query.get(cartip_id)
+def update_cartip(carTIP_id):
+    cartip = CarTIP.query.get(carTIP_id)
     if not cartip:
         return jsonify({"error": "CarTIP not found"}), 404
 
