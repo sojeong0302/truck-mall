@@ -12,6 +12,12 @@ export interface SaleProps {
     images?: string[];
     content?: string;
     status: boolean;
+
+    // 🆕 tag 정보 추가
+    manufacturer?: string;
+    model?: string;
+    sub_model?: string;
+    grade?: string;
 }
 
 export interface SaleComponentProps {

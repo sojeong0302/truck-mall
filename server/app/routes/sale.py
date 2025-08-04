@@ -47,3 +47,32 @@ def get_sale_by_id(sale_id):
         return jsonify({"error": "해당 매물을 찾을 수 없습니다."}), 404
 
     return jsonify(sale.to_dict()), 200
+
+
+@sale_bp.route("/<int:sale_id>", methods=["PUT"])
+def update_sale(sale_id):
+    sale = Sale.query.get(sale_id)
+    if sale is None:
+        return jsonify({"error": "해당 매물을 찾을 수 없습니다."}), 404
+
+    data = request.get_json()
+
+    sale.name = data.get("name", sale.name)
+    sale.fuel = data.get("fuel", sale.fuel)
+    sale.type = data.get("type", sale.type)
+    sale.trim = data.get("trim", sale.trim)
+    sale.year = data.get("year", sale.year)
+    sale.mileage = data.get("mileage", sale.mileage)
+    sale.color = data.get("color", sale.color)
+    sale.price = data.get("price", sale.price)
+    sale.manufacturer = data.get("tag", {}).get("manufacturer", sale.manufacturer)
+    sale.model = data.get("tag", {}).get("model", sale.model)
+    sale.sub_model = data.get("tag", {}).get("subModel", sale.sub_model)
+    sale.grade = data.get("tag", {}).get("grade", sale.grade)
+    sale.thumbnail = data.get("thumbnail", sale.thumbnail)
+    sale.content = data.get("content", sale.content)
+    sale.images = data.get("images", sale.images)
+
+    db.session.commit()
+
+    return jsonify({"message": "수정 성공", "car": sale.to_dict()}), 200

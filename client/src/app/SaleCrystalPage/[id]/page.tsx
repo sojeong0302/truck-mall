@@ -11,9 +11,7 @@ import { SaleProps } from "@/components/Sale/Sale.types";
 import { SaleCrystalPagePropStore } from "./SaleCrystalPage.types";
 
 export default function SaleCrystalPage({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = use(params); // ✅ use로 언랩
-
-    // ✅ Zustand 훅들 최상단에서 호출
+    const { id } = use(params);
     const modalStore = useModalStore();
     const { isModalOpen, setIsModalOpen } = modalStore;
 
@@ -41,7 +39,6 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         setContent,
     } = store;
 
-    // ✅ 게시글 데이터 가져오기
     const [post, setPost] = useState<SaleProps | null>(null);
 
     useEffect(() => {
@@ -56,7 +53,6 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         fetchPost();
     }, [id]);
 
-    // ✅ Zustand store에 초기값 넣기 (post 값이 바뀔 때마다)
     useEffect(() => {
         if (!post) return;
         setThumbnail(post.thumbnail ?? "");
@@ -85,12 +81,36 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         }
     };
 
-    const handleSubmit = () => {
-        alert("수정 되었습니다.");
-        // TODO: 서버에 수정사항 저장하는 API 호출 필요
+    const handleSubmit = async () => {
+        if (!post) return;
+
+        try {
+            await axios.put(`http://localhost:5000/sale/${id}`, {
+                name,
+                fuel,
+                type,
+                trim,
+                year,
+                mileage,
+                color,
+                price,
+                thumbnail,
+                content,
+                images: [], // 이미지 배열을 추가로 구현한 경우 채워주세요.
+                tag: {
+                    manufacturer: (post as any).manufacturer ?? "",
+                    model: (post as any).model ?? "",
+                    subModel: (post as any).sub_model ?? "",
+                    grade: (post as any).grade ?? "",
+                },
+            });
+            alert("수정되었습니다.");
+        } catch (error) {
+            console.error("수정 실패", error);
+            alert("수정 중 오류 발생");
+        }
     };
 
-    // ✅ 로딩 대체 UI
     if (!post) {
         return <div className="p-10 text-red-600">해당 매물을 찾을 수 없습니다.</div>;
     }
@@ -154,14 +174,14 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                     </div>
                 </div>
 
-                <EtcPoto initialImages={post.images} />
+                <EtcPoto initialImages={post.images ?? []} />
                 <TextArea value={content} onChange={(e) => setContent(e.target.value)} />
 
                 <div className="flex gap-3 justify-end">
                     <ShortButton onClick={handleSubmit} className="bg-[#2E7D32] text-white">
                         수정하기
                     </ShortButton>
-                    <ShortButton onClick={handleSubmit} className="bg-white border-3 border-[#2E7D32]">
+                    <ShortButton onClick={() => setIsModalOpen(true)} className="bg-white border-3 border-[#2E7D32]">
                         취소
                     </ShortButton>
                 </div>
