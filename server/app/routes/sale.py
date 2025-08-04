@@ -7,7 +7,7 @@ from ..extensions import db
 sale_bp = Blueprint("sale", __name__)
 
 
-@sale_bp.route("/", methods=["POST"])
+@sale_bp.route("/uploadSale", methods=["POST"])
 def register_sale():
     data = request.get_json()
 
@@ -26,6 +26,7 @@ def register_sale():
         grade=data.get("tag", {}).get("grade", ""),
         thumbnail=data.get("thumbnail"),
         content=data.get("content"),
+        images=data.get("images"),
     )
 
     db.session.add(sale)

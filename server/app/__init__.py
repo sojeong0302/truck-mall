@@ -17,11 +17,8 @@ def create_app():
     app.config.from_object(Config)
 
     # CORS 설정
-    CORS(
-        app,
-        supports_credentials=True,
-        resources={r"/*": {"origins": "*"}},
-    )
+
+    CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
 
     # 확장 모듈 초기화
     db.init_app(app)

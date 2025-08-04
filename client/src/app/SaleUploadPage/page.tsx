@@ -9,6 +9,7 @@ import { useFilterTagStore } from "@/components/Filter/Filter.types";
 import SimpleFilter from "@/components/SimpleFilter";
 import { useCarFormStore } from "@/store/carFormStore";
 import { useImageStore } from "@/store/imageStore";
+import axios from "axios";
 
 export default function WritingUpload() {
     const { manufacturer, model, subModel, grade } = useFilterTagStore();
@@ -37,8 +38,8 @@ export default function WritingUpload() {
         fileInputRef.current?.click();
     };
 
-    const handleSubmit = () => {
-        setField("images", files);
+    const handleSubmit = async () => {
+        setField("images", files); // 이미지 상태 설정
 
         const formData = {
             simpleTags: selectedTags,
@@ -52,19 +53,29 @@ export default function WritingUpload() {
             color,
             price,
             thumbnail,
-            images: files, // 👈 files에서 온 값
+            images: files,
             content,
         };
 
-        console.log("🚗 최종 등록 데이터:", formData);
-        alert("등록 되었습니다.");
+        try {
+            const res = await axios.post("http://localhost:5000/sale/uploadSale", formData, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                withCredentials: true,
+            });
 
-        clearForm();
-        clear();
+            console.log("✅ 등록 성공:", res.data);
+            alert("등록 되었습니다.");
 
-        // ✅ 썸네일 input 자체도 초기화 (파일 input은 수동으로 초기화 필요)
-        if (fileInputRef.current) {
-            fileInputRef.current.value = "";
+            clearForm();
+            clear();
+            if (fileInputRef.current) {
+                fileInputRef.current.value = "";
+            }
+        } catch (err) {
+            console.error("❌ 등록 실패:", err);
+            alert("등록 중 오류가 발생했습니다.");
         }
     };
 

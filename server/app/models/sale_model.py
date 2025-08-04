@@ -1,11 +1,7 @@
 from enum import Enum
 from sqlalchemy import Boolean, Column, Integer, String, Text
 from ..extensions import db
-
-
-class SaleStatusEnum(Enum):
-    판매중 = "판매중"
-    판매완료 = "판매완료"
+from sqlalchemy.dialects.sqlite import JSON
 
 
 class Sale(db.Model):
@@ -26,6 +22,7 @@ class Sale(db.Model):
     grade = db.Column(db.String(50))
     thumbnail = db.Column(db.Text)
     content = db.Column(db.Text)
+    images = db.Column(JSON)
     status = db.Column(Boolean, default=True, nullable=False)
 
     def to_dict(self):
@@ -45,5 +42,6 @@ class Sale(db.Model):
             "grade": self.grade,
             "thumbnail": self.thumbnail,
             "content": self.content,
-            "status": self.status,  # enum의 문자열 값 반환
+            "status": self.status,
+            "images": self.images,
         }
