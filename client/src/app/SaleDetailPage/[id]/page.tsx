@@ -42,10 +42,17 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
 
     const handleDelete = async () => {
         try {
-            const res = await fetch(`http://localhost:5000/review/${id}`, {
+            const res = await fetch(`http://localhost:5000/sale/${id}`, {
                 method: "DELETE",
             });
-            setIsModalOpen(true);
+
+            if (res.ok) {
+                alert("삭제가 완료되었습니다.");
+                router.push("/CarSearchPage"); // 삭제 후 이동할 경로 (원하는 페이지로 변경 가능)
+            } else {
+                const errorData = await res.json();
+                alert(`삭제 실패: ${errorData.error}`);
+            }
         } catch (error) {
             console.error("삭제 오류", error);
             alert("서버 오류로 삭제에 실패했습니다.");

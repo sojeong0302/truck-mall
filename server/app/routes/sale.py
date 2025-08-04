@@ -76,3 +76,15 @@ def update_sale(sale_id):
     db.session.commit()
 
     return jsonify({"message": "수정 성공", "car": sale.to_dict()}), 200
+
+
+@sale_bp.route("/<int:sale_id>", methods=["DELETE"])
+def delete_sale(sale_id):
+    sale = Sale.query.get(sale_id)
+    if sale is None:
+        return jsonify({"error": "해당 매물을 찾을 수 없습니다."}), 404
+
+    db.session.delete(sale)
+    db.session.commit()
+
+    return jsonify({"message": "삭제 성공"}), 200

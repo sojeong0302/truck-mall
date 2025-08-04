@@ -85,22 +85,9 @@ export default function CarSearchPage() {
                                         </div>
                                     );
                                 }}
-                                renderThumb={({ props, isDragged, index }) => {
-                                    const { key, ...rest } = props;
-                                    return (
-                                        <div
-                                            key={key} // ✅ 직접 넣어줌
-                                            {...rest}
-                                            className="relative flex items-center justify-center focus:outline-none outline-none"
-                                        >
-                                            <div
-                                                className={`absolute w-6 h-6 rounded-full bg-[#2E7D32]/20 transition-all duration-200 ${
-                                                    isDragged ? "scale-150" : "scale-0"
-                                                }`}
-                                            />
-                                            <div className="w-5 h-5 bg-[#2E7D32] rounded-full z-10" />
-                                        </div>
-                                    );
+                                renderThumb={({ props, index }) => {
+                                    const { key, ...restProps } = props; // key는 따로 빼내고
+                                    return <div key={index} {...restProps} />; // key는 직접 지정
                                 }}
                             />
                         </div>
