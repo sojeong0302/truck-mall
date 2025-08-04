@@ -6,6 +6,9 @@ import { usePaginationStore } from "@/store/paginationStore";
 import { dummyData3 } from "@/data/dummy";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useEffect, useState } from "react";
+import { SaleProps } from "./Sale.types";
+import axios from "axios";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -26,6 +29,21 @@ export default function Sale({ posts, basePath }: SaleComponentProps) {
         router.push("/SaleUploadPage");
     };
 
+    const [sales, setSales] = useState<SaleProps[]>([]);
+    useEffect(() => {
+        const fetchSales = async () => {
+            try {
+                const res = await axios.get("http://localhost:5000/sale/list");
+                setSales(res.data);
+                console.log(res.data);
+            } catch (err) {
+                console.error("매물 불러오기 실패:", err);
+            }
+        };
+
+        fetchSales();
+    }, []);
+
     return (
         <div className="w-[100%] flex flex-col items-center justify-center">
             <div className="w-[70%] p-3 flex items-center justify-between border-b-2 border-[#575757]">
@@ -43,19 +61,20 @@ export default function Sale({ posts, basePath }: SaleComponentProps) {
             </div>
 
             <div className="w-[70%] flex flex-col gap-5 p-10 ">
-                {pagedData.map((post, idx) => (
+                {sales.map((post, idx) => (
                     <div
                         onClick={() => router.push(`/SaleDetailPage/${post.id}`)}
                         key={idx}
                         className="flex w-full p-3 justify-between items-center cursor-pointer"
                     >
-                        {post.thumbnail && (
-                            <img
-                                src={post.thumbnail}
-                                alt="썸네일"
-                                className="shadow-lg rounded-xl w-[25%] h-auto min-w-[150px]"
-                            />
-                        )}
+                        <div className="w-[25%] h-[180px] min-w-[150px] rounded-xl shadow-lg flex items-center justify-center bg-gray-100 overflow-hidden">
+                            {post.thumbnail ? (
+                                <img src={post.thumbnail} alt="썸네일" className="w-full h-full object-cover" />
+                            ) : (
+                                <span className="text-gray-500 text-sm">이미지 준비중 입니다.</span>
+                            )}
+                        </div>
+
                         <div className="text-xl font-semibold flex flex-col gap-3">
                             <div>모델: {post.name}</div>
                             <div>연료: {post.fuel}</div>

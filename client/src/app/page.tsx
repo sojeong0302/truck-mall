@@ -19,6 +19,7 @@ export default function MainPage() {
     const [currentIndex, setCurrentIndex] = useState(0);
     const dataLength = dummyData.length;
     const [carTIPs, setCarTIPs] = useState<any[]>([]);
+    const [sales, setSales] = useState<any[]>([]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -44,20 +45,6 @@ export default function MainPage() {
     }, []);
 
     const current = dummyData[currentIndex];
-
-    useEffect(() => {
-        const fetchSales = async () => {
-            try {
-                const res = await axios.get("http://localhost:5000/sale/list");
-                setCarTIPs(res.data);
-                console.log(res.data);
-            } catch (err) {
-                console.error("매물 불러오기 실패:", err);
-            }
-        };
-
-        fetchSales();
-    }, []);
 
     return (
         <div className="w-[100%]">
