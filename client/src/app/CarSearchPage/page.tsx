@@ -34,12 +34,35 @@ export default function CarSearchPage() {
 
     const handleSelect = (item: string) => {
         setSelected(item);
-        setIsOpen(false); // 선택 후 닫기
+        setIsOpen(false);
     };
 
     const handleSubmit = () => {
         alert("등록 되었습니다.");
     };
+
+    const renderTrack =
+        (values: number[]) =>
+        ({ props, children }: any) => {
+            const [minVal, maxVal] = values;
+            const percentLeft = ((minVal - MIN) / (MAX - MIN)) * 100;
+            const percentRight = ((maxVal - MIN) / (MAX - MIN)) * 100;
+
+            return (
+                <div {...props} className="h-2 rounded-full my-4 relative w-[90%] bg-gray-300" style={props.style}>
+                    <div
+                        className="absolute h-full rounded-full bg-[#2E7D32]"
+                        style={{
+                            left: `${percentLeft}%`,
+                            width: `${percentRight - percentLeft}%`,
+                        }}
+                    />
+                    {Array.isArray(children)
+                        ? children.map((child: React.ReactNode, index: number) => <div key={index}>{child}</div>)
+                        : children}
+                </div>
+            );
+        };
 
     return (
         <div className="w-[100%] flex flex-col items-center">
@@ -50,6 +73,7 @@ export default function CarSearchPage() {
             <div className="flex w-[100%] justify-center gap-10 p-25">
                 <Sns />
                 <div className="border-[5px] border-[#2E7D32] w-[80%] flex flex-col p-10 justify-between rounded-4xl">
+                    {/* 차량 가격 */}
                     <div className="flex w-full ">
                         <div className="w-[30%] flex items-center gap-3">
                             <div className="text-lg text-[#2E7D32]">▶</div>
@@ -62,32 +86,16 @@ export default function CarSearchPage() {
                                 max={MAX}
                                 values={price}
                                 onChange={(vals) => setPrice(vals)}
-                                renderTrack={({ props, children }) => {
-                                    const [minVal, maxVal] = price;
-                                    const percentLeft = ((minVal - MIN) / (MAX - MIN)) * 100;
-                                    const percentRight = ((maxVal - MIN) / (MAX - MIN)) * 100;
-
+                                renderTrack={renderTrack(price)}
+                                renderThumb={({ props, index }) => {
+                                    const { key: _ignored, ...rest } = props;
                                     return (
                                         <div
-                                            {...props}
-                                            className="h-2 rounded-full my-4 relative w-[90%] bg-gray-300"
-                                            style={props.style}
-                                        >
-                                            {/* 선택된 바 영역 */}
-                                            <div
-                                                className="absolute h-full rounded-full bg-[#2E7D32]"
-                                                style={{
-                                                    left: `${percentLeft}%`,
-                                                    width: `${percentRight - percentLeft}%`,
-                                                }}
-                                            />
-                                            {children}
-                                        </div>
+                                            {...rest}
+                                            key={`thumb-price-${index}`}
+                                            className="w-5 h-5 bg-[#2E7D32] rounded-full"
+                                        />
                                     );
-                                }}
-                                renderThumb={({ props, index }) => {
-                                    const { key, ...restProps } = props; // key는 따로 빼내고
-                                    return <div key={index} {...restProps} />; // key는 직접 지정
                                 }}
                             />
                         </div>
@@ -112,6 +120,8 @@ export default function CarSearchPage() {
                             <span className="text-xl whitespace-nowrap">만원</span>
                         </div>
                     </div>
+
+                    {/* 차량 년식 */}
                     <div className="flex w-full">
                         <div className="w-[30%] flex items-center gap-3">
                             <div className="text-lg text-[#2E7D32]">▶</div>
@@ -124,45 +134,25 @@ export default function CarSearchPage() {
                                 max={MAX}
                                 values={year}
                                 onChange={(vals) => setYear(vals)}
-                                renderTrack={({ props, children }) => {
-                                    const [minVal, maxVal] = year;
-                                    const percentLeft = ((minVal - MIN) / (MAX - MIN)) * 100;
-                                    const percentRight = ((maxVal - MIN) / (MAX - MIN)) * 100;
-
+                                renderTrack={renderTrack(year)}
+                                renderThumb={({ props, isDragged, index }) => {
+                                    const { key: _ignored, ...rest } = props;
                                     return (
                                         <div
-                                            {...props}
-                                            className="h-2 rounded-full my-4 relative w-[90%] bg-gray-300"
-                                            style={props.style}
+                                            {...rest}
+                                            key={`thumb-year-${index}`}
+                                            className="relative flex items-center justify-center focus:outline-none outline-none"
                                         >
-                                            {/* 선택된 바 영역 */}
                                             <div
-                                                className="absolute h-full rounded-full bg-[#2E7D32]"
-                                                style={{
-                                                    left: `${percentLeft}%`,
-                                                    width: `${percentRight - percentLeft}%`,
-                                                }}
+                                                key="shadow"
+                                                className={`absolute w-6 h-6 rounded-full bg-[#2E7D32]/20 transition-all duration-200 ${
+                                                    isDragged ? "scale-150" : "scale-0"
+                                                }`}
                                             />
-                                            {children}
+                                            <div key="dot" className="w-5 h-5 bg-[#2E7D32] rounded-full z-10" />
                                         </div>
                                     );
                                 }}
-                                renderThumb={({ props, isDragged }) => (
-                                    <div
-                                        {...props}
-                                        className="relative flex items-center justify-center focus:outline-none outline-none"
-                                    >
-                                        {/* 드래그 중일 때만 은은한 퍼짐 */}
-                                        <div
-                                            className={`absolute w-6 h-6 rounded-full bg-[#2E7D32]/20 transition-all duration-200 ${
-                                                isDragged ? "scale-150" : "scale-0"
-                                            }`}
-                                        />
-
-                                        {/* 중심 동그라미 */}
-                                        <div className="w-5 h-5 bg-[#2E7D32] rounded-full z-10" />
-                                    </div>
-                                )}
                             />
                         </div>
                         <div className="text-3xl font-medium text-[#2E7D32] flex items-center gap-4">
@@ -186,6 +176,8 @@ export default function CarSearchPage() {
                             <span className="text-lg whitespace-nowrap">년도</span>
                         </div>
                     </div>
+
+                    {/* 변속기 */}
                     <div className="flex w-full gap-10">
                         <div className="flex items-center gap-3">
                             <div className="text-lg text-[#2E7D32]">▶</div>
@@ -194,7 +186,7 @@ export default function CarSearchPage() {
                         <div className="relative w-48">
                             <button
                                 className="transition transform duration-200 active:scale-95 cursor-pointer w-full text-left border border-[#2E7D32] rounded-md px-3 py-2 text-xl"
-                                onClick={() => setIsOpen((prev) => !prev)} // 토글
+                                onClick={() => setIsOpen((prev) => !prev)}
                             >
                                 {selected || "전체"}
                             </button>
@@ -214,6 +206,8 @@ export default function CarSearchPage() {
                             )}
                         </div>
                     </div>
+
+                    {/* 버튼 */}
                     <div className="flex gap-3 justify-end">
                         <ShortButton onClick={handleSubmit} className="bg-[#2E7D32] text-white">
                             검색
@@ -224,6 +218,7 @@ export default function CarSearchPage() {
                     </div>
                 </div>
             </div>
+
             <Sale posts={dummyData3} basePath="" />
         </div>
     );
