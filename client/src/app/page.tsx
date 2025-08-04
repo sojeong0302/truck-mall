@@ -19,6 +19,7 @@ export default function MainPage() {
     const [currentIndex, setCurrentIndex] = useState(0);
     const dataLength = dummyData.length;
     const [carTIPs, setCarTIPs] = useState<any[]>([]);
+    const [sales, setSales] = useState<any[]>([]);
 
     useEffect(() => {
         const interval = setInterval(() => {

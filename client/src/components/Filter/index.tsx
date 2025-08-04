@@ -1,7 +1,7 @@
 "use client";
 
 import { data } from "./Filter.hooks";
-import { useFilterStore } from "./Filter.types";
+import { useFilterTagStore } from "./Filter.types";
 
 function SelectBox({
     title,
@@ -52,7 +52,7 @@ function SelectBox({
 }
 
 export default function Filter() {
-    const { manufacturer, model, subModel, grade, set } = useFilterStore();
+    const { manufacturer, model, subModel, grade, set } = useFilterTagStore();
 
     const models = data.find((m) => m.manufacturer === manufacturer)?.models || [];
     const subModels = models.find((m) => m.name === model)?.subModels || [];

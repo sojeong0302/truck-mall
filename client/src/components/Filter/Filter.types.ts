@@ -1,34 +1,36 @@
+// store/filterTagStore.ts
 import { create } from "zustand";
 
-type FilterKey = "manufacturer" | "model" | "subModel" | "grade";
-
-type FilterState = {
+interface FilterTagState {
     manufacturer: string;
     model: string;
     subModel: string;
     grade: string;
-    set: (key: FilterKey, value: string) => void;
-    reset: () => void;
-};
+    set: (key: keyof FilterTagState, value: string) => void;
+    clear: () => void;
+}
 
-export const useFilterStore = create<FilterState>((set) => ({
+export const useFilterTagStore = create<FilterTagState>((set) => ({
     manufacturer: "",
     model: "",
     subModel: "",
     grade: "",
-    set: (key, value) => {
-        const resetMap: Record<FilterKey, Partial<FilterState>> = {
-            manufacturer: { model: "", subModel: "", grade: "" },
-            model: { subModel: "", grade: "" },
-            subModel: { grade: "" },
-            grade: {},
-        };
+    set: (key, value) =>
+        set((state) => {
+            let newState;
 
-        return set((state) => ({
-            ...state,
-            [key]: value,
-            ...resetMap[key],
-        }));
-    },
-    reset: () => set({ manufacturer: "", model: "", subModel: "", grade: "" }),
+            if (key === "manufacturer") {
+                newState = { manufacturer: value, model: "", subModel: "", grade: "" };
+            } else if (key === "model") {
+                newState = { ...state, model: value, subModel: "", grade: "" };
+            } else if (key === "subModel") {
+                newState = { ...state, subModel: value, grade: "" };
+            } else {
+                newState = { ...state, [key]: value };
+            }
+
+            console.log("✅ 현재 선택 상태:", newState);
+            return newState;
+        }),
+    clear: () => set({ manufacturer: "", model: "", subModel: "", grade: "" }),
 }));
