@@ -38,3 +38,12 @@ def get_sales():
     sales = Sale.query.order_by(Sale.id.desc()).all()  # 최신순 정렬 (원하면 변경 가능)
     result = [sale.to_dict() for sale in sales]
     return jsonify(result), 200
+
+
+@sale_bp.route("/<int:sale_id>", methods=["GET"])
+def get_sale_by_id(sale_id):
+    sale = Sale.query.get(sale_id)
+    if sale is None:
+        return jsonify({"error": "해당 매물을 찾을 수 없습니다."}), 404
+
+    return jsonify(sale.to_dict()), 200

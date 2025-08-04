@@ -43,5 +43,5 @@ class Sale(db.Model):
             "thumbnail": self.thumbnail,
             "content": self.content,
             "status": self.status,
-            "images": self.images,
+            "images": self.images if isinstance(self.images, list) else [],
         }

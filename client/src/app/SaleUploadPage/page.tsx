@@ -19,7 +19,6 @@ export default function WritingUpload() {
 
     const selectedTags = [manufacturer, model, subModel, grade].filter(Boolean);
 
-    const [image, setImage] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,25 +38,38 @@ export default function WritingUpload() {
     };
 
     const handleSubmit = async () => {
-        setField("images", files); // 이미지 상태 설정
-
-        const formData = {
-            simpleTags: selectedTags,
-            tag: { manufacturer, model, subModel, grade },
-            name,
-            fuel,
-            type,
-            trim,
-            year,
-            mileage,
-            color,
-            price,
-            thumbnail,
-            images: files,
-            content,
+        // ✅ File 객체 → base64 배열로 변환
+        const convertFilesToBase64 = async (files: File[]) => {
+            const promises = files.map((file) => {
+                return new Promise<string>((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result as string);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+            });
+            return Promise.all(promises);
         };
 
         try {
+            const base64Images = await convertFilesToBase64(files);
+
+            const formData = {
+                simpleTags: selectedTags,
+                tag: { manufacturer, model, subModel, grade },
+                name,
+                fuel,
+                type,
+                trim,
+                year,
+                mileage,
+                color,
+                price,
+                thumbnail,
+                images: base64Images, // ✅ base64 이미지 저장
+                content,
+            };
+
             const res = await axios.post("http://localhost:5000/sale/uploadSale", formData, {
                 headers: {
                     "Content-Type": "application/json",
