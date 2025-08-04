@@ -1,5 +1,3 @@
-# server/routes/car.py
-
 from flask import Blueprint, request, jsonify
 from ..models.sale_model import Sale
 from ..extensions import db
@@ -33,3 +31,10 @@ def register_sale():
     db.session.commit()
 
     return jsonify({"message": "등록 성공", "car": sale.to_dict()}), 201
+
+
+@sale_bp.route("/list", methods=["GET"])
+def get_sales():
+    sales = Sale.query.order_by(Sale.id.desc()).all()  # 최신순 정렬 (원하면 변경 가능)
+    result = [sale.to_dict() for sale in sales]
+    return jsonify(result), 200

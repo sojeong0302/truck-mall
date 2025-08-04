@@ -45,6 +45,20 @@ export default function MainPage() {
 
     const current = dummyData[currentIndex];
 
+    useEffect(() => {
+        const fetchSales = async () => {
+            try {
+                const res = await axios.get("http://localhost:5000/sale/list");
+                setCarTIPs(res.data);
+                console.log(res.data);
+            } catch (err) {
+                console.error("매물 불러오기 실패:", err);
+            }
+        };
+
+        fetchSales();
+    }, []);
+
     return (
         <div className="w-[100%]">
             {/* 메인 사진 */}
