@@ -66,13 +66,11 @@ export default function CarSearchPage() {
         };
     const { simpleTag } = useSimpleTagStore();
 
-    const filteredData = dummyData3.filter((item) => {
-        // ✅ simpleTag가 없으면 전체 표시
-        if (simpleTag.length === 0) return true;
+    const filteredData = (dummyData3 ?? []).filter((item) => {
+        if (!Array.isArray(simpleTag) || simpleTag.length === 0) return true;
 
-        // ✅ 각 태그 조건을 만족해야 통과
         return simpleTag.every((tag) => {
-            return item.manufacturer === tag.type && item.grade === tag.grade;
+            return item?.manufacturer === tag.type && item?.grade === tag.grade;
         });
     });
 

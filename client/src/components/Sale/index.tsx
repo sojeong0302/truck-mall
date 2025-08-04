@@ -32,20 +32,25 @@ export default function Sale({ posts, basePath }: SaleComponentProps) {
         const fetchSales = async () => {
             try {
                 const query = new URLSearchParams();
-                if (simpleTag.length > 0) {
-                    query.append("simple_type", simpleTag[0].type);
-                    query.append("simple_grade", simpleTag[0].grade);
+                if (simpleTag) {
+                    // ✅ null 체크
+                    query.append("simple_type", simpleTag.type);
+                    query.append("simple_grade", simpleTag.grade);
                 }
 
                 const res = await axios.get(`http://localhost:5000/sale/list?${query.toString()}`);
-                setSales(res.data);
+                console.log("✅ 받아온 데이터:", res.data);
+
+                const safeData = res.data ?? [];
+                setSales(Array.isArray(safeData) ? safeData : []);
             } catch (err) {
-                console.error("매물 불러오기 실패:", err);
+                console.error("❌ 매물 불러오기 실패:", err);
+                setSales([]);
             }
         };
 
         fetchSales();
-    }, [simpleTag]); // ✅ 반드시 simpleTag를 의존성에 포함해야 함
+    }, [simpleTag]);
 
     // ✅ 이렇게 수정
     const pagedData = sales.slice(startIndex, endIndex);

@@ -7,20 +7,13 @@ interface SimpleTag {
 }
 
 interface SimpleTagState {
-    simpleTag: SimpleTag[];
+    simpleTag: SimpleTag | null; // ✅ 객체 or null
     setSimpleTag: (type: string, grade: string) => void;
     resetSimpleTag: () => void;
 }
 
 export const useSimpleTagStore = create<SimpleTagState>((set) => ({
-    simpleTag: [],
-    setSimpleTag: (type, grade) =>
-        set((state) => {
-            const exists = state.simpleTag.find((t) => t.type === type);
-            const updated = exists
-                ? state.simpleTag.map((t) => (t.type === type ? { type, grade } : t))
-                : [...state.simpleTag, { type, grade }];
-            return { simpleTag: updated };
-        }),
-    resetSimpleTag: () => set({ simpleTag: [] }),
+    simpleTag: null,
+    setSimpleTag: (type, grade) => set(() => ({ simpleTag: { type, grade } })),
+    resetSimpleTag: () => set({ simpleTag: null }),
 }));

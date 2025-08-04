@@ -1,5 +1,4 @@
 "use client";
-import { useState, useEffect } from "react";
 import { data } from "./SimpleFilter.hooks";
 import { useSimpleTagStore } from "@/store/simpleTagStore";
 
@@ -16,7 +15,7 @@ export default function SimpleFilter() {
             <div className="grid grid-cols-8 gap-6">
                 {data.map((truck) => {
                     const grades = truck.grades[0].split(", ");
-                    const selected = simpleTag.find((t) => t.type === truck.type)?.grade;
+                    const isSelected = simpleTag?.type === truck.type;
 
                     return (
                         <div key={truck.type} className="bg-white p-3 shadow-md rounded-lg">
@@ -28,7 +27,7 @@ export default function SimpleFilter() {
                                         onClick={() => handleSelect(truck.type, grade)}
                                         className={`transition transform duration-200 active:scale-95 cursor-pointer px-3 py-1 rounded-full text-sm font-medium border 
                                             ${
-                                                selected === grade
+                                                isSelected && simpleTag?.grade === grade
                                                     ? "bg-[#2E7D32] text-white border-[#2E7D32]"
                                                     : "bg-[#2E7D32]/10 text-[#2E7D32] border-transparent"
                                             }
