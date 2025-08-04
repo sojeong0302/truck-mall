@@ -8,6 +8,7 @@ import { useState } from "react";
 import { Range } from "react-range";
 import Sale from "@/components/Sale";
 import { dummyData3 } from "@/data/dummy";
+import { useSimpleTagStore } from "@/store/simpleTagStore";
 
 const MIN = 0;
 const MAX = 10000;
@@ -63,6 +64,17 @@ export default function CarSearchPage() {
                 </div>
             );
         };
+    const { simpleTag } = useSimpleTagStore();
+
+    const filteredData = dummyData3.filter((item) => {
+        // ✅ simpleTag가 없으면 전체 표시
+        if (simpleTag.length === 0) return true;
+
+        // ✅ 각 태그 조건을 만족해야 통과
+        return simpleTag.every((tag) => {
+            return item.manufacturer === tag.type && item.grade === tag.grade;
+        });
+    });
 
     return (
         <div className="w-[100%] flex flex-col items-center">
@@ -255,7 +267,7 @@ export default function CarSearchPage() {
                 </div>
             </div>
 
-            <Sale posts={dummyData3} basePath="" />
+            <Sale posts={filteredData} basePath="" />
         </div>
     );
 }

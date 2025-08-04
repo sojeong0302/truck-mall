@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from ..models.sale_model import Sale
 from ..extensions import db
+import json
 
 sale_bp = Blueprint("sale", __name__)
 
@@ -8,6 +9,7 @@ sale_bp = Blueprint("sale", __name__)
 @sale_bp.route("/uploadSale", methods=["POST"])
 def register_sale():
     data = request.get_json()
+    simple_tags = data.get("simple_tags", [])
 
     sale = Sale(
         name=data.get("name"),
@@ -25,6 +27,7 @@ def register_sale():
         thumbnail=data.get("thumbnail"),
         content=data.get("content"),
         images=data.get("images"),
+        simple_tags=simple_tags,
     )
 
     db.session.add(sale)
@@ -35,8 +38,35 @@ def register_sale():
 
 @sale_bp.route("/list", methods=["GET"])
 def get_sales():
-    sales = Sale.query.order_by(Sale.id.desc()).all()  # 최신순 정렬 (원하면 변경 가능)
-    result = [sale.to_dict() for sale in sales]
+    simple_type = request.args.get("simple_type")
+    simple_grade = request.args.get("simple_grade")
+
+    sales = Sale.query.order_by(Sale.id.desc()).all()
+    result = []
+
+    # ✅ 필터 조건이 있다면 simple_tags 안에서 검사
+    if simple_type and simple_grade:
+        for sale in sales:
+            tags = sale.simple_tags or []
+
+            # 문자열이면 JSON으로 파싱 시도
+            if isinstance(tags, str):
+                try:
+                    tags = json.loads(tags)
+                except json.JSONDecodeError:
+                    tags = []
+
+            # 리스트인지 확인 후 필터링
+            if isinstance(tags, list) and any(
+                isinstance(tag, dict)
+                and tag.get("type") == simple_type
+                and tag.get("grade") == simple_grade
+                for tag in tags
+            ):
+                result.append(sale.to_dict())
+    else:
+        result = [sale.to_dict() for sale in sales]
+
     return jsonify(result), 200
 
 

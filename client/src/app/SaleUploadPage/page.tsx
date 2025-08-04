@@ -10,8 +10,10 @@ import SimpleFilter from "@/components/SimpleFilter";
 import { useCarFormStore } from "@/store/carFormStore";
 import { useImageStore } from "@/store/imageStore";
 import axios from "axios";
+import { useSimpleTagStore } from "@/store/simpleTagStore";
 
 export default function WritingUpload() {
+    const { simpleTag } = useSimpleTagStore();
     const { manufacturer, model, subModel, grade } = useFilterTagStore();
     const { files, clear } = useImageStore();
     const { thumbnail, name, fuel, type, trim, year, mileage, color, price, images, content, setField, clearForm } =
@@ -55,7 +57,7 @@ export default function WritingUpload() {
             const base64Images = await convertFilesToBase64(files);
 
             const formData = {
-                simpleTags: selectedTags,
+                simple_tags: simpleTag, // ✅ 이렇게 바꿔줘야 Flask가 인식함!
                 tag: { manufacturer, model, subModel, grade },
                 name,
                 fuel,

@@ -31,27 +31,25 @@ export default function Sale({ posts, basePath }: SaleComponentProps) {
     useEffect(() => {
         const fetchSales = async () => {
             try {
-                const res = await axios.get("http://localhost:5000/sale/list");
+                const query = new URLSearchParams();
+                if (simpleTag.length > 0) {
+                    query.append("simple_type", simpleTag[0].type);
+                    query.append("simple_grade", simpleTag[0].grade);
+                }
+
+                const res = await axios.get(`http://localhost:5000/sale/list?${query.toString()}`);
                 setSales(res.data);
-                console.log(res.data);
             } catch (err) {
                 console.error("매물 불러오기 실패:", err);
             }
         };
 
         fetchSales();
-    }, []);
+    }, [simpleTag]); // ✅ 반드시 simpleTag를 의존성에 포함해야 함
 
-    const filteredSales = sales.filter((sale) => {
-        if (simpleTag.length === 0) return true;
-
-        return simpleTag.every((tag) => {
-            return sale.manufacturer === tag.type && sale.grade === tag.grade;
-        });
-    });
-
-    const pagedData = filteredSales.slice(startIndex, endIndex);
-    const totalPages = Math.ceil(filteredSales.length / ITEMS_PER_PAGE);
+    // ✅ 이렇게 수정
+    const pagedData = sales.slice(startIndex, endIndex);
+    const totalPages = Math.ceil(sales.length / ITEMS_PER_PAGE);
 
     return (
         <div className="w-[100%] flex flex-col items-center justify-center">
