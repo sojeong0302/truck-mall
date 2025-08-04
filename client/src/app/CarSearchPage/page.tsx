@@ -86,16 +86,38 @@ export default function CarSearchPage() {
                                 max={MAX}
                                 values={price}
                                 onChange={(vals) => setPrice(vals)}
-                                renderTrack={renderTrack(price)}
-                                renderThumb={({ props, index }) => {
-                                    const { key: _ignored, ...rest } = props;
+                                renderTrack={({ props, children }) => {
+                                    const [minVal, maxVal] = price;
+                                    const percentLeft = ((minVal - MIN) / (MAX - MIN)) * 100;
+                                    const percentRight = ((maxVal - MIN) / (MAX - MIN)) * 100;
+
                                     return (
                                         <div
-                                            {...rest}
-                                            key={`thumb-price-${index}`}
-                                            className="w-5 h-5 bg-[#2E7D32] rounded-full"
-                                        />
+                                            {...props}
+                                            className="h-2 rounded-full my-4 relative w-[90%] bg-gray-300"
+                                            style={props.style}
+                                        >
+                                            {/* 선택된 바 영역 */}
+                                            <div
+                                                className="absolute h-full rounded-full bg-[#2E7D32]"
+                                                style={{
+                                                    left: `${percentLeft}%`,
+                                                    width: `${percentRight - percentLeft}%`,
+                                                }}
+                                            />
+                                            {children}
+                                        </div>
                                     );
+                                }}
+                                renderThumb={({ props, index }) => {
+                                    const { key, ...restProps } = props; // key는 따로 빼내고
+                                    return (
+                                        <div
+                                            key={index}
+                                            className="w-5 h-5 rounded-full bg-[#2E7D32] shadow-md"
+                                            {...restProps}
+                                        />
+                                    ); // key는 직접 지정
                                 }}
                             />
                         </div>
@@ -134,24 +156,38 @@ export default function CarSearchPage() {
                                 max={MAX}
                                 values={year}
                                 onChange={(vals) => setYear(vals)}
-                                renderTrack={renderTrack(year)}
-                                renderThumb={({ props, isDragged, index }) => {
-                                    const { key: _ignored, ...rest } = props;
+                                renderTrack={({ props, children }) => {
+                                    const [minVal, maxVal] = year;
+                                    const percentLeft = ((minVal - MIN) / (MAX - MIN)) * 100;
+                                    const percentRight = ((maxVal - MIN) / (MAX - MIN)) * 100;
+
                                     return (
                                         <div
-                                            {...rest}
-                                            key={`thumb-year-${index}`}
-                                            className="relative flex items-center justify-center focus:outline-none outline-none"
+                                            {...props}
+                                            className="h-2 rounded-full my-4 relative w-[90%] bg-gray-300"
+                                            style={props.style}
                                         >
+                                            {/* 선택된 바 영역 */}
                                             <div
-                                                key="shadow"
-                                                className={`absolute w-6 h-6 rounded-full bg-[#2E7D32]/20 transition-all duration-200 ${
-                                                    isDragged ? "scale-150" : "scale-0"
-                                                }`}
+                                                className="absolute h-full rounded-full bg-[#2E7D32]"
+                                                style={{
+                                                    left: `${percentLeft}%`,
+                                                    width: `${percentRight - percentLeft}%`,
+                                                }}
                                             />
-                                            <div key="dot" className="w-5 h-5 bg-[#2E7D32] rounded-full z-10" />
+                                            {children}
                                         </div>
                                     );
+                                }}
+                                renderThumb={({ props, index }) => {
+                                    const { key, ...restProps } = props; // key는 따로 빼내고
+                                    return (
+                                        <div
+                                            className="w-5 h-5 rounded-full bg-[#2E7D32] shadow-md"
+                                            key={index}
+                                            {...restProps}
+                                        />
+                                    ); // key는 직접 지정
                                 }}
                             />
                         </div>

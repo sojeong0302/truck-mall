@@ -9,12 +9,13 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useEffect, useState } from "react";
 import { SaleProps } from "./Sale.types";
 import axios from "axios";
+import { useSimpleTagStore } from "@/store/simpleTagStore";
 
 const ITEMS_PER_PAGE = 5;
 
 export default function Sale({ posts, basePath }: SaleComponentProps) {
     const { currentPage } = usePaginationStore();
-
+    const { simpleTag } = useSimpleTagStore();
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
 
@@ -41,8 +42,16 @@ export default function Sale({ posts, basePath }: SaleComponentProps) {
         fetchSales();
     }, []);
 
-    const pagedData = sales.slice(startIndex, endIndex);
-    const totalPages = Math.ceil(sales.length / ITEMS_PER_PAGE);
+    const filteredSales = sales.filter((sale) => {
+        if (simpleTag.length === 0) return true;
+
+        return simpleTag.every((tag) => {
+            return sale.manufacturer === tag.type && sale.grade === tag.grade;
+        });
+    });
+
+    const pagedData = filteredSales.slice(startIndex, endIndex);
+    const totalPages = Math.ceil(filteredSales.length / ITEMS_PER_PAGE);
 
     return (
         <div className="w-[100%] flex flex-col items-center justify-center">
