@@ -1,5 +1,5 @@
-// store/filterTagStore.ts
 import { create } from "zustand";
+import { useSimpleTagStore } from "@/store/simpleTagStore"; // ✅ 다른 store import
 
 interface FilterTagState {
     manufacturer: string;
@@ -10,27 +10,30 @@ interface FilterTagState {
     clear: () => void;
 }
 
-export const useFilterTagStore = create<FilterTagState>((set) => ({
+export const useFilterTagStore = create<FilterTagState>((set, get) => ({
     manufacturer: "",
     model: "",
     subModel: "",
     grade: "",
-    set: (key, value) =>
-        set((state) => {
-            let newState;
+    set: (key, value) => {
+        // ✅ SimpleTag 초기화
+        useSimpleTagStore.getState().resetSimpleTag();
 
-            if (key === "manufacturer") {
-                newState = { manufacturer: value, model: "", subModel: "", grade: "" };
-            } else if (key === "model") {
-                newState = { ...state, model: value, subModel: "", grade: "" };
-            } else if (key === "subModel") {
-                newState = { ...state, subModel: value, grade: "" };
-            } else {
-                newState = { ...state, [key]: value };
-            }
+        let newState;
+        const state = get();
 
-            console.log("✅ 현재 선택 상태:", newState);
-            return newState;
-        }),
+        if (key === "manufacturer") {
+            newState = { manufacturer: value, model: "", subModel: "", grade: "" };
+        } else if (key === "model") {
+            newState = { ...state, model: value, subModel: "", grade: "" };
+        } else if (key === "subModel") {
+            newState = { ...state, subModel: value, grade: "" };
+        } else {
+            newState = { ...state, [key]: value };
+        }
+
+        console.log("✅ 현재 선택 상태:", newState);
+        set(newState);
+    },
     clear: () => set({ manufacturer: "", model: "", subModel: "", grade: "" }),
 }));
