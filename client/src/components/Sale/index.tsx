@@ -17,9 +17,6 @@ export default function Sale({ posts, basePath }: SaleComponentProps) {
 
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
-    const pagedData = dummyData3.slice(startIndex, endIndex);
-
-    const totalPages = Math.ceil(dummyData3.length / ITEMS_PER_PAGE);
 
     const router = useRouter();
 
@@ -44,6 +41,9 @@ export default function Sale({ posts, basePath }: SaleComponentProps) {
         fetchSales();
     }, []);
 
+    const pagedData = sales.slice(startIndex, endIndex);
+    const totalPages = Math.ceil(sales.length / ITEMS_PER_PAGE);
+
     return (
         <div className="w-[100%] flex flex-col items-center justify-center">
             <div className="w-[70%] p-3 flex items-center justify-between border-b-2 border-[#575757]">
@@ -61,7 +61,7 @@ export default function Sale({ posts, basePath }: SaleComponentProps) {
             </div>
 
             <div className="w-[70%] flex flex-col gap-5 p-10 ">
-                {sales.map((post, idx) => (
+                {pagedData.map((post, idx) => (
                     <div
                         onClick={() => router.push(`/SaleDetailPage/${post.id}`)}
                         key={idx}
