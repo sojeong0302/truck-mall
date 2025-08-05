@@ -24,6 +24,7 @@ def register_sale():
         model=data.get("tag", {}).get("model", ""),
         sub_model=data.get("tag", {}).get("subModel", ""),
         grade=data.get("tag", {}).get("grade", ""),
+        transmission=data.get("transmission"),
         thumbnail=data.get("thumbnail"),
         content=data.get("content"),
         images=data.get("images"),
@@ -45,20 +46,44 @@ def get_sales():
     model = request.args.get("model")
     sub_model = request.args.get("sub_model")
     grade = request.args.get("grade")
+    transmission = request.args.get("transmission")
 
     min_price = request.args.get("min_price", type=int)
     max_price = request.args.get("max_price", type=int)
     min_year = request.args.get("min_year", type=int)
     max_year = request.args.get("max_year", type=int)
 
-    sales = Sale.query.order_by(Sale.id.desc()).all()
+    # ✅ query 객체로 필터 조건을 누적
+    query = Sale.query
+
+    if manufacturer:
+        query = query.filter(Sale.manufacturer == manufacturer)
+    if model:
+        query = query.filter(Sale.model == model)
+    if sub_model:
+        query = query.filter(Sale.sub_model == sub_model)
+    if grade:
+        query = query.filter(Sale.grade == grade)
+    if transmission:
+        query = query.filter(Sale.transmission == transmission)
+    if min_price is not None:
+        query = query.filter(Sale.price >= min_price)
+    if max_price is not None:
+        query = query.filter(Sale.price <= max_price)
+    if min_year is not None:
+        query = query.filter(Sale.year >= min_year)
+    if max_year is not None:
+        query = query.filter(Sale.year <= max_year)
+
+    query = query.order_by(Sale.id.desc())
+    sales = query.all()
+
     result = []
 
     for sale in sales:
-        # ✅ SimpleFilter 조건 검사
+        # ✅ simple_tag 조건은 여전히 따로 검사
         if simple_type and simple_grade:
             tags = sale.simple_tags or []
-
             if isinstance(tags, str):
                 try:
                     tags = json.loads(tags)
@@ -71,27 +96,7 @@ def get_sales():
                 and tag.get("grade") == simple_grade
                 for tag in tags
             ):
-                continue  # 조건 불일치 → 제외
-
-        # ✅ 일반 Filter 조건 검사
-        if manufacturer and sale.manufacturer != manufacturer:
-            continue
-        if model and sale.model != model:
-            continue
-        if sub_model and sale.sub_model != sub_model:
-            continue
-        if grade and sale.grade != grade:
-            continue
-        if min_price is not None and int(sale.price or 0) < min_price:
-            continue
-        if max_price is not None and int(sale.price or 0) > max_price:
-            continue
-
-        # 연식 필터링
-        if min_year is not None and int(sale.year or 0) < min_year:
-            continue
-        if max_year is not None and int(sale.year or 0) > max_year:
-            continue
+                continue
 
         result.append(sale.to_dict())
 

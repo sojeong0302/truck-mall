@@ -12,6 +12,7 @@ export interface SaleProps {
     images?: string[];
     content?: string;
     status: boolean;
+    transmission?: string;
 
     // 🆕 tag 정보 추가
     manufacturer?: string;
@@ -23,6 +24,7 @@ export interface SaleProps {
 export interface SaleComponentProps {
     posts?: SaleProps[];
     basePath: string;
-    priceRange?: number[]; // ✅ 추가
-    yearRange?: number[]; // ✅ 추가
+    priceRange?: number[];
+    yearRange?: number[];
+    transmission?: string;
 }

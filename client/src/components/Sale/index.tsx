@@ -14,7 +14,7 @@ import { useSearchTriggerStore } from "@/store/searchTriggerStore";
 
 const ITEMS_PER_PAGE = 5;
 
-export default function Sale({ posts, basePath, priceRange, yearRange }: SaleComponentProps) {
+export default function Sale({ transmission, posts, basePath, priceRange, yearRange }: SaleComponentProps) {
     const { currentPage } = usePaginationStore();
     const { simpleTag } = useSimpleTagStore();
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -47,6 +47,10 @@ export default function Sale({ posts, basePath, priceRange, yearRange }: SaleCom
                 if (yearRange) {
                     query.append("min_year", String(yearRange[0]));
                     query.append("max_year", String(yearRange[1]));
+                }
+
+                if (transmission) {
+                    query.append("transmission", transmission);
                 }
 
                 // ✅ 일반 Filter 조건

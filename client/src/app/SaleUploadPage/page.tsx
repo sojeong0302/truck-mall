@@ -16,13 +16,27 @@ export default function WritingUpload() {
     const { simpleTag } = useSimpleTagStore();
     const { manufacturer, model, subModel, grade } = useFilterTagStore();
     const { files, clear } = useImageStore();
-    const { thumbnail, name, fuel, type, trim, year, mileage, color, price, images, content, setField, clearForm } =
-        useCarFormStore();
+    const {
+        transmission,
+        thumbnail,
+        name,
+        fuel,
+        type,
+        trim,
+        year,
+        mileage,
+        color,
+        price,
+        images,
+        content,
+        setField,
+        clearForm,
+    } = useCarFormStore();
 
     const selectedTags = [manufacturer, model, subModel, grade].filter(Boolean);
-
+    const [selected, setSelected] = useState("");
     const fileInputRef = useRef<HTMLInputElement | null>(null);
-
+    const [isOpen, setIsOpen] = useState(false);
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -71,6 +85,7 @@ export default function WritingUpload() {
                 thumbnail,
                 images: base64Images, // ✅ base64 이미지 저장
                 content,
+                transmission,
             };
 
             const res = await axios.post("http://localhost:5000/sale/uploadSale", formData, {
@@ -93,6 +108,15 @@ export default function WritingUpload() {
             alert("등록 중 오류가 발생했습니다.");
         }
     };
+    const handleSelect = (item: string) => {
+        setSelected(item);
+        setIsOpen(false);
+        if (item !== "전체") {
+            setField("transmission", item); // ✅ 상태에 저장
+        } else {
+            setField("transmission", ""); // 전체 선택 시 빈 값
+        }
+    };
 
     return (
         <>
@@ -108,6 +132,34 @@ export default function WritingUpload() {
                         ))}
                     </div>
                 )}
+                <div className="flex w-full gap-10">
+                    <div className="flex items-center gap-3">
+                        <div className="text-lg text-[#2E7D32]">▶</div>
+                        <div className="text-2xl font-medium">변속기</div>
+                    </div>
+                    <div className="relative w-48">
+                        <button
+                            className="transition transform duration-200 active:scale-95 cursor-pointer w-full text-left border border-[#2E7D32] rounded-md px-3 py-2 text-xl"
+                            onClick={() => setIsOpen((prev) => !prev)}
+                        >
+                            {selected || "전체"}
+                        </button>
+
+                        {isOpen && (
+                            <ul className="absolute z-10 bg-white border border-[#2E7D32] rounded-md w-full mt-1">
+                                {["전체", "오토", "수동", "세미오토", "무단변속기"].map((item) => (
+                                    <li
+                                        key={item}
+                                        className="px-3 py-2 hover:bg-[#2E7D32]/10 cursor-pointer"
+                                        onClick={() => handleSelect(item)}
+                                    >
+                                        {item}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+                </div>
                 <div className="w-full flex justify-center gap-15">
                     <div
                         className="flex justify-center items-center cursor-pointer shadow-lg rounded-xl w-[50%] aspect-square min-w-[150px] bg-[rgba(179,179,179,0.25)] overflow-hidden"

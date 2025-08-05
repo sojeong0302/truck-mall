@@ -20,6 +20,7 @@ class Sale(db.Model):
     model = db.Column(db.String(50))
     sub_model = db.Column(db.String(50))
     grade = db.Column(db.String(50))
+    transmission = db.Column(db.String(20))
     thumbnail = db.Column(db.Text)
     content = db.Column(db.Text)
     images = db.Column(JSON)
@@ -42,6 +43,7 @@ class Sale(db.Model):
             "model": self.model,
             "sub_model": self.sub_model,
             "grade": self.grade,
+            "transmission": self.transmission,
             "thumbnail": self.thumbnail,
             "content": self.content,
             "status": self.status,

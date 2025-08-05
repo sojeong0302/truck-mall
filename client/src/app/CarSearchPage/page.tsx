@@ -19,10 +19,10 @@ export default function CarSearchPage() {
     const [price, setPrice] = useState([100, 10000]);
     const currentYear = new Date().getFullYear();
     const [year, setYear] = useState([2000, currentYear]);
-
     const [selected, setSelected] = useState("");
     const [isOpen, setIsOpen] = useState(false);
     const { fire } = useSearchTriggerStore();
+    const [transmission, setTransmission] = useState("");
 
     const handleInputChange = (type: "price" | "year", index: number, newValue: string) => {
         const num = Number(newValue.replace(/[^0-9]/g, ""));
@@ -43,6 +43,7 @@ export default function CarSearchPage() {
 
     const handleSelect = (item: string) => {
         setSelected(item);
+        setTransmission(item === "전체" ? "" : item); // ✅ 필터 상태에 저장
         setIsOpen(false);
     };
 
@@ -241,7 +242,7 @@ export default function CarSearchPage() {
                 </div>
             </div>
 
-            <Sale priceRange={price} yearRange={year} basePath="" />
+            <Sale priceRange={price} yearRange={year} transmission={transmission} basePath="" />
         </div>
     );
 }
