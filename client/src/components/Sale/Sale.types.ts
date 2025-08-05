@@ -5,10 +5,10 @@ export interface SaleProps {
     fuel?: string;
     type?: string;
     trim?: string;
-    year?: string;
+    year?: number;
     mileage?: string;
     color?: string;
-    price?: string;
+    price?: number;
     images?: string[];
     content?: string;
     status: boolean;
@@ -23,4 +23,6 @@ export interface SaleProps {
 export interface SaleComponentProps {
     posts?: SaleProps[];
     basePath: string;
+    priceRange?: number[]; // ✅ 추가
+    yearRange?: number[]; // ✅ 추가
 }

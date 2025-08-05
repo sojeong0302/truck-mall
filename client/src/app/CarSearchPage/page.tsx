@@ -7,24 +7,30 @@ import ShortButton from "@/components/ShortButton";
 import { useState } from "react";
 import { Range } from "react-range";
 import Sale from "@/components/Sale";
-import { dummyData3 } from "@/data/dummy";
-import { useSimpleTagStore } from "@/store/simpleTagStore";
 import { useSearchTriggerStore } from "@/store/searchTriggerStore";
 
-const MIN = 0;
-const MAX = 10000;
+const YearMIN = 2000;
+const YearMAX = new Date().getFullYear();
+
+const PriceMIN = 100;
+const PriceMAX = 10000;
 
 export default function CarSearchPage() {
-    const [price, setPrice] = useState([1000, 7000]);
-    const [year, setYear] = useState([1000, 7000]);
+    const [price, setPrice] = useState([100, 10000]);
+    const currentYear = new Date().getFullYear();
+    const [year, setYear] = useState([2000, currentYear]);
+
     const [selected, setSelected] = useState("");
     const [isOpen, setIsOpen] = useState(false);
     const { fire } = useSearchTriggerStore();
 
     const handleInputChange = (type: "price" | "year", index: number, newValue: string) => {
         const num = Number(newValue.replace(/[^0-9]/g, ""));
-        const clamped = Math.min(Math.max(num, MIN), MAX);
 
+        const min = type === "price" ? PriceMIN : YearMIN;
+        const max = type === "price" ? PriceMAX : YearMAX;
+
+        const clamped = Math.min(Math.max(num, min), max);
         const updated = type === "price" ? [...price] : [...year];
         updated[index] = clamped;
 
@@ -44,36 +50,6 @@ export default function CarSearchPage() {
         fire();
     };
 
-    const renderTrack =
-        (values: number[]) =>
-        ({ props, children }: any) => {
-            const [minVal, maxVal] = values;
-            const percentLeft = ((minVal - MIN) / (MAX - MIN)) * 100;
-            const percentRight = ((maxVal - MIN) / (MAX - MIN)) * 100;
-
-            return (
-                <div {...props} className="h-2 rounded-full my-4 relative w-[90%] bg-gray-300" style={props.style}>
-                    <div
-                        className="absolute h-full rounded-full bg-[#2E7D32]"
-                        style={{
-                            left: `${percentLeft}%`,
-                            width: `${percentRight - percentLeft}%`,
-                        }}
-                    />
-                    {Array.isArray(children)
-                        ? children.map((child: React.ReactNode, index: number) => <div key={index}>{child}</div>)
-                        : children}
-                </div>
-            );
-        };
-    const { simpleTag } = useSimpleTagStore();
-
-    const filteredData = (dummyData3 ?? []).filter((item) => {
-        if (!simpleTag) return true; // 선택 안 된 경우 전체 출력
-
-        return item?.type === simpleTag.type && item?.grade === simpleTag.grade;
-    });
-
     return (
         <div className="w-[100%] flex flex-col items-center">
             <SimpleFilter />
@@ -92,14 +68,14 @@ export default function CarSearchPage() {
                         <div className="w-full flex items-center">
                             <Range
                                 step={100}
-                                min={MIN}
-                                max={MAX}
+                                min={PriceMIN}
+                                max={PriceMAX}
                                 values={price}
                                 onChange={(vals) => setPrice(vals)}
                                 renderTrack={({ props, children }) => {
                                     const [minVal, maxVal] = price;
-                                    const percentLeft = ((minVal - MIN) / (MAX - MIN)) * 100;
-                                    const percentRight = ((maxVal - MIN) / (MAX - MIN)) * 100;
+                                    const percentLeft = ((minVal - PriceMIN) / (PriceMAX - PriceMIN)) * 100;
+                                    const percentRight = ((maxVal - PriceMIN) / (PriceMAX - PriceMIN)) * 100;
 
                                     return (
                                         <div
@@ -137,8 +113,8 @@ export default function CarSearchPage() {
                                 className="border border-[#2E7D32] rounded-md px-3 py-1 w-32 text-xl text-right"
                                 value={price[0]}
                                 onChange={(e) => handleInputChange("price", 0, e.target.value)}
-                                min={MIN}
-                                max={MAX}
+                                min={PriceMIN}
+                                max={PriceMAX}
                             />
                             ~
                             <input
@@ -146,8 +122,8 @@ export default function CarSearchPage() {
                                 className="border border-[#2E7D32] rounded-md px-3 py-1 w-32 text-xl text-right"
                                 value={price[1]}
                                 onChange={(e) => handleInputChange("price", 1, e.target.value)}
-                                min={MIN}
-                                max={MAX}
+                                min={PriceMIN}
+                                max={PriceMAX}
                             />
                             <span className="text-xl whitespace-nowrap">만원</span>
                         </div>
@@ -161,15 +137,15 @@ export default function CarSearchPage() {
                         </div>
                         <div className="w-full flex items-center">
                             <Range
-                                step={100}
-                                min={MIN}
-                                max={MAX}
+                                step={1}
+                                min={YearMIN}
+                                max={YearMAX}
                                 values={year}
                                 onChange={(vals) => setYear(vals)}
                                 renderTrack={({ props, children }) => {
                                     const [minVal, maxVal] = year;
-                                    const percentLeft = ((minVal - MIN) / (MAX - MIN)) * 100;
-                                    const percentRight = ((maxVal - MIN) / (MAX - MIN)) * 100;
+                                    const percentLeft = ((minVal - YearMIN) / (YearMAX - YearMIN)) * 100;
+                                    const percentRight = ((maxVal - YearMIN) / (YearMAX - YearMIN)) * 100;
 
                                     return (
                                         <div
@@ -207,8 +183,8 @@ export default function CarSearchPage() {
                                 className="border border-[#2E7D32] rounded-md px-3 py-1 w-32 text-xl text-right"
                                 value={year[0]}
                                 onChange={(e) => handleInputChange("year", 0, e.target.value)}
-                                min={MIN}
-                                max={MAX}
+                                min={YearMIN}
+                                max={YearMAX}
                             />
                             ~
                             <input
@@ -216,8 +192,8 @@ export default function CarSearchPage() {
                                 className="border border-[#2E7D32] rounded-md px-3 py-1 w-32 text-xl text-right"
                                 value={year[1]}
                                 onChange={(e) => handleInputChange("year", 1, e.target.value)}
-                                min={MIN}
-                                max={MAX}
+                                min={YearMIN}
+                                max={YearMAX}
                             />
                             <span className="text-lg whitespace-nowrap">년도</span>
                         </div>
@@ -265,7 +241,7 @@ export default function CarSearchPage() {
                 </div>
             </div>
 
-            <Sale basePath="" />
+            <Sale priceRange={price} yearRange={year} basePath="" />
         </div>
     );
 }

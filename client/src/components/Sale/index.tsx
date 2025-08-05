@@ -14,7 +14,7 @@ import { useSearchTriggerStore } from "@/store/searchTriggerStore";
 
 const ITEMS_PER_PAGE = 5;
 
-export default function Sale({ posts, basePath }: SaleComponentProps) {
+export default function Sale({ posts, basePath, priceRange, yearRange }: SaleComponentProps) {
     const { currentPage } = usePaginationStore();
     const { simpleTag } = useSimpleTagStore();
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -38,6 +38,15 @@ export default function Sale({ posts, basePath }: SaleComponentProps) {
                     // ✅ null 체크
                     query.append("simple_type", simpleTag.type);
                     query.append("simple_grade", simpleTag.grade);
+                }
+
+                if (priceRange) {
+                    query.append("min_price", String(priceRange[0]));
+                    query.append("max_price", String(priceRange[1]));
+                }
+                if (yearRange) {
+                    query.append("min_year", String(yearRange[0]));
+                    query.append("max_year", String(yearRange[1]));
                 }
 
                 // ✅ 일반 Filter 조건

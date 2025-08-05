@@ -46,6 +46,11 @@ def get_sales():
     sub_model = request.args.get("sub_model")
     grade = request.args.get("grade")
 
+    min_price = request.args.get("min_price", type=int)
+    max_price = request.args.get("max_price", type=int)
+    min_year = request.args.get("min_year", type=int)
+    max_year = request.args.get("max_year", type=int)
+
     sales = Sale.query.order_by(Sale.id.desc()).all()
     result = []
 
@@ -76,6 +81,16 @@ def get_sales():
         if sub_model and sale.sub_model != sub_model:
             continue
         if grade and sale.grade != grade:
+            continue
+        if min_price is not None and int(sale.price or 0) < min_price:
+            continue
+        if max_price is not None and int(sale.price or 0) > max_price:
+            continue
+
+        # 연식 필터링
+        if min_year is not None and int(sale.year or 0) < min_year:
+            continue
+        if max_year is not None and int(sale.year or 0) > max_year:
             continue
 
         result.append(sale.to_dict())

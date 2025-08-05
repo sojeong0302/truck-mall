@@ -168,8 +168,18 @@ export default function WritingUpload() {
                             <div className="flex gap-3 items-center">
                                 <div className="font-bold">연식:</div>
                                 <input
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
+                                    onKeyDown={(e) => {
+                                        // 허용할 키만 통과 (숫자, 백스페이스, 화살표 등)
+                                        const allowedKeys = ["Backspace", "ArrowLeft", "ArrowRight", "Delete", "Tab"];
+                                        if (!/[0-9]/.test(e.key) && !allowedKeys.includes(e.key)) {
+                                            e.preventDefault();
+                                        }
+                                    }}
                                     className="flex-1 shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-2"
                                     value={year}
+                                    type="number"
                                     onChange={(e) => setField("year", e.target.value)}
                                     placeholder="연식을 입력해 주세요."
                                 />
@@ -195,8 +205,18 @@ export default function WritingUpload() {
                             <div className="flex gap-3 items-center">
                                 <div className="font-bold">가격:</div>
                                 <input
+                                    onKeyDown={(e) => {
+                                        // 허용할 키만 통과 (숫자, 백스페이스, 화살표 등)
+                                        const allowedKeys = ["Backspace", "ArrowLeft", "ArrowRight", "Delete", "Tab"];
+                                        if (!/[0-9]/.test(e.key) && !allowedKeys.includes(e.key)) {
+                                            e.preventDefault();
+                                        }
+                                    }}
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
                                     className="flex-1 shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-2"
                                     value={price}
+                                    type="number"
                                     onChange={(e) => setField("price", e.target.value)}
                                     placeholder="가격을 입력해 주세요."
                                 />
