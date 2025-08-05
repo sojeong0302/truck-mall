@@ -9,6 +9,7 @@ import { Range } from "react-range";
 import Sale from "@/components/Sale";
 import { dummyData3 } from "@/data/dummy";
 import { useSimpleTagStore } from "@/store/simpleTagStore";
+import { useSearchTriggerStore } from "@/store/searchTriggerStore";
 
 const MIN = 0;
 const MAX = 10000;
@@ -18,6 +19,7 @@ export default function CarSearchPage() {
     const [year, setYear] = useState([1000, 7000]);
     const [selected, setSelected] = useState("");
     const [isOpen, setIsOpen] = useState(false);
+    const { fire } = useSearchTriggerStore();
 
     const handleInputChange = (type: "price" | "year", index: number, newValue: string) => {
         const num = Number(newValue.replace(/[^0-9]/g, ""));
@@ -39,7 +41,7 @@ export default function CarSearchPage() {
     };
 
     const handleSubmit = () => {
-        alert("등록 되었습니다.");
+        fire();
     };
 
     const renderTrack =

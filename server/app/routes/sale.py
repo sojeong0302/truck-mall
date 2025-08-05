@@ -41,31 +41,44 @@ def get_sales():
     simple_type = request.args.get("simple_type")
     simple_grade = request.args.get("simple_grade")
 
+    manufacturer = request.args.get("manufacturer")
+    model = request.args.get("model")
+    sub_model = request.args.get("sub_model")
+    grade = request.args.get("grade")
+
     sales = Sale.query.order_by(Sale.id.desc()).all()
     result = []
 
-    # ✅ 필터 조건이 있다면 simple_tags 안에서 검사
-    if simple_type and simple_grade:
-        for sale in sales:
+    for sale in sales:
+        # ✅ SimpleFilter 조건 검사
+        if simple_type and simple_grade:
             tags = sale.simple_tags or []
 
-            # 문자열이면 JSON으로 파싱 시도
             if isinstance(tags, str):
                 try:
                     tags = json.loads(tags)
                 except json.JSONDecodeError:
                     tags = []
 
-            # 리스트인지 확인 후 필터링
-            if isinstance(tags, list) and any(
+            if not any(
                 isinstance(tag, dict)
                 and tag.get("type") == simple_type
                 and tag.get("grade") == simple_grade
                 for tag in tags
             ):
-                result.append(sale.to_dict())
-    else:
-        result = [sale.to_dict() for sale in sales]
+                continue  # 조건 불일치 → 제외
+
+        # ✅ 일반 Filter 조건 검사
+        if manufacturer and sale.manufacturer != manufacturer:
+            continue
+        if model and sale.model != model:
+            continue
+        if sub_model and sale.sub_model != sub_model:
+            continue
+        if grade and sale.grade != grade:
+            continue
+
+        result.append(sale.to_dict())
 
     return jsonify(result), 200
 

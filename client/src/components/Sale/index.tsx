@@ -3,13 +3,14 @@
 import { SaleComponentProps } from "./Sale.types";
 import Pagination from "../Pagination";
 import { usePaginationStore } from "@/store/paginationStore";
-import { dummyData3 } from "@/data/dummy";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useEffect, useState } from "react";
 import { SaleProps } from "./Sale.types";
 import axios from "axios";
+import { useFilterTagStore } from "@/components/Filter/Filter.types";
 import { useSimpleTagStore } from "@/store/simpleTagStore";
+import { useSearchTriggerStore } from "@/store/searchTriggerStore";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -18,7 +19,8 @@ export default function Sale({ posts, basePath }: SaleComponentProps) {
     const { simpleTag } = useSimpleTagStore();
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
-
+    const { manufacturer, model, subModel, grade } = useFilterTagStore();
+    const { trigger } = useSearchTriggerStore();
     const router = useRouter();
 
     const { isLoggedIn } = useAuthStore();
@@ -37,6 +39,12 @@ export default function Sale({ posts, basePath }: SaleComponentProps) {
                     query.append("simple_type", simpleTag.type);
                     query.append("simple_grade", simpleTag.grade);
                 }
+
+                // ✅ 일반 Filter 조건
+                if (manufacturer) query.append("manufacturer", manufacturer);
+                if (model) query.append("model", model);
+                if (subModel) query.append("sub_model", subModel);
+                if (grade) query.append("grade", grade);
                 console.log("📦 서버 요청 주소:", `http://localhost:5000/sale/list?${query.toString()}`);
                 const res = await axios.get(`http://localhost:5000/sale/list?${query.toString()}`);
                 console.log("✅ 받아온 데이터:", res.data);
@@ -50,7 +58,7 @@ export default function Sale({ posts, basePath }: SaleComponentProps) {
         };
 
         fetchSales();
-    }, [simpleTag]);
+    }, [simpleTag, trigger]);
 
     // ✅ 이렇게 수정
     const pagedData = sales.slice(startIndex, endIndex);
