@@ -1,5 +1,5 @@
-// /store/simpleTagStore.ts
 import { create } from "zustand";
+import { useFilterTagStore } from "@/components/Filter/Filter.types"; // ✅ 다른 store import
 
 interface SimpleTag {
     type: string;
@@ -7,20 +7,18 @@ interface SimpleTag {
 }
 
 interface SimpleTagState {
-    simpleTag: SimpleTag[];
-    setSimpleTag: (type: string, grade: string) => void;
+    simpleTag: SimpleTag | null;
+    setSimpleTag: (type: string, grade: string, skipReset?: boolean) => void; // ✅ 인자 추가
     resetSimpleTag: () => void;
 }
 
 export const useSimpleTagStore = create<SimpleTagState>((set) => ({
-    simpleTag: [],
-    setSimpleTag: (type, grade) =>
-        set((state) => {
-            const exists = state.simpleTag.find((t) => t.type === type);
-            const updated = exists
-                ? state.simpleTag.map((t) => (t.type === type ? { type, grade } : t))
-                : [...state.simpleTag, { type, grade }];
-            return { simpleTag: updated };
-        }),
-    resetSimpleTag: () => set({ simpleTag: [] }),
+    simpleTag: null,
+    setSimpleTag: (type, grade, skipReset = false) => {
+        if (!skipReset) {
+            useFilterTagStore.getState().clear(); // 조건부 초기화
+        }
+        set({ simpleTag: { type, grade } });
+    },
+    resetSimpleTag: () => set({ simpleTag: null }),
 }));

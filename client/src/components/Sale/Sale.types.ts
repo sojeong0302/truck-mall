@@ -5,13 +5,14 @@ export interface SaleProps {
     fuel?: string;
     type?: string;
     trim?: string;
-    year?: string;
+    year?: number;
     mileage?: string;
     color?: string;
-    price?: string;
+    price?: number;
     images?: string[];
     content?: string;
     status: boolean;
+    transmission?: string;
 
     // 🆕 tag 정보 추가
     manufacturer?: string;
@@ -21,6 +22,9 @@ export interface SaleProps {
 }
 
 export interface SaleComponentProps {
-    posts: SaleProps[];
+    posts?: SaleProps[];
     basePath: string;
+    priceRange?: number[];
+    yearRange?: number[];
+    transmission?: string;
 }

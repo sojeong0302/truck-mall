@@ -3,21 +3,24 @@
 import { SaleComponentProps } from "./Sale.types";
 import Pagination from "../Pagination";
 import { usePaginationStore } from "@/store/paginationStore";
-import { dummyData3 } from "@/data/dummy";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useEffect, useState } from "react";
 import { SaleProps } from "./Sale.types";
 import axios from "axios";
+import { useFilterTagStore } from "@/components/Filter/Filter.types";
+import { useSimpleTagStore } from "@/store/simpleTagStore";
+import { useSearchTriggerStore } from "@/store/searchTriggerStore";
 
 const ITEMS_PER_PAGE = 5;
 
-export default function Sale({ posts, basePath }: SaleComponentProps) {
+export default function Sale({ transmission, posts, basePath, priceRange, yearRange }: SaleComponentProps) {
     const { currentPage } = usePaginationStore();
-
+    const { simpleTag } = useSimpleTagStore();
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
-
+    const { manufacturer, model, subModel, grade } = useFilterTagStore();
+    const { trigger } = useSearchTriggerStore();
     const router = useRouter();
 
     const { isLoggedIn } = useAuthStore();
@@ -30,17 +33,47 @@ export default function Sale({ posts, basePath }: SaleComponentProps) {
     useEffect(() => {
         const fetchSales = async () => {
             try {
-                const res = await axios.get("http://localhost:5000/sale/list");
-                setSales(res.data);
-                console.log(res.data);
+                const query = new URLSearchParams();
+                if (simpleTag) {
+                    // ✅ null 체크
+                    query.append("simple_type", simpleTag.type);
+                    query.append("simple_grade", simpleTag.grade);
+                }
+
+                if (priceRange) {
+                    query.append("min_price", String(priceRange[0]));
+                    query.append("max_price", String(priceRange[1]));
+                }
+                if (yearRange) {
+                    query.append("min_year", String(yearRange[0]));
+                    query.append("max_year", String(yearRange[1]));
+                }
+
+                if (transmission) {
+                    query.append("transmission", transmission);
+                }
+
+                // ✅ 일반 Filter 조건
+                if (manufacturer) query.append("manufacturer", manufacturer);
+                if (model) query.append("model", model);
+                if (subModel) query.append("sub_model", subModel);
+                if (grade) query.append("grade", grade);
+                console.log("📦 서버 요청 주소:", `http://localhost:5000/sale/list?${query.toString()}`);
+                const res = await axios.get(`http://localhost:5000/sale/list?${query.toString()}`);
+                console.log("✅ 받아온 데이터:", res.data);
+
+                const safeData = res.data ?? [];
+                setSales(Array.isArray(safeData) ? safeData : []);
             } catch (err) {
-                console.error("매물 불러오기 실패:", err);
+                console.error("❌ 매물 불러오기 실패:", err);
+                setSales([]);
             }
         };
 
         fetchSales();
-    }, []);
+    }, [simpleTag, trigger]);
 
+    // ✅ 이렇게 수정
     const pagedData = sales.slice(startIndex, endIndex);
     const totalPages = Math.ceil(sales.length / ITEMS_PER_PAGE);
 

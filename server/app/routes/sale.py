@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from ..models.sale_model import Sale
 from ..extensions import db
+import json
 
 sale_bp = Blueprint("sale", __name__)
 
@@ -8,6 +9,7 @@ sale_bp = Blueprint("sale", __name__)
 @sale_bp.route("/uploadSale", methods=["POST"])
 def register_sale():
     data = request.get_json()
+    simple_tags = data.get("simple_tags", [])
 
     sale = Sale(
         name=data.get("name"),
@@ -22,9 +24,11 @@ def register_sale():
         model=data.get("tag", {}).get("model", ""),
         sub_model=data.get("tag", {}).get("subModel", ""),
         grade=data.get("tag", {}).get("grade", ""),
+        transmission=data.get("transmission"),
         thumbnail=data.get("thumbnail"),
         content=data.get("content"),
         images=data.get("images"),
+        simple_tags=simple_tags,
     )
 
     db.session.add(sale)
@@ -35,8 +39,67 @@ def register_sale():
 
 @sale_bp.route("/list", methods=["GET"])
 def get_sales():
-    sales = Sale.query.order_by(Sale.id.desc()).all()  # 최신순 정렬 (원하면 변경 가능)
-    result = [sale.to_dict() for sale in sales]
+    simple_type = request.args.get("simple_type")
+    simple_grade = request.args.get("simple_grade")
+
+    manufacturer = request.args.get("manufacturer")
+    model = request.args.get("model")
+    sub_model = request.args.get("sub_model")
+    grade = request.args.get("grade")
+    transmission = request.args.get("transmission")
+
+    min_price = request.args.get("min_price", type=int)
+    max_price = request.args.get("max_price", type=int)
+    min_year = request.args.get("min_year", type=int)
+    max_year = request.args.get("max_year", type=int)
+
+    # ✅ query 객체로 필터 조건을 누적
+    query = Sale.query
+
+    if manufacturer:
+        query = query.filter(Sale.manufacturer == manufacturer)
+    if model:
+        query = query.filter(Sale.model == model)
+    if sub_model:
+        query = query.filter(Sale.sub_model == sub_model)
+    if grade:
+        query = query.filter(Sale.grade == grade)
+    if transmission:
+        query = query.filter(Sale.transmission == transmission)
+    if min_price is not None:
+        query = query.filter(Sale.price >= min_price)
+    if max_price is not None:
+        query = query.filter(Sale.price <= max_price)
+    if min_year is not None:
+        query = query.filter(Sale.year >= min_year)
+    if max_year is not None:
+        query = query.filter(Sale.year <= max_year)
+
+    query = query.order_by(Sale.id.desc())
+    sales = query.all()
+
+    result = []
+
+    for sale in sales:
+        # ✅ simple_tag 조건은 여전히 따로 검사
+        if simple_type and simple_grade:
+            tags = sale.simple_tags or []
+            if isinstance(tags, str):
+                try:
+                    tags = json.loads(tags)
+                except json.JSONDecodeError:
+                    tags = []
+
+            if not any(
+                isinstance(tag, dict)
+                and tag.get("type") == simple_type
+                and tag.get("grade") == simple_grade
+                for tag in tags
+            ):
+                continue
+
+        result.append(sale.to_dict())
+
     return jsonify(result), 200
 
 

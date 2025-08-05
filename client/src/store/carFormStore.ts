@@ -25,6 +25,7 @@ interface CarFormState {
     price: string;
     images: File[]; // ETC 포토들
     content: string;
+    transmission: string;
 
     // setter 함수들
     setField: <K extends keyof CarFormState>(key: K, value: CarFormState[K]) => void;
@@ -45,6 +46,7 @@ export const useCarFormStore = create<CarFormState>((set) => ({
     price: "",
     images: [],
     content: "",
+    transmission: "",
 
     setField: (key, value) => set({ [key]: value }),
     clearForm: () =>
