@@ -25,6 +25,7 @@ class Sale(db.Model):
     images = db.Column(JSON)
     status = db.Column(Boolean, default=True, nullable=False)
     simple_tags = Column(JSON)
+    tags = db.Column(JSON)
 
     def to_dict(self):
         return {
@@ -48,4 +49,5 @@ class Sale(db.Model):
             "simple_tags": (
                 self.simple_tags if isinstance(self.simple_tags, list) else []
             ),
+            "tags": self.tags if isinstance(self.tags, dict) else {},
         }
