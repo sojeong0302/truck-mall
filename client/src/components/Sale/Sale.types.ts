@@ -23,7 +23,7 @@ export interface SaleProps {
 
 export interface SaleComponentProps {
     posts?: SaleProps[];
-    basePath: string;
+    // basePath: string;
     priceRange?: number[];
     yearRange?: number[];
     transmission?: string;

@@ -14,7 +14,7 @@ import { useSearchTriggerStore } from "@/store/searchTriggerStore";
 
 const ITEMS_PER_PAGE = 5;
 
-export default function Sale({ transmission, posts, basePath, priceRange, yearRange }: SaleComponentProps) {
+export default function Sale({ transmission, posts, priceRange, yearRange }: SaleComponentProps) {
     const { currentPage } = usePaginationStore();
     const { simpleTag } = useSimpleTagStore();
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
