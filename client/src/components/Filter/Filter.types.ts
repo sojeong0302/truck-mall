@@ -6,7 +6,7 @@ interface FilterTagState {
     model: string;
     subModel: string;
     grade: string;
-    set: (key: keyof FilterTagState, value: string) => void;
+    set: (key: keyof FilterTagState, value: string, skipReset?: boolean) => void; // ✅ 인자 추가
     clear: () => void;
 }
 
@@ -15,12 +15,13 @@ export const useFilterTagStore = create<FilterTagState>((set, get) => ({
     model: "",
     subModel: "",
     grade: "",
-    set: (key, value) => {
-        // ✅ SimpleTag 초기화
-        useSimpleTagStore.getState().resetSimpleTag();
+    set: (key, value, skipReset = false) => {
+        if (!skipReset) {
+            useSimpleTagStore.getState().resetSimpleTag(); // 조건부 초기화
+        }
 
-        let newState;
         const state = get();
+        let newState;
 
         if (key === "manufacturer") {
             newState = { manufacturer: value, model: "", subModel: "", grade: "" };

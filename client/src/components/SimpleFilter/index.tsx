@@ -2,16 +2,16 @@
 import { data } from "./SimpleFilter.hooks";
 import { useSimpleTagStore } from "@/store/simpleTagStore";
 
-export default function SimpleFilter() {
+export default function SimpleFilter({ skipReset = false }: { skipReset?: boolean }) {
     const { simpleTag, setSimpleTag } = useSimpleTagStore();
 
     const handleSelect = (type: string, grade: string) => {
-        setSimpleTag(type, grade);
+        setSimpleTag(type, grade, skipReset); // ✅ props에서 받음
         console.log("현재 simpleTag 상태:", useSimpleTagStore.getState().simpleTag);
     };
 
     return (
-        <div className="p-15 w-full ">
+        <div className="p-15 w-full">
             <div className="grid grid-cols-8 gap-6">
                 {data.map((truck) => {
                     const grades = truck.grades[0].split(", ");

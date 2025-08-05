@@ -51,7 +51,7 @@ function SelectBox({
     );
 }
 
-export default function Filter() {
+export default function Filter({ skipReset = false }: { skipReset?: boolean }) {
     const { manufacturer, model, subModel, grade, set } = useFilterTagStore();
 
     const models = data.find((m) => m.manufacturer === manufacturer)?.models || [];
@@ -64,21 +64,21 @@ export default function Filter() {
                 title="제조사"
                 options={data.map((d) => d.manufacturer)}
                 selected={manufacturer}
-                onChange={(v) => set("manufacturer", v)}
+                onChange={(v) => set("manufacturer", v, skipReset)} // ✅ props로 넘김
             />
             <SelectBox
                 title="모델"
                 options={models.map((m) => m.name)}
                 selected={model}
-                onChange={(v) => set("model", v)}
+                onChange={(v) => set("model", v, skipReset)}
             />
             <SelectBox
                 title="세부모델"
                 options={subModels.map((s) => s.name)}
                 selected={subModel}
-                onChange={(v) => set("subModel", v)}
+                onChange={(v) => set("subModel", v, skipReset)}
             />
-            <SelectBox title="등급" options={grades} selected={grade} onChange={(v) => set("grade", v)} />
+            <SelectBox title="등급" options={grades} selected={grade} onChange={(v) => set("grade", v, skipReset)} />
         </div>
     );
 }

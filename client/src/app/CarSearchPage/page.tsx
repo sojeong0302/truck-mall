@@ -67,11 +67,9 @@ export default function CarSearchPage() {
     const { simpleTag } = useSimpleTagStore();
 
     const filteredData = (dummyData3 ?? []).filter((item) => {
-        if (!Array.isArray(simpleTag) || simpleTag.length === 0) return true;
+        if (!simpleTag) return true; // 선택 안 된 경우 전체 출력
 
-        return simpleTag.every((tag) => {
-            return item?.manufacturer === tag.type && item?.grade === tag.grade;
-        });
+        return item?.type === simpleTag.type && item?.grade === simpleTag.grade;
     });
 
     return (

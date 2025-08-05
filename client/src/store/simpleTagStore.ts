@@ -8,15 +8,16 @@ interface SimpleTag {
 
 interface SimpleTagState {
     simpleTag: SimpleTag | null;
-    setSimpleTag: (type: string, grade: string) => void;
+    setSimpleTag: (type: string, grade: string, skipReset?: boolean) => void; // ✅ 인자 추가
     resetSimpleTag: () => void;
 }
 
 export const useSimpleTagStore = create<SimpleTagState>((set) => ({
     simpleTag: null,
-    setSimpleTag: (type, grade) => {
-        // ✅ FilterTag 초기화
-        useFilterTagStore.getState().clear();
+    setSimpleTag: (type, grade, skipReset = false) => {
+        if (!skipReset) {
+            useFilterTagStore.getState().clear(); // 조건부 초기화
+        }
         set({ simpleTag: { type, grade } });
     },
     resetSimpleTag: () => set({ simpleTag: null }),

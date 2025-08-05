@@ -95,9 +95,9 @@ export default function WritingUpload() {
 
     return (
         <>
-            <SimpleFilter />
+            <SimpleFilter skipReset={true} />
             <div className="w-[80%] h-[100%] mx-auto flex flex-col justify-center p-20 gap-7">
-                <Filter />
+                <Filter skipReset={true} />
                 {selectedTags.length > 0 && (
                     <div className="flex flex-wrap gap-3 text-lg font-semibold text-[#2E7D32] px-1">
                         {selectedTags.map((tag, idx) => (
