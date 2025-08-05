@@ -51,6 +51,14 @@ export default function CarSearchPage() {
         fire();
     };
 
+    const handleReset = () => {
+        setPrice([PriceMIN, PriceMAX]);
+        setYear([YearMIN, YearMAX]);
+        setSelected("");
+        setTransmission("");
+        fire(); // 다시 fetch하게
+    };
+
     return (
         <div className="w-[100%] flex flex-col items-center">
             <SimpleFilter />
@@ -235,7 +243,7 @@ export default function CarSearchPage() {
                         <ShortButton onClick={handleSubmit} className="bg-[#2E7D32] text-white">
                             검색
                         </ShortButton>
-                        <ShortButton onClick={handleSubmit} className="bg-white border-3 border-[#2E7D32]">
+                        <ShortButton onClick={handleReset} className="bg-white border-3 border-[#2E7D32]">
                             초기화
                         </ShortButton>
                     </div>
