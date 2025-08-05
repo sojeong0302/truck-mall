@@ -37,7 +37,7 @@ export default function Sale({ posts, basePath }: SaleComponentProps) {
                     query.append("simple_type", simpleTag.type);
                     query.append("simple_grade", simpleTag.grade);
                 }
-
+                console.log("📦 서버 요청 주소:", `http://localhost:5000/sale/list?${query.toString()}`);
                 const res = await axios.get(`http://localhost:5000/sale/list?${query.toString()}`);
                 console.log("✅ 받아온 데이터:", res.data);
 

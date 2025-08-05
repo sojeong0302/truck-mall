@@ -263,7 +263,7 @@ export default function CarSearchPage() {
                 </div>
             </div>
 
-            <Sale posts={filteredData} basePath="" />
+            <Sale basePath="" />
         </div>
     );
 }

@@ -57,7 +57,8 @@ export default function WritingUpload() {
             const base64Images = await convertFilesToBase64(files);
 
             const formData = {
-                simple_tags: simpleTag, // ✅ 이렇게 바꿔줘야 Flask가 인식함!
+                simple_tags: simpleTag ? [simpleTag] : [],
+                // ✅ 이렇게 바꿔줘야 Flask가 인식함!
                 tag: { manufacturer, model, subModel, grade },
                 name,
                 fuel,

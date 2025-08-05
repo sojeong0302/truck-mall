@@ -21,6 +21,6 @@ export interface SaleProps {
 }
 
 export interface SaleComponentProps {
-    posts: SaleProps[];
+    posts?: SaleProps[];
     basePath: string;
 }
