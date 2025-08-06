@@ -73,7 +73,6 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
         fetchSales();
     }, [simpleTag, trigger]);
 
-    // ✅ 이렇게 수정
     const pagedData = sales.slice(startIndex, endIndex);
     const totalPages = Math.ceil(sales.length / ITEMS_PER_PAGE);
 
@@ -108,17 +107,17 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                             )}
                         </div>
 
-                        <div className="text-xl font-semibold flex flex-col gap-3">
-                            <div>모델: {post.name}</div>
-                            <div>연료: {post.fuel}</div>
-                            <div>연식: {post.year}</div>
-                            <div>주행: {post.mileage}</div>
+                        <div className="text-sm sm:text-xl font-semibold flex flex-col gap-3">
+                            <div className="truncate max-w-[100px] sm:max-w-[200px]">모델: {post.name}</div>
+                            <div className="truncate max-w-[100px]">연료: {post.fuel}</div>
+                            <div className="truncate max-w-[100px]">연식: {post.year}</div>
+                            <div className="truncate max-w-[100px]">주행: {post.mileage}</div>
                         </div>
-                        <div className="text-xl font-semibold">{post.price?.toLocaleString()}원</div>
+                        <div className="text-sm sm:text-xl font-semibold">{post.price?.toLocaleString()}원</div>
                         <div className="hidden sm:block text-xl font-semibold">상담문의: 010-8191-8244</div>
                         <div>
                             <div
-                                className={`flex justify-center shadow-lg text-2xl  w-[120px]  p-2.5 rounded-md font-medium text-white ${
+                                className={`flex justify-center shadow-lg text-sm sm:text-2xl  w-[80px] sm:w-[120px]  p-2.5 rounded-md font-medium text-white ${
                                     post.status ? "bg-[#2E7D32]" : "bg-[#C62828]"
                                 }`}
                             >

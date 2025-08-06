@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import "swiper/css/navigation";
 import Sale from "@/components/Sale";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import { useCarTipStore } from "@/store/carTipStore";
 
 //메인 이미지
@@ -16,7 +17,7 @@ const images = ["/images/mainPoto/poto1.jpg", "/images/mainPoto/poto2.jpg", "/im
 
 export default function MainPage() {
     const { carTIPs, setCarTIPs } = useCarTipStore();
-
+    const router = useRouter();
     // TIP가져오기
     useEffect(() => {
         const fetchCarTips = async () => {
@@ -55,7 +56,7 @@ export default function MainPage() {
             <div className="flex flex-col lg:flex-row w-full gap-10 p-6 sm:p-10 justify-center">
                 <Sns />
                 <div className="shadow-lg relative w-full max-w-screen-lg p-4 border-5 border-[#2E7D32] rounded-4xl bg-[#F5F5F5] flex flex-col sm:flex-row items-center">
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 bg-[#F5F5F5] z-10 text-[#D4B76A] text-4xl font-bold">
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 bg-[#F5F5F5] z-10 text-[#D4B76A] text-xl sm:text-4xl font-bold">
                         TIP
                     </div>
                     <Swiper
@@ -68,7 +69,10 @@ export default function MainPage() {
                     >
                         {carTIPs.map((item, i) => (
                             <SwiperSlide key={i}>
-                                <div className="flex items-center justify-center gap-10 p-14">
+                                <div
+                                    onClick={() => router.push(`/CarTIPDetailPage/${item.id}`)}
+                                    className="flex items-center justify-center gap-10 p-14 "
+                                >
                                     {item.images && item.images.length > 0 && (
                                         <img
                                             src={item.images[0]}
@@ -77,8 +81,8 @@ export default function MainPage() {
                                         />
                                     )}
                                     <div className="flex flex-col gap-5 justify-center">
-                                        <p className="font-semibold text-2xl">{item.title}</p>
-                                        <p className="text-gray-500 line-clamp-3 text-xl">{item.content}</p>
+                                        <p className="font-semibold text-xl sm:text-2xl">{item.title}</p>
+                                        <p className="text-gray-500 line-clamp-3 text-sm sm:text-xl">{item.content}</p>
                                     </div>
                                 </div>
                             </SwiperSlide>

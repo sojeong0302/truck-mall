@@ -7,6 +7,10 @@ from .routes.review import review_bp
 from .routes.carTIP import carTIP_bp
 from flask_migrate import Migrate
 from .routes.sale import sale_bp
+from app.routes.sms import sms_bp
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 migrate = Migrate()  # 먼저 migrate 객체만 생성해두고
@@ -30,4 +34,5 @@ def create_app():
     app.register_blueprint(review_bp, url_prefix="/review")
     app.register_blueprint(carTIP_bp, url_prefix="/carTIP")
     app.register_blueprint(sale_bp, url_prefix="/sale")
+    app.register_blueprint(sms_bp)
     return app

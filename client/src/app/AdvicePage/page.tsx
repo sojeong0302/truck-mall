@@ -24,7 +24,7 @@ export default function AdvicePage() {
     const nameInputRef = useRef<HTMLInputElement>(null);
     const numberInputRef = useRef<HTMLInputElement>(null);
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         const isAgreed = checkboxRef.current?.checked;
         const nameValue = nameInputRef.current?.value.trim();
         const numberValue = numberInputRef.current?.value.trim();
@@ -45,7 +45,22 @@ export default function AdvicePage() {
         }
 
         alert("상담신청이 완료되었습니다.\n담당자가 연락을 드리겠습니다.");
-        router.push("/");
+        // ✅ 문자 전송 요청
+        try {
+            await fetch("http://localhost:5000/sms/send", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    to: "+821063564187", // Twilio는 국제번호 형식 필수 (한국은 +82)
+                    body: `[상담신청]\n성함: ${nameValue}\n전화번호: ${numberValue}`,
+                }),
+            });
+            alert("상담신청이 완료되었습니다.\n담당자가 연락을 드리겠습니다.");
+            router.push("/");
+        } catch (err) {
+            console.error("SMS 전송 실패", err);
+            alert("문자 전송 중 오류가 발생했습니다.");
+        }
     };
 
     return (
