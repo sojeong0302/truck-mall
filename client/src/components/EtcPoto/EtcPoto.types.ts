@@ -1,4 +1,4 @@
 export interface EtcPotoProps {
     initialImages?: string[];
-    setImages?: (files: File[]) => void;
+    setImages?: (images: string[]) => void;
 }

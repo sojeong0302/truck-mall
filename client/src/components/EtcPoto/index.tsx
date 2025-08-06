@@ -6,14 +6,33 @@ import { EtcPotoProps } from "./EtcPoto.types";
 
 export default function EtcPoto({ initialImages = [], setImages }: EtcPotoProps) {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const { previews, addPreview, removePreview, addFile, setPreviews, setOriginURLs } = useImageStore();
+    const { previews, addPreview, removePreview, addFile, setPreviews, setOriginURLs, originURLs, files } =
+        useImageStore();
 
-    // 초기 이미지 설정 (post.images[])
+    // 초기 이미지 설정
     useEffect(() => {
         if (initialImages.length > 0) {
             setPreviews(initialImages);
+            setOriginURLs(initialImages);
         }
-    }, [initialImages, setPreviews]);
+    }, [initialImages, setPreviews, setOriginURLs]);
+
+    // ✅ 상위에 최종 이미지 목록 전달
+    useEffect(() => {
+        const fileReaders: Promise<string>[] = files.map((file) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result as string);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        });
+
+        Promise.all(fileReaders).then((base64s) => {
+            // ✅ 최신 originURLs와 base64를 모두 합쳐서 반영
+            setImages?.([...originURLs, ...base64s]);
+        });
+    }, [originURLs, files, setImages]); // ✅ originURLs가 바뀔 때마다 재실행되도록 보장
 
     const handleClick = () => {
         fileInputRef.current?.click();
@@ -26,8 +45,8 @@ export default function EtcPoto({ initialImages = [], setImages }: EtcPotoProps)
         Array.from(files).forEach((file) => {
             const reader = new FileReader();
             reader.onloadend = () => {
-                addPreview(reader.result as string); // base64 저장
-                addFile(file); // File 객체도 저장
+                addPreview(reader.result as string);
+                addFile(file);
             };
             reader.readAsDataURL(file);
         });
@@ -36,12 +55,6 @@ export default function EtcPoto({ initialImages = [], setImages }: EtcPotoProps)
     const handleDelete = (idx: number) => {
         removePreview(idx);
     };
-
-    useEffect(() => {
-        if (initialImages.length > 0) {
-            setOriginURLs(initialImages); // ✅ previews와 originURLs 동시 설정
-        }
-    }, [initialImages]);
 
     return (
         <div className="w-full p-20">

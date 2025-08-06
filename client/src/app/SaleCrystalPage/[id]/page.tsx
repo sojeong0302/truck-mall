@@ -39,7 +39,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         content,
         setContent,
     } = store;
-
+    const [images, setImages] = useState<string[]>([]);
     const [post, setPost] = useState<SaleProps | null>(null);
 
     useEffect(() => {
@@ -99,7 +99,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                 price,
                 thumbnail,
                 content,
-                images: [], // 이미지 배열을 추가로 구현한 경우 채워주세요.
+                images, // 이미지 배열을 추가로 구현한 경우 채워주세요.
                 tag: {
                     manufacturer: (post as any).manufacturer ?? "",
                     model: (post as any).model ?? "",
@@ -108,7 +108,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                 },
             });
             alert("수정되었습니다.");
-            router.push("/");
+            // router.push("/");
         } catch (error) {
             console.error("수정 실패", error);
             alert("수정 중 오류 발생");
@@ -178,7 +178,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                     </div>
                 </div>
 
-                <EtcPoto initialImages={post.images ?? []} />
+                <EtcPoto initialImages={post.images ?? []} setImages={setImages} />
                 <TextArea value={content} onChange={(e) => setContent(e.target.value)} />
 
                 <div className="flex gap-3 justify-end">
