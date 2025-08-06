@@ -11,11 +11,13 @@ import { useCarFormStore } from "@/store/carFormStore";
 import { useImageStore } from "@/store/imageStore";
 import axios from "axios";
 import { useSimpleTagStore } from "@/store/simpleTagStore";
+import { useRouter } from "next/navigation";
 
 export default function WritingUpload() {
     const { simpleTag } = useSimpleTagStore();
     const { manufacturer, model, subModel, grade } = useFilterTagStore();
     const { files, clear } = useImageStore();
+    const router = useRouter();
     const {
         transmission,
         thumbnail,
@@ -103,6 +105,7 @@ export default function WritingUpload() {
             if (fileInputRef.current) {
                 fileInputRef.current.value = "";
             }
+            router.push("/");
         } catch (err) {
             console.error("❌ 등록 실패:", err);
             alert("등록 중 오류가 발생했습니다.");

@@ -13,11 +13,13 @@ import { useModalStore } from "@/store/ModalStateStroe";
 export default function WritingDetail({
     id,
     post,
+    deletePath,
     crystalPath,
     url,
 }: {
     id: string;
     post: any;
+    deletePath: string;
     crystalPath: string;
     url: string;
 }) {
@@ -36,7 +38,7 @@ export default function WritingDetail({
 
     const handleDelete = async () => {
         try {
-            const res = await fetch(`http://localhost:5000/review/${id}`, {
+            const res = await fetch(`http://localhost:5000/${deletePath}/${id}`, {
                 method: "DELETE",
             });
             setIsModalOpen(true);

@@ -79,10 +79,10 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
 
     return (
         <div className="w-[100%] flex flex-col items-center justify-center">
-            <div className="w-[70%] p-3 flex items-center justify-between border-b-2 border-[#575757]">
+            <div className="w-[90%] sm:w-[70%] p-3 flex items-center justify-between border-b-2 border-[#575757]">
                 <div className="flex items-center gap-3">
-                    <div className="text-[#D7263D] text-xl font-medium">등록 매물</div>
-                    <div className="text-base">허위 없은 100% 실매물만 등록됩니다.</div>
+                    <div className="text-[#D7263D] text-sm sm:text-xl font-medium">등록 매물</div>
+                    <div className="hidden sm:block text-base">허위 없은 100% 실매물만 등록됩니다.</div>
                 </div>
                 {isLoggedIn && (
                     <div className="text-sm">
@@ -93,14 +93,14 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                 )}
             </div>
 
-            <div className="w-[70%] flex flex-col gap-5 p-10 ">
+            <div className="w-[90%] sm:w-[70%] flex flex-col gap-5 p-1 sm:p-10 ">
                 {pagedData.map((post, idx) => (
                     <div
                         onClick={() => router.push(`/SaleDetailPage/${post.id}`)}
                         key={idx}
                         className="flex w-full p-3 justify-between items-center cursor-pointer"
                     >
-                        <div className="w-[25%] h-[180px] min-w-[150px] rounded-xl shadow-lg flex items-center justify-center bg-gray-100 overflow-hidden">
+                        <div className="hidden sm:block w-[25%] h-[180px] min-w-[150px] rounded-xl shadow-lg flex items-center justify-center bg-gray-100 overflow-hidden">
                             {post.thumbnail ? (
                                 <img src={post.thumbnail} alt="썸네일" className="w-full h-full object-cover" />
                             ) : (
@@ -115,7 +115,7 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                             <div>주행: {post.mileage}</div>
                         </div>
                         <div className="text-xl font-semibold">{post.price?.toLocaleString()}원</div>
-                        <div className="text-xl font-semibold">상담문의: 010-8191-8244</div>
+                        <div className="hidden sm:block text-xl font-semibold">상담문의: 010-8191-8244</div>
                         <div>
                             <div
                                 className={`flex justify-center shadow-lg text-2xl  w-[120px]  p-2.5 rounded-md font-medium text-white ${

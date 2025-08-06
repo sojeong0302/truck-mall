@@ -7,6 +7,7 @@ import { useModalStore } from "@/store/ModalStateStroe";
 import axios from "axios";
 import { useReviewUploadStore } from "@/app/ReviewUploadPage/ReviewUploadPage.types";
 import { useImageStore } from "@/store/imageStore";
+import { useRouter } from "next/navigation";
 
 export default function WritingUpload({ url }: { url?: string }) {
     const { files } = useImageStore();
@@ -15,7 +16,7 @@ export default function WritingUpload({ url }: { url?: string }) {
     const content = useReviewUploadStore((state) => state.content);
     const setContent = useReviewUploadStore((state) => state.setContent);
     const setImages = useReviewUploadStore((state) => state.setImages);
-
+    const router = useRouter();
     const handleSubmit = async () => {
         const formData = new FormData();
         formData.append("title", title);
@@ -42,6 +43,7 @@ export default function WritingUpload({ url }: { url?: string }) {
             setContent("");
             setImages([]);
             useImageStore.getState().clear();
+            router.push(`/${url}`);
         } catch (error) {
             console.error("등록 실패:", error);
             alert("등록에 실패했습니다.");

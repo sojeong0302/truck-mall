@@ -32,7 +32,7 @@ export default function MainPage() {
     return (
         <div className="w-[100%]">
             {/* 메인 사진 */}
-            <div className="relative w-full h-[600px]">
+            <div className="hidden sm:block relative w-full h-[600px]">
                 <Swiper
                     modules={[EffectFade, Autoplay]}
                     effect="fade"
@@ -52,9 +52,9 @@ export default function MainPage() {
                 </Swiper>
             </div>
             {/* TIP 게시글 */}
-            <div className="flex w-[100%] gap-10 p-25 justify-center">
+            <div className="flex flex-col lg:flex-row w-full gap-10 p-6 sm:p-10 justify-center">
                 <Sns />
-                <div className="shadow-lg relative w-[80%] p-4 border-5 border-[#2E7D32] rounded-4xl bg-[#F5F5F5] flex items-around">
+                <div className="shadow-lg relative w-full max-w-screen-lg p-4 border-5 border-[#2E7D32] rounded-4xl bg-[#F5F5F5] flex flex-col sm:flex-row items-center">
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 bg-[#F5F5F5] z-10 text-[#D4B76A] text-4xl font-bold">
                         TIP
                     </div>
@@ -68,12 +68,12 @@ export default function MainPage() {
                     >
                         {carTIPs.map((item, i) => (
                             <SwiperSlide key={i}>
-                                <div className="flex items-center justify-center gap-10 p-15">
+                                <div className="flex items-center justify-center gap-10 p-14">
                                     {item.images && item.images.length > 0 && (
                                         <img
                                             src={item.images[0]}
                                             alt="대표 이미지"
-                                            className="shadow-lg w-[200px] h-[150px] object-cover rounded-xl mb-4"
+                                            className="hidden sm:block shadow-lg w-[200px] h-[150px] object-cover rounded-xl mb-4 sm:mb-0"
                                         />
                                     )}
                                     <div className="flex flex-col gap-5 justify-center">

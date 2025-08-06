@@ -9,12 +9,13 @@ import Modal from "@/components/Modal";
 import { useModalStore } from "@/store/ModalStateStroe";
 import { SaleProps } from "@/components/Sale/Sale.types";
 import { SaleCrystalPagePropStore } from "./SaleCrystalPage.types";
+import { useRouter } from "next/navigation";
 
 export default function SaleCrystalPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
     const modalStore = useModalStore();
     const { isModalOpen, setIsModalOpen } = modalStore;
-
+    const router = useRouter();
     const store = SaleCrystalPagePropStore();
     const {
         thumbnail,
@@ -60,10 +61,12 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         setFuel(post.fuel ?? "");
         setType(post.type ?? "");
         setTrim(post.trim ?? "");
-        setYear(post.year ?? "");
+        setYear(post.year?.toString() ?? "");
+
         setMileage(post.mileage ?? "");
         setColor(post.color ?? "");
-        setPrice(post.price ?? "");
+        setPrice(post.price?.toString() ?? "");
+
         setContent(post.content ?? "");
     }, [post]);
 
@@ -105,6 +108,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                 },
             });
             alert("수정되었습니다.");
+            router.push("/");
         } catch (error) {
             console.error("수정 실패", error);
             alert("수정 중 오류 발생");
