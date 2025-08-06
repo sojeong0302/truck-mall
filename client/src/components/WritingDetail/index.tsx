@@ -1,5 +1,4 @@
 "use client";
-import { use } from "react";
 import "swiper/css";
 import "swiper/css/navigation";
 import "yet-another-react-lightbox/styles.css";
@@ -27,25 +26,23 @@ export default function WritingDetail({
         return <div className="p-10 text-red-600">해당 글을 찾을 수 없습니다.</div>;
     }
     const store = useModalStore();
-    const { isModalOpen, setIsModalOpen } = store;
-
     const router = useRouter();
+    const { isModalOpen, setIsModalOpen } = store;
     const { isLoggedIn } = useAuthStore();
 
+    // 수정 페이지 이동
     const handleGoCrystal = () => {
         router.push(`/${crystalPath}/${id}`);
     };
 
+    // 글 삭제
     const handleDelete = async () => {
         try {
             const res = await fetch(`http://localhost:5000/${deletePath}/${id}`, {
                 method: "DELETE",
             });
             setIsModalOpen(true);
-        } catch (error) {
-            console.error("삭제 오류", error);
-            alert("서버 오류로 삭제에 실패했습니다.");
-        }
+        } catch (error) {}
     };
 
     return (

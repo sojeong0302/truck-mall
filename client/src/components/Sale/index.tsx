@@ -58,14 +58,10 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                 if (model) query.append("model", model);
                 if (subModel) query.append("sub_model", subModel);
                 if (grade) query.append("grade", grade);
-                console.log("📦 서버 요청 주소:", `http://localhost:5000/sale/list?${query.toString()}`);
                 const res = await axios.get(`http://localhost:5000/sale/list?${query.toString()}`);
-                console.log("✅ 받아온 데이터:", res.data);
-
                 const safeData = res.data ?? [];
                 setSales(Array.isArray(safeData) ? safeData : []);
             } catch (err) {
-                console.error("❌ 매물 불러오기 실패:", err);
                 setSales([]);
             }
         };
@@ -113,7 +109,7 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                             <div className="truncate max-w-[100px]">연식: {post.year}</div>
                             <div className="truncate max-w-[100px]">주행: {post.mileage}</div>
                         </div>
-                        <div className="text-sm sm:text-xl font-semibold">{post.price?.toLocaleString()}원</div>
+                        <div className="text-sm sm:text-xl font-semibold">{post.price?.toLocaleString()}만원</div>
                         <div className="hidden sm:block text-xl font-semibold">상담문의: 010-8191-8244</div>
                         <div>
                             <div
