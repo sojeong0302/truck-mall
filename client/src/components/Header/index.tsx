@@ -6,9 +6,7 @@ import { useRouter } from "next/navigation";
 export default function Header() {
     const { isLoggedIn, toggleAuth } = useAuthToggle();
     const router = useRouter();
-    const handleAdvice = async () => {
-        alert("서비스 구현중 입니다.\n010-8191-8244로 연락 주세요.");
-    };
+    const handleAdvice = async () => {};
 
     return (
         <>
@@ -64,8 +62,7 @@ export default function Header() {
                     차량검색
                 </div>
                 <div
-                    // onClick={() => router.push("/AdvicePage")}
-                    onClick={handleAdvice}
+                    onClick={() => router.push("/AdvicePage")}
                     className="text-base sm:text-3xl font-bold cursor-pointer transition transform duration-200 hover:scale-110 active:scale-95"
                 >
                     상담하기
