@@ -11,6 +11,7 @@ const ITEMS_PER_PAGE = 10;
 export default function ReviewPage() {
     const { currentPage } = usePaginationStore();
     const [reviews, setReviews] = useState<any[]>([]);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
 
     useEffect(() => {
         const fetchReviews = async () => {
@@ -26,9 +27,19 @@ export default function ReviewPage() {
         fetchReviews();
     }, []);
 
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
-    const totalPages = Math.ceil(reviews.length / ITEMS_PER_PAGE);
+    useEffect(() => {
+        const handleResize = () => {
+            setItemsPerPage(window.innerWidth < 768 ? 5 : 10);
+        };
+
+        handleResize();
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const totalPages = Math.ceil(reviews.length / itemsPerPage);
     const pagedData = reviews.slice(startIndex, endIndex);
 
     return (

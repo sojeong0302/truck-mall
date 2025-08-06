@@ -11,7 +11,7 @@ export default function Pagination({ totalPages }: PaginationProps) {
     if (totalPages <= 1) return null;
 
     return (
-        <div className="flex justify-center items-center gap-2 mb-20">
+        <div className="flex justify-center items-center gap-2 mb-10 sm:mb-20">
             {/* Prev button */}
             <button
                 onClick={() => setPage(currentPage - 1)}
@@ -27,7 +27,7 @@ export default function Pagination({ totalPages }: PaginationProps) {
                     key={page}
                     onClick={() => setPage(page)}
                     style={currentPage === page ? { backgroundColor: "rgba(46,125,50,0.5)" } : undefined}
-                    className={`text-xl px-3 py-1 rounded-full transition-transform transition-colors duration-150 ease-in-out active:scale-95 ${
+                    className={`text-base sm:text-xl px-3 py-1 rounded-full transition-transform transition-colors duration-150 ease-in-out active:scale-95 ${
                         currentPage === page ? "text-white" : "text-gray-700 hover:bg-gray-200"
                     }`}
                 >
