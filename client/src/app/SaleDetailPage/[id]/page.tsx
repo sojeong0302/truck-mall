@@ -44,7 +44,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
 
     if (!post) return <div className="p-10 text-red-500">해당 게시물을 찾을 수 없습니다.</div>;
     return (
-        <div className="w-full flex justify-center flex-col items-center p-0 sm:p-15">
+        <div className="w-full flex justify-center flex-col items-center p-5 sm:p-15">
             {isLoggedIn && (
                 <div className="flex w-[100%] sm:w-[80%] justify-end gap-2 p-4 text-sm">
                     <div onClick={handleGoCrystal} className="cursor-pointer">
@@ -56,8 +56,8 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                     </div>
                 </div>
             )}
-            <div className="w-[100%] sm:w-[80%] flex flex-col gap-15">
-                <div className="w-full flex flex-col sm:flex-row justify-center gap-5 sm:gap-15 p-4 sm:p-0">
+            <div className="w-[95%] sm:w-[80%] flex flex-col sm:gap-15 gap-5">
+                <div className="w-full flex flex-col sm:flex-row justify-center gap-5 sm:gap-15">
                     <img
                         src={post.thumbnail}
                         className="border-1 shadow-lg rounded-xl w-[500px] sm:h-[500px] h-[300px] "
@@ -66,7 +66,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                         <div className="font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2">
                             {post.name}
                         </div>
-                        <div className="flex flex-col text-xl sm:text-2xl p-2 gap-5">
+                        <div className="flex flex-col text-xl sm:text-2xl p-2 sm:gap-5 gap-3">
                             <div className="flex gap-3">
                                 <div className="font-bold">연료:</div>
                                 <div>{post.fuel}</div>
@@ -99,7 +99,9 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                     </div>
                 </div>
                 {post.images && post.images.length > 0 && <SwiperWithLightbox images={post.images} />}
-                <div className="text-2xl w-full bg-white border-4 border-[#2E7D32] p-4 rounded-md">{post.content}</div>
+                <div className="text-xl sm:text-2xl w-full bg-white border-4 border-[#2E7D32] p-4 rounded-md">
+                    {post.content}
+                </div>
                 <div className="flex justify-end">
                     <ShortButton onClick={() => router.back()} className="bg-[#2E7D32] text-white">
                         뒤로가기

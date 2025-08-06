@@ -29,10 +29,9 @@ export default function EtcPoto({ initialImages = [], setImages }: EtcPotoProps)
         });
 
         Promise.all(fileReaders).then((base64s) => {
-            // ✅ 최신 originURLs와 base64를 모두 합쳐서 반영
             setImages?.([...originURLs, ...base64s]);
         });
-    }, [originURLs, files, setImages]); // ✅ originURLs가 바뀔 때마다 재실행되도록 보장
+    }, [originURLs, files, setImages]);
 
     const handleClick = () => {
         fileInputRef.current?.click();
@@ -57,7 +56,7 @@ export default function EtcPoto({ initialImages = [], setImages }: EtcPotoProps)
     };
 
     return (
-        <div className="w-full p-20">
+        <div className="w-full sm:p-20 p-0">
             <input
                 type="file"
                 multiple
@@ -71,17 +70,21 @@ export default function EtcPoto({ initialImages = [], setImages }: EtcPotoProps)
                 <div className="flex justify-center">
                     <div
                         onClick={handleClick}
-                        className="w-[200px] h-[200px] bg-[rgba(179,179,179,0.25)] flex justify-center items-center rounded-md shadow cursor-pointer"
+                        className="sm:w-[200px] sm:h-[200px] w-[130px] h-[130px] bg-[rgba(179,179,179,0.25)] flex justify-center items-center rounded-md shadow cursor-pointer"
                     >
-                        <img src="/images/addToPhoto.png" alt="사진 추가" className="w-[60px] h-[60px] opacity-70" />
+                        <img
+                            src="/images/addToPhoto.png"
+                            alt="사진 추가"
+                            className="sm:w-[60px] sm:h-[60px] w-[30px] h-[30px] opacity-70"
+                        />
                     </div>
                 </div>
             ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-5 gap-y-10 w-fit mx-auto">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-5 gap-y-5 sm:gap-x-5 sm:gap-y-10 w-fit mx-auto">
                     {previews.map((src, idx) => (
                         <div
                             key={idx}
-                            className="w-[200px] h-[200px] cursor-pointer"
+                            className="sm:w-[200px] sm:h-[200px] w-[130px] h-[130px]  cursor-pointer"
                             onClick={() => handleDelete(idx)}
                             title="클릭하면 삭제됩니다"
                         >
@@ -95,9 +98,13 @@ export default function EtcPoto({ initialImages = [], setImages }: EtcPotoProps)
 
                     <div
                         onClick={handleClick}
-                        className="w-[200px] h-[200px] bg-[rgba(179,179,179,0.25)] flex justify-center items-center rounded-md shadow cursor-pointer"
+                        className="sm:w-[200px] sm:h-[200px] w-[130px] h-[130px] bg-[rgba(179,179,179,0.25)] flex justify-center items-center rounded-md shadow cursor-pointer"
                     >
-                        <img src="/images/addToPhoto.png" alt="사진 추가" className="w-[60px] h-[60px] opacity-70" />
+                        <img
+                            src="/images/addToPhoto.png"
+                            alt="사진 추가"
+                            className="sm:w-[60px] sm:h-[60px] w-[30px] h-[30px] opacity-70"
+                        />
                     </div>
                 </div>
             )}

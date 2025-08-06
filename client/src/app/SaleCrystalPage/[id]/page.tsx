@@ -47,9 +47,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
             try {
                 const res = await axios.get(`http://localhost:5000/sale/${id}`);
                 setPost(res.data);
-            } catch (error) {
-                console.error("데이터 불러오기 실패", error);
-            }
+            } catch (error) {}
         };
         fetchPost();
     }, [id]);
@@ -62,7 +60,6 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         setType(post.type ?? "");
         setTrim(post.trim ?? "");
         setYear(post.year?.toString() ?? "");
-
         setMileage(post.mileage ?? "");
         setColor(post.color ?? "");
         setPrice(post.price?.toString() ?? "");
@@ -99,7 +96,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                 price,
                 thumbnail,
                 content,
-                images, // 이미지 배열을 추가로 구현한 경우 채워주세요.
+                images,
                 tag: {
                     manufacturer: (post as any).manufacturer ?? "",
                     model: (post as any).model ?? "",
@@ -108,11 +105,8 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                 },
             });
             alert("수정되었습니다.");
-            // router.push("/");
-        } catch (error) {
-            console.error("수정 실패", error);
-            alert("수정 중 오류 발생");
-        }
+            router.push("/");
+        } catch (error) {}
     };
 
     if (!post) {
@@ -120,14 +114,14 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
     }
 
     return (
-        <div className="w-full flex justify-center flex-col items-center p-15">
-            <div className="w-[80%] flex flex-col gap-15">
-                <div className="w-full flex justify-center gap-15">
+        <div className="w-full flex justify-center flex-col items-center p-5 sm:p-15">
+            <div className="w-[95%] sm:w-[80%] flex flex-col sm:gap-15 gap-5">
+                <div className="w-full flex flex-col sm:flex-row justify-center gap-5 sm:gap-15">
                     {thumbnail ? (
                         <img
                             src={thumbnail}
                             alt="썸네일"
-                            className="border-1 shadow-lg rounded-xl w-[50%] h-[600px] min-w-[150px] object-contain"
+                            className="border-1 shadow-lg rounded-xl  w-[500px] sm:h-[500px] h-[300px]"
                             onClick={handleImageClick}
                         />
                     ) : (
@@ -149,12 +143,12 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
 
                     <div className="flex flex-col justify-around">
                         <input
-                            className="font-bold text-4xl border-b-2 border-[#575757] p-2"
+                            className="font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="차량명을 입력해 주세요."
                         />
-                        <div className="flex flex-col text-2xl p-2 gap-5">
+                        <div className="flex flex-col text-xl sm:text-2xl p-2 gap-5">
                             {[
                                 { label: "연료", value: fuel, setter: setFuel },
                                 { label: "차체 타입", value: type, setter: setType },
@@ -164,10 +158,13 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                                 { label: "색상", value: color, setter: setColor },
                                 { label: "가격", value: price, setter: setPrice },
                             ].map((field, idx) => (
-                                <div className="flex gap-3 items-center" key={idx}>
-                                    <div className="font-bold">{field.label}:</div>
+                                <div
+                                    className="flex gap-1 sm:gap-3 items-startsm:items-center flex-col sm:flex-row"
+                                    key={idx}
+                                >
+                                    <div className="font-bold">{field.label}</div>
                                     <input
-                                        className="flex-1 shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-2"
+                                        className="flex-1 shadow-md text-lg sm:text-xl border-2 border-[#2E7D32] rounded-xl p-2"
                                         value={field.value}
                                         onChange={(e) => field.setter(e.target.value)}
                                         placeholder={`${field.label}을 입력해 주세요.`}
