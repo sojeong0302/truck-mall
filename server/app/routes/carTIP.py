@@ -162,8 +162,8 @@ def update_cartip(carTIP_id):
 
 # ✅ 차량 TIP 삭제
 @carTIP_bp.route("/<int:carTIP_id>", methods=["DELETE"])
-def delete_cartip(cartip_id):
-    cartip = CarTIP.query.get(cartip_id)
+def delete_cartip(carTIP_id):  # ✅ 고침
+    cartip = CarTIP.query.get(carTIP_id)
     if not cartip:
         return jsonify({"error": "CarTIP not found"}), 404
 

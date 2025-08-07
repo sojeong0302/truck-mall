@@ -20,6 +20,14 @@ export default function SwiperWithLightbox({ images }: { images: string[] }) {
                 spaceBetween={10}
                 slidesPerView={4}
                 loop
+                breakpoints={{
+                    0: {
+                        slidesPerView: 1,
+                    },
+                    768: {
+                        slidesPerView: 4,
+                    },
+                }}
             >
                 {images.map((src, index) => (
                     <SwiperSlide key={index}>

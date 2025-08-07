@@ -6,21 +6,20 @@ export default function SimpleFilter({ skipReset = false }: { skipReset?: boolea
     const { simpleTag, setSimpleTag } = useSimpleTagStore();
 
     const handleSelect = (type: string, grade: string) => {
-        setSimpleTag(type, grade, skipReset); // ✅ props에서 받음
-        console.log("현재 simpleTag 상태:", useSimpleTagStore.getState().simpleTag);
+        setSimpleTag(type, grade, skipReset);
     };
 
     return (
-        <div className="p-15 w-full">
-            <div className="grid grid-cols-8 gap-6">
+        <div className="p-0 sm:p-15 w-full">
+            <div className="grid grid-cols-2 sm:grid-cols-8 gap-1 sm:gap-6 ">
                 {data.map((truck) => {
                     const grades = truck.grades[0].split(", ");
                     const isSelected = simpleTag?.type === truck.type;
 
                     return (
                         <div key={truck.type} className="bg-white p-3 shadow-md rounded-lg">
-                            <div className="font-bold text-lg mb-4 text-center">{truck.type}</div>
-                            <div className="flex flex-wrap gap-2 justify-center">
+                            <div className="font-bold text-sm sm:text-lg mb-4 text-center">{truck.type}</div>
+                            <div className="flex flex-wrap gap-1 sm:gap-2 justify-center">
                                 {grades.map((grade) => (
                                     <button
                                         key={grade}

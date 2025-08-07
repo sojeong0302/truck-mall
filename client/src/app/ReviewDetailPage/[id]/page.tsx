@@ -48,5 +48,5 @@ export default function ReviewDetailPage({ params }: { params: Promise<{ id: str
     if (loading) return <div className="p-10 text-gray-500">불러오는 중...</div>;
     if (!post) return <div className="p-10 text-red-500">해당 글을 찾을 수 없습니다.</div>;
 
-    return <WritingDetail url="/ReviewPage" id={id!} crystalPath="ReviewCrystalPage" post={post} />;
+    return <WritingDetail deletePath="review" url="/ReviewPage" id={id!} crystalPath="ReviewCrystalPage" post={post} />;
 }

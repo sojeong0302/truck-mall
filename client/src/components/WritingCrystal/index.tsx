@@ -41,14 +41,12 @@ export default function WritingCrystal({ post, url }: { post: any; url?: string 
 
     const handleSubmit = async () => {
         const currentPrevImageURLs = previews.filter((p) => originURLs.includes(p));
-
         const formData = new FormData();
         formData.append("title", title);
         formData.append("content", content);
         currentPrevImageURLs.forEach((url) => formData.append("prevImages", url));
         files.forEach((file) => formData.append("images", file));
 
-        // ✅ URL에 따라 API 경로 다르게 설정
         const baseURL =
             url === "ReviewPage"
                 ? `http://localhost:5000/review/${post.id}`
@@ -59,8 +57,6 @@ export default function WritingCrystal({ post, url }: { post: any; url?: string 
                 method: "PATCH",
                 body: formData,
             });
-            console.log("전송되는 제목:", title);
-            console.log("전송되는 내용:", content);
 
             if (res.ok) {
                 alert("수정 되었습니다.");
@@ -83,16 +79,16 @@ export default function WritingCrystal({ post, url }: { post: any; url?: string 
         return <div className="p-10 text-red-600">해당 글을 찾을 수 없습니다.</div>;
     }
     return (
-        <div className="w-[80%] h-[100%] mx-auto flex flex-col justify-center p-20 gap-7">
+        <div className="sm:w-[80%] w-[90%] h-[100%] mx-auto flex flex-col justify-center sm:p-20 p-0 gap-7">
             <input
                 placeholder="제목을 입력해 주세요."
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="font-medium w-full text-3xl border-b-2 border-[#575757] p-4 focus:outline-none"
+                className="font-medium w-full text-xl sm:text-3xl border-b-2 border-[#575757] p-4 focus:outline-none"
             />
             <EtcPoto initialImages={post.images} />
             <TextArea value={content} onChange={(e) => setContent(e.target.value)} />
-            <div className="flex gap-3 justify-end">
+            <div className="flex gap-3 justify-end sm:mb-0 mb-5">
                 <ShortButton onClick={handleSubmit} className="bg-[#2E7D32] text-white">
                     수정하기
                 </ShortButton>

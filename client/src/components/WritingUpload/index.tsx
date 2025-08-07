@@ -7,46 +7,71 @@ import { useModalStore } from "@/store/ModalStateStroe";
 import axios from "axios";
 import { useReviewUploadStore } from "@/app/ReviewUploadPage/ReviewUploadPage.types";
 import { useImageStore } from "@/store/imageStore";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-export default function WritingUpload({ url }: { url?: string }) {
+export default function WritingUpload({ post, url }: { post: any; url?: string }) {
     const { files } = useImageStore();
+    const { previews, originURLs } = useImageStore();
     const title = useReviewUploadStore((state) => state.title);
     const setTitle = useReviewUploadStore((state) => state.setTitle);
     const content = useReviewUploadStore((state) => state.content);
     const setContent = useReviewUploadStore((state) => state.setContent);
     const setImages = useReviewUploadStore((state) => state.setImages);
-
+    const router = useRouter();
     const handleSubmit = async () => {
+        const currentPrevImageURLs = previews.filter((p) => originURLs.includes(p));
         const formData = new FormData();
         formData.append("title", title);
         formData.append("content", content);
-        files.forEach((file) => {
-            formData.append("images", file);
-        });
+        currentPrevImageURLs.forEach((url) => formData.append("prevImages", url));
+        files.forEach((file) => formData.append("images", file));
 
-        // ✅ 경로 결정
-        const uploadPath =
+        const isEdit = !!post?.id;
+
+        // ✅ 실제 endpoint로 사용할 변수
+        const endpoint =
             url === "ReviewPage"
                 ? "http://localhost:5000/review/uploadReview"
                 : "http://localhost:5000/carTIP/uploadCarTIP";
 
         try {
-            await axios.post(uploadPath, formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
+            const res = await fetch(endpoint, {
+                method: isEdit ? "PATCH" : "POST",
+                body: formData,
             });
 
-            alert("등록되었습니다.");
+            if (!res.ok) {
+                const err = await res.json();
+                alert(`오류 발생: ${err.error}`);
+                return;
+            }
+
+            alert(isEdit ? "수정되었습니다." : "등록되었습니다.");
             setTitle("");
             setContent("");
             setImages([]);
             useImageStore.getState().clear();
-        } catch (error) {
-            console.error("등록 실패:", error);
-            alert("등록에 실패했습니다.");
+            router.push(`/${url}`);
+        } catch (err) {
+            console.error("요청 실패", err);
+            alert("서버 오류");
         }
     };
+
+    useEffect(() => {
+        if (post) {
+            setTitle("");
+            setContent("");
+            setImages([]);
+
+            setTimeout(() => {
+                setTitle(post.title || "");
+                setContent(post.content || "");
+                setImages(post.images || []);
+            }, 0);
+        }
+    }, [post?.id]);
 
     const store = useModalStore();
     const { isModalOpen, setIsModalOpen } = store;
@@ -55,16 +80,16 @@ export default function WritingUpload({ url }: { url?: string }) {
     };
 
     return (
-        <div className="w-[80%] h-[100%] mx-auto flex flex-col justify-center p-20 gap-7">
+        <div className="w-[90%] sm:w-[80%] h-[100%] mx-auto flex flex-col justify-center p-0 sm:p-20 gap-7">
             <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="제목을 입력해 주세요."
-                className="font-medium w-full text-3xl border-b-2 border-[#575757] p-4 focus:outline-none"
+                className="font-medium w-full  text-xl sm:text-3xl border-b-2 border-[#575757] p-4 focus:outline-none"
             />
-            <EtcPoto setImages={setImages} />
+            <EtcPoto initialImages={post?.images || []} />
             <TextArea setContent={setContent} />
-            <div className="flex gap-3 justify-end">
+            <div className="flex gap-3 justify-end sm:mb-0 mb-5">
                 <ShortButton onClick={handleSubmit} className="bg-[#2E7D32] text-white">
                     등록하기
                 </ShortButton>

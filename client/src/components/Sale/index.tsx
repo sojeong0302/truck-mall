@@ -14,7 +14,7 @@ import { useSearchTriggerStore } from "@/store/searchTriggerStore";
 
 const ITEMS_PER_PAGE = 5;
 
-export default function Sale({ transmission, posts, basePath, priceRange, yearRange }: SaleComponentProps) {
+export default function Sale({ transmission, posts, priceRange, yearRange }: SaleComponentProps) {
     const { currentPage } = usePaginationStore();
     const { simpleTag } = useSimpleTagStore();
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -58,14 +58,10 @@ export default function Sale({ transmission, posts, basePath, priceRange, yearRa
                 if (model) query.append("model", model);
                 if (subModel) query.append("sub_model", subModel);
                 if (grade) query.append("grade", grade);
-                console.log("📦 서버 요청 주소:", `http://localhost:5000/sale/list?${query.toString()}`);
                 const res = await axios.get(`http://localhost:5000/sale/list?${query.toString()}`);
-                console.log("✅ 받아온 데이터:", res.data);
-
                 const safeData = res.data ?? [];
                 setSales(Array.isArray(safeData) ? safeData : []);
             } catch (err) {
-                console.error("❌ 매물 불러오기 실패:", err);
                 setSales([]);
             }
         };
@@ -73,16 +69,15 @@ export default function Sale({ transmission, posts, basePath, priceRange, yearRa
         fetchSales();
     }, [simpleTag, trigger]);
 
-    // ✅ 이렇게 수정
     const pagedData = sales.slice(startIndex, endIndex);
     const totalPages = Math.ceil(sales.length / ITEMS_PER_PAGE);
 
     return (
         <div className="w-[100%] flex flex-col items-center justify-center">
-            <div className="w-[70%] p-3 flex items-center justify-between border-b-2 border-[#575757]">
+            <div className="w-[90%] sm:w-[70%] p-3 flex items-center justify-between border-b-2 border-[#575757]">
                 <div className="flex items-center gap-3">
-                    <div className="text-[#D7263D] text-xl font-medium">등록 매물</div>
-                    <div className="text-base">허위 없은 100% 실매물만 등록됩니다.</div>
+                    <div className="text-[#D7263D] text-sm sm:text-xl font-medium">등록 매물</div>
+                    <div className="hidden sm:block text-base">허위 없은 100% 실매물만 등록됩니다.</div>
                 </div>
                 {isLoggedIn && (
                     <div className="text-sm">
@@ -93,32 +88,32 @@ export default function Sale({ transmission, posts, basePath, priceRange, yearRa
                 )}
             </div>
 
-            <div className="w-[70%] flex flex-col gap-5 p-10 ">
+            <div className="w-[90%] sm:w-[70%] flex flex-col gap-5 p-1 sm:p-10 ">
                 {pagedData.map((post, idx) => (
                     <div
                         onClick={() => router.push(`/SaleDetailPage/${post.id}`)}
                         key={idx}
                         className="flex w-full p-3 justify-between items-center cursor-pointer"
                     >
-                        <div className="w-[25%] h-[180px] min-w-[150px] rounded-xl shadow-lg flex items-center justify-center bg-gray-100 overflow-hidden">
-                            {post.thumbnail ? (
+                        <div className="hidden sm:block w-[25%] h-[180px] min-w-[150px] rounded-xl shadow-lg flex items-center justify-center bg-gray-100 overflow-hidden">
+                            {post.thumbnail && !post.thumbnail.startsWith("blob:") ? (
                                 <img src={post.thumbnail} alt="썸네일" className="w-full h-full object-cover" />
                             ) : (
-                                <span className="text-gray-500 text-sm">이미지 준비중 입니다.</span>
+                                <div className="text-gray-500 text-sm text-center">이미지 준비중 입니다.</div>
                             )}
                         </div>
 
-                        <div className="text-xl font-semibold flex flex-col gap-3">
-                            <div>모델: {post.name}</div>
-                            <div>연료: {post.fuel}</div>
-                            <div>연식: {post.year}</div>
-                            <div>주행: {post.mileage}</div>
+                        <div className="text-sm sm:text-xl font-semibold flex flex-col gap-3">
+                            <div className="truncate max-w-[100px] sm:max-w-[200px]">모델: {post.name}</div>
+                            <div className="truncate max-w-[100px]">연료: {post.fuel}</div>
+                            <div className="truncate max-w-[100px]">연식: {post.year}</div>
+                            <div className="truncate max-w-[100px]">주행: {post.mileage}</div>
                         </div>
-                        <div className="text-xl font-semibold">{post.price?.toLocaleString()}원</div>
-                        <div className="text-xl font-semibold">상담문의: 010-8191-8244</div>
+                        <div className="text-sm sm:text-xl font-semibold">{post.price?.toLocaleString()}만원</div>
+                        <div className="hidden sm:block text-xl font-semibold">상담문의: 010-8191-8244</div>
                         <div>
                             <div
-                                className={`flex justify-center shadow-lg text-2xl  w-[120px]  p-2.5 rounded-md font-medium text-white ${
+                                className={`flex justify-center shadow-lg text-sm sm:text-2xl  w-[80px] sm:w-[120px]  p-2.5 rounded-md font-medium text-white ${
                                     post.status ? "bg-[#2E7D32]" : "bg-[#C62828]"
                                 }`}
                             >
