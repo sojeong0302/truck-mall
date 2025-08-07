@@ -9,6 +9,8 @@ from flask_migrate import Migrate
 from .routes.sale import sale_bp
 from app.routes.sms import sms_bp
 from dotenv import load_dotenv
+import os
+
 
 load_dotenv()
 
@@ -17,6 +19,9 @@ migrate = Migrate()  # 먼저 migrate 객체만 생성해두고
 
 
 def create_app():
+    app = Flask(__name__)
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
+    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
     app = Flask(__name__)
     app.config.from_object(Config)
 
