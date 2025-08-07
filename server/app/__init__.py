@@ -22,8 +22,8 @@ def create_app():
     app = Flask(__name__)
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
-    app = Flask(__name__)
-    app.config.from_object(Config)
+
+    # app.config.from_object(Config)
 
     # CORS 설정
 
