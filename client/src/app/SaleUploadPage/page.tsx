@@ -124,7 +124,7 @@ export default function WritingUpload() {
     return (
         <>
             <SimpleFilter skipReset={true} />
-            <div className="w-[80%] h-[100%] mx-auto flex flex-col justify-center p-20 gap-7">
+            <div className="w-[100%] sm:w-[80%] h-[100%] mx-auto flex flex-col justify-center p-5 sm:p-20 gap-7">
                 <Filter skipReset={true} />
                 {selectedTags.length > 0 && (
                     <div className="flex flex-wrap gap-3 text-lg font-semibold text-[#2E7D32] px-1">
@@ -135,10 +135,10 @@ export default function WritingUpload() {
                         ))}
                     </div>
                 )}
-                <div className="flex w-full gap-10">
+                <div className="flex flex-col sm:flex-row w-full gap-0 sm:gap-10">
                     <div className="flex items-center gap-3">
-                        <div className="text-lg text-[#2E7D32]">▶</div>
-                        <div className="text-2xl font-medium">변속기</div>
+                        <div className="text-sm sm:text-lg text-[#2E7D32]">▶</div>
+                        <div className="text-lg sm:text-2xl font-medium">변속기</div>
                     </div>
                     <div className="relative w-48">
                         <button
@@ -163,9 +163,9 @@ export default function WritingUpload() {
                         )}
                     </div>
                 </div>
-                <div className="w-full flex justify-center gap-15">
+                <div className="w-full flex flex-col sm:flex-col justify-center gap-15">
                     <div
-                        className="flex justify-center items-center cursor-pointer shadow-lg rounded-xl w-[50%] aspect-square min-w-[150px] bg-[rgba(179,179,179,0.25)] overflow-hidden"
+                        className="flex justify-center items-center cursor-pointer shadow-lg rounded-xl w-[]sm:w-[50%] aspect-square sm:min-w-[150px] bg-[rgba(179,179,179,0.25)] overflow-hidden"
                         onClick={handleClick}
                     >
                         <input
@@ -187,14 +187,14 @@ export default function WritingUpload() {
                     </div>
                     <div className="flex flex-col justify-around">
                         <input
-                            className="font-bold text-4xl border-b-2 border-[#575757] p-2"
+                            className="font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2"
                             value={name}
                             onChange={(e) => setField("name", e.target.value)}
                             placeholder="차량명을 입력해 주세요."
                         />
-                        <div className="flex flex-col text-2xl p-2 gap-5">
-                            <div className="flex gap-3 items-center">
-                                <div className="font-bold">연료:</div>
+                        <div className="flex flex-col text-xl sm:text-2xl p-2 gap-5">
+                            <div className="flex gap-1 sm:gap-3 sm:items-center flex-col sm:flex-row">
+                                <div className="font-bold">연료</div>
                                 <input
                                     className="flex-1 shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-2"
                                     value={fuel}
@@ -202,8 +202,8 @@ export default function WritingUpload() {
                                     placeholder="연료를 입력해 주세요."
                                 />
                             </div>
-                            <div className="flex gap-3 items-center">
-                                <div className="font-bold">차체 타입:</div>
+                            <div className="flex gap-1 sm:gap-3 sm:items-center flex-col sm:flex-row">
+                                <div className="font-bold">차체 타입</div>
                                 <input
                                     className="flex-1 shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-2"
                                     value={type}
@@ -211,8 +211,8 @@ export default function WritingUpload() {
                                     placeholder="차체 타입을 입력해 주세요."
                                 />
                             </div>
-                            <div className="flex gap-3 items-center">
-                                <div className="font-bold">트림:</div>
+                            <div className="flex gap-1 sm:gap-3 sm:items-center flex-col sm:flex-row">
+                                <div className="font-bold">트림</div>
                                 <input
                                     value={trim}
                                     onChange={(e) => setField("trim", e.target.value)}
@@ -220,13 +220,12 @@ export default function WritingUpload() {
                                     className="flex-1 shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-2"
                                 />
                             </div>
-                            <div className="flex gap-3 items-center">
-                                <div className="font-bold">연식:</div>
+                            <div className="flex gap-1 sm:gap-3 sm:items-center flex-col sm:flex-row">
+                                <div className="font-bold">연식</div>
                                 <input
                                     inputMode="numeric"
                                     pattern="[0-9]*"
                                     onKeyDown={(e) => {
-                                        // 허용할 키만 통과 (숫자, 백스페이스, 화살표 등)
                                         const allowedKeys = ["Backspace", "ArrowLeft", "ArrowRight", "Delete", "Tab"];
                                         if (!/[0-9]/.test(e.key) && !allowedKeys.includes(e.key)) {
                                             e.preventDefault();
@@ -239,8 +238,8 @@ export default function WritingUpload() {
                                     placeholder="연식을 입력해 주세요."
                                 />
                             </div>
-                            <div className="flex gap-3 items-center">
-                                <div className="font-bold">주행거리:</div>
+                            <div className="flex gap-1 sm:gap-3 sm:items-center flex-col sm:flex-row">
+                                <div className="font-bold">주행거리</div>
                                 <input
                                     className="flex-1 shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-2"
                                     value={mileage}
@@ -248,8 +247,8 @@ export default function WritingUpload() {
                                     placeholder="주행거리를 입력해 주세요."
                                 />
                             </div>
-                            <div className="flex gap-3 items-center">
-                                <div className="font-bold">색상:</div>
+                            <div className="flex gap-1 sm:gap-3 sm:items-center flex-col sm:flex-row">
+                                <div className="font-bold">색상</div>
                                 <input
                                     className="flex-1 shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-2"
                                     value={color}
@@ -257,8 +256,8 @@ export default function WritingUpload() {
                                     placeholder="색상을 입력해 주세요."
                                 />
                             </div>
-                            <div className="flex gap-3 items-center">
-                                <div className="font-bold">가격:</div>
+                            <div className="flex gap-1 sm:gap-3 sm:items-center flex-col sm:flex-row">
+                                <div className="font-bold">가격</div>
                                 <input
                                     onKeyDown={(e) => {
                                         // 허용할 키만 통과 (숫자, 백스페이스, 화살표 등)

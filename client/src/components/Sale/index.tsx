@@ -96,10 +96,10 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                         className="flex w-full p-3 justify-between items-center cursor-pointer"
                     >
                         <div className="hidden sm:block w-[25%] h-[180px] min-w-[150px] rounded-xl shadow-lg flex items-center justify-center bg-gray-100 overflow-hidden">
-                            {post.thumbnail ? (
+                            {post.thumbnail && !post.thumbnail.startsWith("blob:") ? (
                                 <img src={post.thumbnail} alt="썸네일" className="w-full h-full object-cover" />
                             ) : (
-                                <span className="text-gray-500 text-sm">이미지 준비중 입니다.</span>
+                                <div className="text-gray-500 text-sm text-center">이미지 준비중 입니다.</div>
                             )}
                         </div>
 
