@@ -25,7 +25,7 @@ async function urlToFile(url: string): Promise<File> {
     return new File([blob], fileName, { type: blob.type });
 }
 
-export default function WritingUpload({ post, url }: { post: Post; url?: string }) {
+export default function WritingUpload({ post, url }: { post?: Post; url?: string }) {
     const { files } = useImageStore();
     const { previews, originURLs } = useImageStore();
     const title = useReviewUploadStore((state) => state.title);
