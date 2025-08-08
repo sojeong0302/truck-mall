@@ -9,7 +9,14 @@ import { useEffect } from "react";
 import { useImageStore } from "@/store/imageStore";
 import { useRouter } from "next/navigation";
 
-export default function WritingCrystal({ post, url }: { post: any; url?: string }) {
+interface Post {
+    id: number;
+    title: string;
+    content: string;
+    images?: string[];
+}
+
+export default function WritingCrystal({ post, url }: { post: Post; url?: string }) {
     const store = useModalStore();
     const { isModalOpen, setIsModalOpen } = store;
     const { previews, files, originURLs } = useImageStore();
@@ -37,7 +44,7 @@ export default function WritingCrystal({ post, url }: { post: any; url?: string 
                 setPrevImages(post.images || []);
             }, 0);
         }
-    }, [post?.id]);
+    }, [post, setTitle, setContent, setPrevImages]);
 
     const handleSubmit = async () => {
         const currentPrevImageURLs = previews.filter((p) => originURLs.includes(p));

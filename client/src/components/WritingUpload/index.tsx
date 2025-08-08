@@ -10,7 +10,22 @@ import { useImageStore } from "@/store/imageStore";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-export default function WritingUpload({ post, url }: { post: any; url?: string }) {
+interface Post {
+    id: number;
+    title: string;
+    content: string;
+    images?: string[];
+}
+
+// URL들을 fetch해서 File로 변환하는 예시
+async function urlToFile(url: string): Promise<File> {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const fileName = url.split("/").pop() || "file.jpg";
+    return new File([blob], fileName, { type: blob.type });
+}
+
+export default function WritingUpload({ post, url }: { post: Post; url?: string }) {
     const { files } = useImageStore();
     const { previews, originURLs } = useImageStore();
     const title = useReviewUploadStore((state) => state.title);
@@ -68,7 +83,7 @@ export default function WritingUpload({ post, url }: { post: any; url?: string }
             setTimeout(() => {
                 setTitle(post.title || "");
                 setContent(post.content || "");
-                setImages(post.images || []);
+                setImages(files);
             }, 0);
         }
     }, [post?.id]);

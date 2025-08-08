@@ -9,6 +9,13 @@ import { useAuthStore } from "@/store/useAuthStore";
 import Modal from "../Modal";
 import { useModalStore } from "@/store/ModalStateStroe";
 
+interface Post {
+    id: number;
+    title: string;
+    content: string;
+    images?: string[];
+}
+
 export default function WritingDetail({
     id,
     post,
@@ -17,7 +24,7 @@ export default function WritingDetail({
     url,
 }: {
     id: string;
-    post: any;
+    post: Post;
     deletePath: string;
     crystalPath: string;
     url: string;
