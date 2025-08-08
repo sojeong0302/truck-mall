@@ -75,17 +75,29 @@ export default function WritingUpload({ post, url }: { post?: Post; url?: string
     };
 
     useEffect(() => {
-        if (post) {
-            setTitle("");
-            setContent("");
-            setImages([]);
+        const init = async () => {
+            if (post) {
+                setTitle("");
+                setContent("");
+                setImages([]);
+                useImageStore.getState().clear();
 
-            setTimeout(() => {
+                const fileList: File[] = [];
+
+                if (post.images && post.images.length > 0) {
+                    for (const url of post.images) {
+                        const file = await urlToFile(url);
+                        fileList.push(file);
+                    }
+                }
+
                 setTitle(post.title || "");
                 setContent(post.content || "");
-                setImages(files);
-            }, 0);
-        }
+                setImages(fileList);
+            }
+        };
+
+        init();
     }, [post?.id, setTitle, setContent, setImages]);
 
     const store = useModalStore();
