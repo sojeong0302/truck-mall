@@ -29,9 +29,6 @@ export default function WritingDetail({
     crystalPath: string;
     url: string;
 }) {
-    if (!post) {
-        return <div className="p-10 text-red-600">해당 글을 찾을 수 없습니다.</div>;
-    }
     const store = useModalStore();
     const router = useRouter();
     const { isModalOpen, setIsModalOpen } = store;
@@ -51,7 +48,9 @@ export default function WritingDetail({
             setIsModalOpen(true);
         } catch (error) {}
     };
-
+    if (!post) {
+        return <div className="p-10 text-red-600">해당 글을 찾을 수 없습니다.</div>;
+    }
     return (
         <div className="w-[100%] p-0 sm:p-10 flex flex-col gap-5 items-center">
             {isLoggedIn && (

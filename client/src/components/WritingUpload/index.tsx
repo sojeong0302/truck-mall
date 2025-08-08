@@ -86,7 +86,7 @@ export default function WritingUpload({ post, url }: { post: Post; url?: string 
                 setImages(files);
             }, 0);
         }
-    }, [post?.id]);
+    }, [post?.id, setTitle, setContent, setImages]);
 
     const store = useModalStore();
     const { isModalOpen, setIsModalOpen } = store;
