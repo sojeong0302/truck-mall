@@ -65,9 +65,9 @@ export default function WritingDetail({
                 </div>
             )}
             <div className="w-[90%] sm:w-[80%] flex flex-col justify-center items-center gap-10">
-                <div className="font-medium w-[100%] text-3xl border-b-2 border-[#575757] p-4">{post.title}</div>
-                {post.images && post.images.length > 0 && <SwiperWithLightbox images={post.images} />}
-                <div className="text-2xl w-full bg-white border-4 border-[#2E7D32] p-4 rounded-md">{post.content}</div>
+                <div className="font-medium w-[100%] text-3xl border-b-2 border-[#575757] p-4">{post?.title}</div>
+                {post.images && post.images.length > 0 && <SwiperWithLightbox images={post?.images} />}
+                <div className="text-2xl w-full bg-white border-4 border-[#2E7D32] p-4 rounded-md">{post?.content}</div>
             </div>
             <div className="flex justify-end w-[90%] sm:w-[80%] sm:mb-0 mb-5">
                 <ShortButton onClick={() => router.back()} className="bg-[#2E7D32] text-white">
