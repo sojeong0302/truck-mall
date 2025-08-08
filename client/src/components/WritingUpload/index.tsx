@@ -73,7 +73,6 @@ export default function WritingUpload({ post, url }: { post?: Post; url?: string
             alert("서버 오류");
         }
     };
-
     useEffect(() => {
         const init = async () => {
             if (post) {
@@ -98,7 +97,7 @@ export default function WritingUpload({ post, url }: { post?: Post; url?: string
         };
 
         init();
-    }, [post?.id, setTitle, setContent, setImages]);
+    }, [post?.id]);
 
     const store = useModalStore();
     const { isModalOpen, setIsModalOpen } = store;
@@ -115,7 +114,7 @@ export default function WritingUpload({ post, url }: { post?: Post; url?: string
                 className="font-medium w-full  text-xl sm:text-3xl border-b-2 border-[#575757] p-4 focus:outline-none"
             />
             <EtcPoto initialImages={post?.images || []} />
-            <TextArea setContent={setContent} />
+            <TextArea value={content} setContent={setContent} />
             <div className="flex gap-3 justify-end sm:mb-0 mb-5">
                 <ShortButton onClick={handleSubmit} className="bg-[#2E7D32] text-white">
                     등록하기
