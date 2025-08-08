@@ -9,6 +9,7 @@ from flask_migrate import Migrate
 from .routes.sale import sale_bp
 from app.routes.sms import sms_bp
 from dotenv import load_dotenv
+from .routes.ping import ping_bp
 import os
 
 
@@ -40,4 +41,5 @@ def create_app():
     app.register_blueprint(carTIP_bp, url_prefix="/carTIP")
     app.register_blueprint(sale_bp, url_prefix="/sale")
     app.register_blueprint(sms_bp)
+    app.register_blueprint(ping_bp)
     return app
