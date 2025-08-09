@@ -227,18 +227,9 @@ def get_sale_by_id(sale_id):
 
 
 # 수정 api
-@sale_bp.route("/sale/<int:sale_id>", methods=["PUT"])
+@sale_bp.route("/<int:sale_id>", methods=["PUT"])
 def update_sale(sale_id):
     sale = Sale.query.get_or_404(sale_id)
-
-    current_app.logger.info(
-        "PUT /sale/%s content_type=%s, form_keys=%s, file_keys=%s, file_counts=%s",
-        sale_id,
-        request.content_type,
-        list(request.form.keys()),
-        list(request.files.keys()),
-        {k: len(request.files.getlist(k)) for k in request.files.keys()},
-    )
 
     ct = (request.content_type or "").lower()
 
