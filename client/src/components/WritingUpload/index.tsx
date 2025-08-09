@@ -9,15 +9,9 @@ import { useReviewUploadStore } from "@/app/ReviewUploadPage/ReviewUploadPage.ty
 import { useImageStore } from "@/store/imageStore";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { WritingUploadProps } from "./WritingUpload.types";
 
-interface Post {
-    id: number;
-    title: string;
-    content: string;
-    images?: string[];
-}
-
-// URL들을 fetch해서 File로 변환하는 예시
+//이미지를 업로드 가능한 파일처럼 변환해줌
 async function urlToFile(url: string): Promise<File> {
     const response = await fetch(url);
     const blob = await response.blob();
@@ -25,15 +19,17 @@ async function urlToFile(url: string): Promise<File> {
     return new File([blob], fileName, { type: blob.type });
 }
 
-export default function WritingUpload({ post, url }: { post?: Post; url?: string }) {
-    const { files } = useImageStore();
-    const { previews, originURLs } = useImageStore();
+export default function WritingUpload({ post, url }: WritingUploadProps) {
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+    const router = useRouter();
+    const { files, previews, originURLs } = useImageStore();
     const title = useReviewUploadStore((state) => state.title);
     const setTitle = useReviewUploadStore((state) => state.setTitle);
     const content = useReviewUploadStore((state) => state.content);
     const setContent = useReviewUploadStore((state) => state.setContent);
     const setImages = useReviewUploadStore((state) => state.setImages);
-    const router = useRouter();
+    const { isModalOpen, setIsModalOpen } = useModalStore();
+
     const handleSubmit = async () => {
         const currentPrevImageURLs = previews.filter((p) => originURLs.includes(p));
         const formData = new FormData();
@@ -43,24 +39,14 @@ export default function WritingUpload({ post, url }: { post?: Post; url?: string
         files.forEach((file) => formData.append("images", file));
 
         const isEdit = !!post?.id;
-
-        // ✅ 실제 endpoint로 사용할 변수
-        const endpoint =
-            url === "ReviewPage"
-                ? "http://localhost:5000/review/uploadReview"
-                : "http://localhost:5000/carTIP/uploadCarTIP";
+        const endpoint = url === "ReviewPage" ? `${BASE_URL}/review/uploadReview` : `${BASE_URL}/carTIP/uploadCarTIP`;
 
         try {
-            const res = await fetch(endpoint, {
-                method: isEdit ? "PATCH" : "POST",
-                body: formData,
+            const res = await axios.post(endpoint, formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
             });
-
-            if (!res.ok) {
-                const err = await res.json();
-                alert(`오류 발생: ${err.error}`);
-                return;
-            }
 
             alert(isEdit ? "수정되었습니다." : "등록되었습니다.");
             setTitle("");
@@ -76,9 +62,6 @@ export default function WritingUpload({ post, url }: { post?: Post; url?: string
     useEffect(() => {
         const init = async () => {
             if (post) {
-                setTitle("");
-                setContent("");
-                setImages([]);
                 useImageStore.getState().clear();
 
                 const fileList: File[] = [];
@@ -99,8 +82,6 @@ export default function WritingUpload({ post, url }: { post?: Post; url?: string
         init();
     }, [post?.id]);
 
-    const store = useModalStore();
-    const { isModalOpen, setIsModalOpen } = store;
     const handleCancellation = () => {
         setIsModalOpen(true);
     };
