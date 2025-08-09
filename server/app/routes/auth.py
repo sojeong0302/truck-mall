@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from app.models.user import User
 from app.extensions import db
 from flask_jwt_extended import create_access_token
@@ -33,21 +33,20 @@ def register():
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
-    data = request.get_json()
+    try:
+        data = request.get_json(silent=True) or request.form or {}
+        username = data.get("username")
+        password = data.get("password")
+        if not username or not password:
+            return jsonify({"error": "아이디와 비밀번호를 입력해주세요."}), 400
 
-    username = data.get("username")
-    password = data.get("password")
+        user = User.query.filter_by(username=username).first()
+        if not user or not user.check_password(password):
+            return jsonify({"error": "아이디 또는 비밀번호가 올바르지 않습니다."}), 401
 
-    if not username or not password:
-        return jsonify({"error": "아이디와 비밀번호를 입력해주세요."}), 400
-
-    # 사용자 조회
-    user = User.query.filter_by(username=username).first()
-
-    if not user or not user.check_password(password):
-        return jsonify({"error": "아이디 또는 비밀번호가 올바르지 않습니다."}), 401
-
-    # JWT 토큰 발급
-    access_token = create_access_token(identity=user.id)
-
-    return jsonify({"message": "로그인 성공", "access_token": access_token}), 200
+        access_token = create_access_token(identity=user.id)
+        return jsonify({"message": "로그인 성공", "access_token": access_token}), 200
+    except Exception as e:
+        # 로그 남기기(운영 시 꼭 권장)
+        current_app.logger.exception("login failed")
+        return jsonify({"error": "server error"}), 500

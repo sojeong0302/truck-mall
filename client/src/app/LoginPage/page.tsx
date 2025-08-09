@@ -15,10 +15,11 @@ export default function LoginPage() {
         if (e) e.preventDefault();
 
         try {
-            const response = await axios.post(`${BASE_URL}/auth/login`, {
-                username,
-                password,
-            });
+            const response = await axios.post(
+                `${BASE_URL}/auth/login`,
+                { username, password },
+                { headers: { "Content-Type": "application/json" } }
+            );
 
             const token = response.data.access_token;
             localStorage.setItem("token", token);
