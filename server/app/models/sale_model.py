@@ -27,7 +27,6 @@ class Sale(db.Model):
     status = db.Column(Boolean, default=True, nullable=False)
     simple_tags = Column(JSON)
     tags = db.Column(JSON)
-    simple_tags = db.Column(db.JSON, nullable=True)
 
     def to_dict(self):
         return {
@@ -53,5 +52,4 @@ class Sale(db.Model):
                 self.simple_tags if isinstance(self.simple_tags, list) else []
             ),
             "tags": self.tags if isinstance(self.tags, dict) else {},
-            "simple_tags": self.simple_tags,
         }
