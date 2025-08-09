@@ -14,6 +14,9 @@ function SelectBox({
     selected: string;
     onChange: (v: string) => void;
 }) {
+    const ALL_LABEL = "전체";
+    const mobileOptions = [ALL_LABEL, ...options];
+    const mobileValue = selected === "" ? ALL_LABEL : selected;
     return (
         <div className="w-full bg-white rounded-xl shadow-xl overflow-hidden text-xl">
             {/* 타이틀 */}
@@ -24,11 +27,14 @@ function SelectBox({
             {/* ✅ 모바일: 드롭다운 */}
             <div className="p-4 block md:hidden">
                 <select
-                    value={selected}
-                    onChange={(e) => onChange(e.target.value)}
+                    value={mobileValue}
+                    onChange={(e) => {
+                        const v = e.target.value;
+                        onChange(v === ALL_LABEL ? "" : v); // ← "전체" 선택 시 내부값은 빈 문자열
+                    }}
                     className="w-full p-3 border-2 border-[#ccc] rounded-lg text-sm sm:text-[1.3rem]"
                 >
-                    {options.map((option) => (
+                    {mobileOptions.map((option) => (
                         <option key={option} value={option}>
                             {option}
                         </option>

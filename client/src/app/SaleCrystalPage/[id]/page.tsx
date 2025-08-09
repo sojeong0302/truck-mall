@@ -13,6 +13,7 @@ import SimpleFilter from "@/components/SimpleFilter";
 import Filter from "@/components/Filter";
 import { useImageStore } from "@/store/imageStore";
 import { useSimpleTagStore } from "@/store/simpleTagStore";
+import { useFilterTagStore } from "@/components/Filter/Filter.types";
 
 export default function SaleCrystalPage({ params }: { params: Promise<{ id: string }> }) {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
@@ -48,6 +49,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
 
     const { files, originURLs } = useImageStore();
     const { simpleTag, setSimpleTag } = useSimpleTagStore();
+    const { manufacturer, model, subModel, grade } = useFilterTagStore();
 
     const thumbFileRef = useRef<File | null>(null);
 
@@ -132,7 +134,14 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         const formData = new FormData();
 
         formData.append("simple_tags", JSON.stringify(simpleTag || null));
-
+        const tags = {
+            manufacturer,
+            model,
+            subModel,
+            grade,
+        };
+        formData.append("tags", JSON.stringify(tags));
+        console.log(tags);
         if (thumbFileRef.current) {
             formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
         }

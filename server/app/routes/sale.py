@@ -234,17 +234,18 @@ def update_sale(sale_id):
     if ct.startswith("multipart/form-data"):
         form, files = request.form, request.files
 
-        # tag 처리
-        tag_str = form.get("tag")
-        if tag_str:
+        # tags 처리
+        tags_raw = form.get("tags")
+        if tags_raw:
             try:
-                tag = json.loads(tag_str) if isinstance(tag_str, str) else tag_str
-                sale.manufacturer = tag.get("manufacturer", "")
-                sale.model = tag.get("model", "")
-                sale.sub_model = tag.get("subModel", "")
-                sale.grade = tag.get("grade", "")
+                tags = json.loads(tags_raw) if isinstance(tags_raw, str) else tags_raw
+                sale.tags = tags  # 전체 계층 구조 저장
+                sale.manufacturer = tags.get("manufacturer", "")
+                sale.model = tags.get("model", "")
+                sale.sub_model = tags.get("subModel", "")
+                sale.grade = tags.get("grade", "")
             except Exception as e:
-                current_app.logger.warning(f"tag 파싱 실패: {e}")
+                current_app.logger.warning(f"tags 파싱 실패: {e}")
 
         sale.year = to_int_or_none(form.get("year"))
         sale.price = to_int_or_none(form.get("price"))
