@@ -6,6 +6,7 @@ import { LoginPagePropStore } from "./LoginPage.types";
 import { useAuthStore } from "@/store/useAuthStore";
 
 export default function LoginPage() {
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
     const router = useRouter();
     const { username, setUsername, password, setPassword } = LoginPagePropStore();
     const { login } = useAuthStore();
@@ -14,7 +15,7 @@ export default function LoginPage() {
         if (e) e.preventDefault();
 
         try {
-            const response = await axios.post("http://localhost:5000/auth/login", {
+            const response = await axios.post(`${BASE_URL}/auth/login`, {
                 username,
                 password,
             });
