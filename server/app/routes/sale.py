@@ -39,23 +39,16 @@ def parse_tag(raw):
 
 
 def parse_simple_tags(raw):
-    """simple_tags를 항상 list 형태로 반환"""
     if not raw:
-        return []
-    if isinstance(raw, list):
+        return None
+    if isinstance(raw, (list, dict)):
         return raw
-    if isinstance(raw, dict):
-        return [raw]  # dict가 하나면 리스트로 감싸기
     if isinstance(raw, str):
         try:
-            data = json.loads(raw)
-            if isinstance(data, list):
-                return data
-            elif isinstance(data, dict):
-                return [data]
+            return json.loads(raw)
         except Exception:
-            pass
-    return []
+            return None
+    return None
 
 
 def to_int_or_none(v):

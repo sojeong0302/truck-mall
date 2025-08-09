@@ -49,7 +49,7 @@ class Sale(db.Model):
             "status": self.status,
             "images": self.images if isinstance(self.images, list) else [],
             "simple_tags": (
-                self.simple_tags if isinstance(self.simple_tags, list) else []
+                self.simple_tags if isinstance(self.simple_tags, (dict, list)) else None
             ),
             "tags": self.tags if isinstance(self.tags, dict) else {},
         }

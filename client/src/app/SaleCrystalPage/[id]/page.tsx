@@ -47,7 +47,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
     } = store;
 
     const { files, originURLs } = useImageStore();
-    const { simpleTag } = useSimpleTagStore();
+    const { simpleTag, setSimpleTag } = useSimpleTagStore();
 
     const thumbFileRef = useRef<File | null>(null);
 
@@ -78,6 +78,28 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                 setColor(data.color ?? "");
                 setPrice(data.price?.toString() ?? "");
                 setContent(data.content ?? "");
+                if (data.simple_tags) {
+                    let type, grade;
+
+                    // 객체 형태로 올 때 (중첩 구조 방지)
+                    if (data.simple_tags.type && typeof data.simple_tags.type === "object") {
+                        type = data.simple_tags.type.type;
+                        grade = data.simple_tags.type.grade;
+                    }
+                    // 올바른 객체 형태일 때
+                    else if (data.simple_tags.type && data.simple_tags.grade) {
+                        type = data.simple_tags.type;
+                        grade = data.simple_tags.grade;
+                    }
+                    // 배열 형태일 때
+                    else if (Array.isArray(data.simple_tags) && data.simple_tags.length === 2) {
+                        [type, grade] = data.simple_tags;
+                    }
+
+                    if (type && grade) {
+                        setSimpleTag(type, grade, true);
+                    }
+                }
             } catch (error) {
                 console.error("데이터 가져오기 실패:", error);
             }
@@ -89,6 +111,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleImageClick = () => fileInputRef.current?.click();
+
     const previewUrlRef = useRef<string | null>(null);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -108,7 +131,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         //formData=서버로 보낼 데이터 묶음
         const formData = new FormData();
 
-        formData.append("simple_tags", JSON.stringify(simpleTag ? [simpleTag] : []));
+        formData.append("simple_tags", JSON.stringify(simpleTag || null));
 
         if (thumbFileRef.current) {
             formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
