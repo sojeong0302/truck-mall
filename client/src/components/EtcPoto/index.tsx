@@ -11,8 +11,8 @@ export default function EtcPoto({ initialImages = [], setImages }: EtcPotoProps)
 
     useEffect(() => {
         if (initialImages.length > 0 && files.length === 0) {
-            setPreviews(initialImages);
-            setOriginURLs(initialImages);
+            setPreviews(Array.isArray(initialImages) ? initialImages : []);
+            setOriginURLs(Array.isArray(initialImages) ? initialImages : []);
 
             Promise.all(
                 initialImages.map(async (url) => {
@@ -48,6 +48,7 @@ export default function EtcPoto({ initialImages = [], setImages }: EtcPotoProps)
 
     const handleDelete = (idx: number) => {
         removePreview(idx);
+        setOriginURLs(originURLs.filter((_, i) => i !== idx));
     };
 
     return (

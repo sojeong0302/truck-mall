@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import SimpleFilter from "@/components/SimpleFilter";
 import Filter from "@/components/Filter";
 import { useImageStore } from "@/store/imageStore";
+import { connect } from "http2";
 
 export default function SaleCrystalPage({ params }: { params: Promise<{ id: string }> }) {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
@@ -49,8 +50,6 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
     const { files, originURLs } = useImageStore();
 
     const thumbFileRef = useRef<File | null>(null);
-
-    const [post, setPost] = useState<SaleProps | null>(null);
 
     //기존 값 가져오기
     useEffect(() => {
@@ -123,10 +122,12 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         // ✅ 기존 URL 이미지도 같이 보내기 (서버에서 유지 처리)
         originURLs.forEach((url) => formData.append("originImages", url));
 
-        // ✅ 새로 추가된 이미지
+        // 새로 추가된 이미지
         files.forEach((file) => {
             formData.append("images", file, file.name); // ← filename 명시
         });
+        formData.append("content", content);
+
         try {
             const res = await fetch(`${BASE_URL}/sale/${id}`, {
                 method: "PUT",
