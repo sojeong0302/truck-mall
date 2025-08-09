@@ -308,7 +308,7 @@ def update_sale(sale_id):
         sale.simple_tags = parse_simple_tags(data.get("simple_tags"))
 
     db.session.commit()
-    return jsonify({"message": "success"})
+    return jsonify({"message": "success", "sale": sale.to_dict()})
 
 
 # =========================

@@ -8,7 +8,7 @@ import axios from "axios";
 import { useAuthStore } from "@/store/useAuthStore";
 import Modal from "@/components/Modal";
 import { useModalStore } from "@/store/ModalStateStroe";
-import { useSaleDetailStore } from "../saleDetailStore";
+import { useSaleDetailStore } from "./saleDetailStore";
 
 export default function ReviewPage({ params }: { params: Promise<{ id: string }> }) {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
