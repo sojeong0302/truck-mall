@@ -16,7 +16,12 @@ export const useImageStore = create<ImageStoreState>((set) => ({
     previews: [],
     files: [],
     originURLs: [],
-    setOriginURLs: (urls) => set({ originURLs: urls, previews: urls }),
+    setOriginURLs: (urls) =>
+        set({
+            originURLs: urls,
+            previews: [...urls], // 기존 미리보기 동기화
+        }),
+
     addPreview: (url) => set((state) => ({ previews: [...state.previews, url] })),
     removePreview: (index) =>
         set((state) => {

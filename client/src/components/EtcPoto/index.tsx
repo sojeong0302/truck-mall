@@ -47,8 +47,9 @@ export default function EtcPoto({ initialImages = [], setImages }: EtcPotoProps)
     };
 
     const handleDelete = (idx: number) => {
+        const newOrigin = originURLs.filter((_, i) => i !== idx);
+        setOriginURLs(newOrigin);
         removePreview(idx);
-        setOriginURLs(originURLs.filter((_, i) => i !== idx));
     };
 
     return (

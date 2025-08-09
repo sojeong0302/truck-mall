@@ -7,13 +7,12 @@ import EtcPoto from "@/components/EtcPoto";
 import TextArea from "@/components/TextArea";
 import Modal from "@/components/Modal";
 import { useModalStore } from "@/store/ModalStateStroe";
-import { SaleProps } from "@/components/Sale/Sale.types";
 import { SaleCrystalPagePropStore } from "./SaleCrystalPage.types";
 import { useRouter } from "next/navigation";
 import SimpleFilter from "@/components/SimpleFilter";
 import Filter from "@/components/Filter";
 import { useImageStore } from "@/store/imageStore";
-import { connect } from "http2";
+import { useSimpleTagStore } from "@/store/simpleTagStore";
 
 export default function SaleCrystalPage({ params }: { params: Promise<{ id: string }> }) {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
@@ -48,6 +47,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
     } = store;
 
     const { files, originURLs } = useImageStore();
+    const { simpleTag } = useSimpleTagStore();
 
     const thumbFileRef = useRef<File | null>(null);
 
@@ -107,10 +107,16 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
     const handleSubmit = async () => {
         //formData=서버로 보낼 데이터 묶음
         const formData = new FormData();
+
+        if (simpleTag) {
+            formData.append("simple_tags", JSON.stringify(simpleTag));
+        } else {
+            formData.append("simple_tags", "null");
+        }
+
         if (thumbFileRef.current) {
             formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
         }
-
         formData.append("name", name);
         formData.append("fuel", fuel);
         formData.append("type", type);
@@ -119,7 +125,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         formData.append("mileage", mileage);
         formData.append("color", color);
         formData.append("price", price);
-        // ✅ 기존 URL 이미지도 같이 보내기 (서버에서 유지 처리)
+        // 기존 이미지도 같이 보내기
         originURLs.forEach((url) => formData.append("originImages", url));
 
         // 새로 추가된 이미지

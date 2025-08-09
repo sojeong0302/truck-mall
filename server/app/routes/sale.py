@@ -78,6 +78,8 @@ def register_sale():
         ct = (request.content_type or "").lower()
 
         if ct.startswith("multipart/form-data"):
+            print("📌 simple_tags raw:", form.get("simple_tags"))
+
             form, files = request.form, request.files
 
             tag_str = form.get("tag")
