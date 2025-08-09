@@ -20,7 +20,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
     const { isModalOpen, setIsModalOpen } = modalStore;
     const router = useRouter();
     const store = SaleCrystalPagePropStore();
-
+    const [sanitizedImages, setSanitizedImages] = useState<string[]>([]);
     const {
         thumbnail,
         setThumbnail,
@@ -65,7 +65,10 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
 
     useEffect(() => {
         if (!post) return;
-        setThumbnail(post.thumbnail ?? "");
+        // 썸네일: blob이면 비우기
+        const t = post.thumbnail;
+        setThumbnail(t && !t.startsWith("blob:") ? t : "");
+
         setName(post.name ?? "");
         setFuel(post.fuel ?? "");
         setType(post.type ?? "");
@@ -75,20 +78,37 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         setColor(post.color ?? "");
         setPrice(post.price?.toString() ?? "");
         setContent(post.content ?? "");
-    }, [post, setThumbnail, setName, setFuel, setType, setTrim, setYear, setMileage, setColor, setPrice, setContent]);
+
+        // 이미지 배열: blob 들어있으면 제외
+        const imgs = (post.images ?? []).filter((u) => typeof u === "string" && !u.startsWith("blob:"));
+        setSanitizedImages(imgs);
+    }, [post]);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleImageClick = () => fileInputRef.current?.click();
+    const previewUrlRef = useRef<string | null>(null);
 
-    // ✅ 썸네일 선택: 미리보기는 blob URL, 실제 전송은 File로
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const f = e.target.files?.[0] || null;
+        const f = e.target.files?.[0];
         if (!f) return;
-        thumbFileRef.current = f; // 파일 저장
-        const preview = URL.createObjectURL(f);
-        setThumbnail(preview); // 미리보기
+
+        // 이전 blob 미리보기 정리
+        if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+
+        thumbFileRef.current = f; // 실제 전송할 파일로 보관
+        const preview = URL.createObjectURL(f); // 미리보기 주소
+        previewUrlRef.current = preview;
+        setThumbnail(preview); // 화면엔 blob 표시
     };
+
+    // 컴포넌트 언마운트 시 정리
+    useEffect(
+        () => () => {
+            if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+        },
+        []
+    );
 
     // ❗ (선택) base64 → Blob 변환 도우미 (EtcPoto가 string[]를 줄 때만 사용)
     const dataUrlToBlob = (dataUrl: string) => {
@@ -100,6 +120,8 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         while (n--) u8arr[n] = bstr.charCodeAt(n);
         return new Blob([u8arr], { type: mime });
     };
+
+    const safeThumbSrc = thumbnail?.startsWith("blob:") ? thumbnail : thumbnail || "";
 
     // ✅ 제출: FormData로 전송 (절대 JSON으로 blob URL을 보내지 말 것)
     const handleSubmit = async () => {
@@ -129,14 +151,13 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
             })
         );
 
-        // 썸네일: 새 파일을 고른 경우만 파일로 첨부. 아니면 기존 URL을 전달
+        // 썸네일 전송 로직
         if (thumbFileRef.current) {
-            form.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
-        } else if (post.thumbnail) {
-            form.append("thumbnail_url", post.thumbnail);
+            form.append("thumbnail", thumbFileRef.current); // 새 파일 있으면 파일만!
+        } else if (post.thumbnail && !post.thumbnail.startsWith("blob:")) {
+            form.append("thumbnail_url", post.thumbnail); // 기존 URL만! (blob 금지)
         }
 
-        // 추가 이미지: File[]가 있다면 그대로 첨부
         if (files.length > 0) {
             files.forEach((f) => form.append("images", f, f.name));
         } else {
@@ -177,8 +198,8 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                                 onChange={handleImageChange}
                                 className="hidden"
                             />
-                            {thumbnail ? (
-                                <img src={thumbnail} alt="선택된 이미지" className="w-full h-full object-cover" />
+                            {safeThumbSrc ? (
+                                <img src={safeThumbSrc} alt="선택된 이미지" className="w-full h-full object-cover" />
                             ) : (
                                 <img
                                     src="/images/addToPhoto.png"
@@ -219,23 +240,8 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                             </div>
                         </div>
                     </div>
-
-                    {/* ✅ EtcPoto가 File[]를 줄 수 있게 구현했다면 이렇게: */}
-                    {/* <EtcPoto initialFiles={[]} onChangeFiles={(fs: File[]) => setFiles(fs)} /> */}
-
-                    {/* 기존처럼 string[]을 주는 경우라면 변환해서 위에서 append 하는 방식 사용 */}
-                    <EtcPoto
-                        initialImages={post.images ?? []}
-                        setImages={
-                            // 만약 setImages가 string[]을 넘겨주면 여기서 File로 변환도 가능
-                            // (성능/메모리 생각하면 권장 X. 가급적 EtcPoto를 File[]로 바꿔주세요)
-                            // (arr) => { setFiles(arr.map((s, i) => new File([dataUrlToBlob(s)], `img_${i}.jpg`))); }
-                            undefined as any
-                        }
-                    />
-
+                    <EtcPoto initialImages={sanitizedImages} setImages={undefined as any} />
                     <TextArea value={content} onChange={(e) => setContent(e.target.value)} />
-
                     <div className="flex gap-3 justify-end">
                         <ShortButton onClick={handleSubmit} className="bg-[#2E7D32] text-white">
                             수정하기
@@ -248,7 +254,6 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                         </ShortButton>
                     </div>
                 </div>
-
                 {isModalOpen && (
                     <Modal url="/CarSearchPage" text={"수정 중인 내용이 모두 삭제됩니다.\n그래도 취소하시겠습니까?"} />
                 )}
