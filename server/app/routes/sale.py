@@ -78,8 +78,6 @@ def register_sale():
         ct = (request.content_type or "").lower()
 
         if ct.startswith("multipart/form-data"):
-            print("📌 simple_tags raw:", form.get("simple_tags"))
-
             form, files = request.form, request.files
 
             tag_str = form.get("tag")
@@ -232,6 +230,10 @@ def get_sale_by_id(sale_id):
 @sale_bp.route("/<int:sale_id>", methods=["PUT"])
 def update_sale(sale_id):
     sale = Sale.query.get_or_404(sale_id)
+    print("📌 request.content_type:", request.content_type)
+    print("📌 request.form:", request.form)
+    print("📌 request.files:", request.files)
+    print("📌 JSON body:", request.get_json(silent=True))
 
     ct = (request.content_type or "").lower()
 

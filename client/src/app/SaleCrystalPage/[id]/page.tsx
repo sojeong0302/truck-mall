@@ -108,11 +108,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         //formData=서버로 보낼 데이터 묶음
         const formData = new FormData();
 
-        if (simpleTag) {
-            formData.append("simple_tags", JSON.stringify(simpleTag));
-        } else {
-            formData.append("simple_tags", "null");
-        }
+        formData.append("simple_tags", JSON.stringify(simpleTag ? [simpleTag] : []));
 
         if (thumbFileRef.current) {
             formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
