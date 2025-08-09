@@ -1,3 +1,4 @@
+// /Sale/index.tsx
 "use client";
 
 import { SaleComponentProps } from "./Sale.types";
@@ -5,72 +6,108 @@ import Pagination from "../Pagination";
 import { usePaginationStore } from "@/store/paginationStore";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { SaleProps } from "./Sale.types";
 import axios from "axios";
 import { useFilterTagStore } from "@/components/Filter/Filter.types";
 import { useSimpleTagStore } from "@/store/simpleTagStore";
 import { useSearchTriggerStore } from "@/store/searchTriggerStore";
+import { useSaleStore } from "@/store/saleStore";
 
+const YearMIN = 2000;
+const YearMAX = new Date().getFullYear();
+const PriceMIN = 100;
+const PriceMAX = 10000;
 const ITEMS_PER_PAGE = 5;
 
 export default function Sale({ transmission, posts, priceRange, yearRange }: SaleComponentProps) {
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+    const router = useRouter();
     const { currentPage } = usePaginationStore();
+    const { isLoggedIn } = useAuthStore();
     const { simpleTag } = useSimpleTagStore();
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
     const { manufacturer, model, subModel, grade } = useFilterTagStore();
     const { trigger } = useSearchTriggerStore();
-    const router = useRouter();
+    const { sales, setSales, clearSales } = useSaleStore();
+    const isDefaultPrice = !priceRange || (priceRange[0] === PriceMIN && priceRange[1] === PriceMAX);
+    const isDefaultYear = !yearRange || (yearRange[0] === YearMIN && yearRange[1] === YearMAX);
+    const toServerPrice = (v: number) => v * 10000;
 
-    const { isLoggedIn } = useAuthStore();
-
-    const handleGoUpload = () => {
-        router.push("/SaleUploadPage");
-    };
-
-    const [sales, setSales] = useState<SaleProps[]>([]);
+    // 최초 전체 조회
     useEffect(() => {
-        const fetchSales = async () => {
+        const fetchAll = async () => {
             try {
-                const query = new URLSearchParams();
+                const res = await axios.get(`${BASE_URL}/sale/list`);
+                const data = Array.isArray(res.data) ? res.data : [];
+                setSales(data);
+            } catch (e) {
+                console.error("초기 전체 조회 실패:", e);
+                clearSales();
+            }
+        };
+        fetchAll();
+    }, [BASE_URL, setSales, clearSales]);
+
+    // 검색(trigger) 시 필터 조회
+    useEffect(() => {
+        const fetchFiltered = async () => {
+            try {
+                const qs = new URLSearchParams();
+
                 if (simpleTag) {
-                    // ✅ null 체크
-                    query.append("simple_type", simpleTag.type);
-                    query.append("simple_grade", simpleTag.grade);
+                    if (simpleTag.type) qs.set("simple_type", simpleTag.type);
+                    if (simpleTag.grade) qs.set("simple_grade", simpleTag.grade);
                 }
+                if (!isDefaultPrice && priceRange) {
+                    qs.set("min_price", String(toServerPrice(priceRange[0])));
+                    qs.set("max_price", String(toServerPrice(priceRange[1])));
+                }
+                if (!isDefaultYear && yearRange) {
+                    qs.set("min_year", String(yearRange[0]));
+                    qs.set("max_year", String(yearRange[1]));
+                }
+                if (transmission) qs.set("transmission", transmission);
+                if (manufacturer) qs.set("manufacturer", manufacturer);
+                if (model) qs.set("model", model);
+                if (subModel) qs.set("sub_model", subModel);
+                if (grade) qs.set("grade", grade);
 
-                if (priceRange) {
-                    query.append("min_price", String(priceRange[0]));
-                    query.append("max_price", String(priceRange[1]));
-                }
-                if (yearRange) {
-                    query.append("min_year", String(yearRange[0]));
-                    query.append("max_year", String(yearRange[1]));
-                }
+                const url = qs.toString() ? `${BASE_URL}/sale/list?${qs.toString()}` : `${BASE_URL}/sale/list`;
 
-                if (transmission) {
-                    query.append("transmission", transmission);
-                }
-
-                // ✅ 일반 Filter 조건
-                if (manufacturer) query.append("manufacturer", manufacturer);
-                if (model) query.append("model", model);
-                if (subModel) query.append("sub_model", subModel);
-                if (grade) query.append("grade", grade);
-                const res = await axios.get(`http://localhost:5000/sale/list?${query.toString()}`);
-                const safeData = res.data ?? [];
-                setSales(Array.isArray(safeData) ? safeData : []);
+                const res = await axios.get(url);
+                const data = Array.isArray(res.data) ? res.data : [];
+                setSales(data);
             } catch (err) {
-                setSales([]);
+                console.error("필터 조회 실패:", err);
+                clearSales();
             }
         };
 
-        fetchSales();
-    }, [simpleTag, trigger]);
+        fetchFiltered();
+    }, [
+        trigger,
+        transmission,
+        priceRange,
+        yearRange,
+        simpleTag,
+        manufacturer,
+        model,
+        subModel,
+        grade,
+        BASE_URL,
+        setSales,
+        clearSales,
+    ]);
 
-    const pagedData = sales.slice(startIndex, endIndex);
-    const totalPages = Math.ceil(sales.length / ITEMS_PER_PAGE);
+    // 페이지네이션
+    const pagedData = useMemo(() => {
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        const endIndex = startIndex + ITEMS_PER_PAGE;
+        return sales.slice(startIndex, endIndex);
+    }, [sales, currentPage]);
+
+    const totalPages = useMemo(() => Math.ceil(sales.length / ITEMS_PER_PAGE), [sales]);
+    const handleGoUpload = () => router.push("/SaleUploadPage");
 
     return (
         <div className="w-[100%] flex flex-col items-center justify-center">

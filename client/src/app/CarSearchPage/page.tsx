@@ -8,55 +8,29 @@ import { useState } from "react";
 import { Range } from "react-range";
 import Sale from "@/components/Sale";
 import { useSearchTriggerStore } from "@/store/searchTriggerStore";
-
-const YearMIN = 2000;
-const YearMAX = new Date().getFullYear();
-
-const PriceMIN = 100;
-const PriceMAX = 10000;
+import { useSearchFilterStore, PriceMIN, PriceMAX, YearMIN, YearMAX } from "./CarSearchPage.types";
 
 export default function CarSearchPage() {
-    const [price, setPrice] = useState([100, 10000]);
-    const currentYear = new Date().getFullYear();
-    const [year, setYear] = useState([2000, currentYear]);
-    const [selected, setSelected] = useState("");
-    const [isOpen, setIsOpen] = useState(false);
     const { fire } = useSearchTriggerStore();
-    const [transmission, setTransmission] = useState("");
 
-    const handleInputChange = (type: "price" | "year", index: number, newValue: string) => {
-        const num = Number(newValue.replace(/[^0-9]/g, ""));
+    const {
+        price,
+        year,
+        transmission,
+        selectedLabel,
+        isOpen,
+        setPrice,
+        setYear,
+        toggleOpen,
+        handleInputChange,
+        handleSelect,
+        resetAll,
+    } = useSearchFilterStore();
 
-        const min = type === "price" ? PriceMIN : YearMIN;
-        const max = type === "price" ? PriceMAX : YearMAX;
-
-        const clamped = Math.min(Math.max(num, min), max);
-        const updated = type === "price" ? [...price] : [...year];
-        updated[index] = clamped;
-
-        if (updated[0] > updated[1]) {
-            updated[1] = updated[0];
-        }
-
-        type === "price" ? setPrice(updated) : setYear(updated);
-    };
-
-    const handleSelect = (item: string) => {
-        setSelected(item);
-        setTransmission(item === "전체" ? "" : item);
-        setIsOpen(false);
-    };
-
-    const handleSubmit = () => {
-        fire();
-    };
-
+    const handleSubmit = () => fire();
     const handleReset = () => {
-        setPrice([PriceMIN, PriceMAX]);
-        setYear([YearMIN, YearMAX]);
-        setSelected("");
-        setTransmission("");
-        fire(); // 다시 fetch하게
+        resetAll();
+        fire();
     };
 
     return (
@@ -85,7 +59,7 @@ export default function CarSearchPage() {
                                 min={PriceMIN}
                                 max={PriceMAX}
                                 values={price}
-                                onChange={(vals) => setPrice(vals)}
+                                onChange={(vals) => setPrice(vals as [number, number])}
                                 renderTrack={({ props, children }) => {
                                     const [minVal, maxVal] = price;
                                     const percentLeft = ((minVal - PriceMIN) / (PriceMAX - PriceMIN)) * 100;
@@ -154,7 +128,7 @@ export default function CarSearchPage() {
                                 min={YearMIN}
                                 max={YearMAX}
                                 values={year}
-                                onChange={(vals) => setYear(vals)}
+                                onChange={(vals) => setYear(vals as [number, number])}
                                 renderTrack={({ props, children }) => {
                                     const [minVal, maxVal] = year;
                                     const percentLeft = ((minVal - YearMIN) / (YearMAX - YearMIN)) * 100;
@@ -220,9 +194,9 @@ export default function CarSearchPage() {
                         <div className="relative w-48">
                             <button
                                 className="transition transform duration-200 active:scale-95 cursor-pointer w-full text-left border border-[#2E7D32] rounded-md px-3 py-2 text-sm sm:text-xl"
-                                onClick={() => setIsOpen((prev) => !prev)}
+                                onClick={toggleOpen}
                             >
-                                {selected || "전체"}
+                                {selectedLabel || "전체"}
                             </button>
 
                             {isOpen && (

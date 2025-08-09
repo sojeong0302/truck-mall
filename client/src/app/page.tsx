@@ -16,13 +16,15 @@ import { useCarTipStore } from "@/store/carTipStore";
 const images = ["/images/mainPoto/poto1.jpg", "/images/mainPoto/poto2.jpg", "/images/mainPoto/poto3.jpg"];
 
 export default function MainPage() {
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
     const { carTIPs, setCarTIPs } = useCarTipStore();
     const router = useRouter();
+
     // TIP가져오기
     useEffect(() => {
         const fetchCarTips = async () => {
             try {
-                const res = await axios.get("http://localhost:5000/carTIP/list");
+                const res = await axios.get(`${BASE_URL}/carTIP/list`);
                 setCarTIPs(res.data);
             } catch (err) {}
         };

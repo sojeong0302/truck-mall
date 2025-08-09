@@ -23,11 +23,10 @@ interface CarFormState {
     mileage: string;
     color: string;
     price: string;
-    images: File[]; // ETC 포토들
+    images: File[];
     content: string;
     transmission: string;
 
-    // setter 함수들
     setField: <K extends keyof CarFormState>(key: K, value: CarFormState[K]) => void;
     clearForm: () => void;
 }

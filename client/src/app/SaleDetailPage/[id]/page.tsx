@@ -1,48 +1,42 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useEffect } from "react";
 import SwiperWithLightbox from "@/components/SwiperWithLightbox";
 import ShortButton from "@/components/ShortButton";
 import { useRouter } from "next/navigation";
-import { SaleProps } from "@/components/Sale/Sale.types";
 import axios from "axios";
 import { useAuthStore } from "@/store/useAuthStore";
 import Modal from "@/components/Modal";
 import { useModalStore } from "@/store/ModalStateStroe";
+import { useSaleDetailStore } from "../saleDetailStore";
 
 export default function ReviewPage({ params }: { params: Promise<{ id: string }> }) {
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
     const { id } = use(params);
     const router = useRouter();
-    const [post, setPost] = useState<SaleProps | null>(null);
     const { isLoggedIn } = useAuthStore();
-    const store = useModalStore();
-    const { isModalOpen, setIsModalOpen } = store;
+    const { isModalOpen, setIsModalOpen } = useModalStore();
+
+    const { post, loading, error, fetchById, clear } = useSaleDetailStore();
 
     useEffect(() => {
-        const fetchPost = async () => {
-            try {
-                const res = await axios.get(`http://localhost:5000/sale/${id}`);
-                setPost(res.data);
-            } catch (err) {}
-        };
+        fetchById(BASE_URL, id);
+        return () => clear();
+    }, [BASE_URL, id, fetchById, clear]);
 
-        fetchPost();
-    }, [id]);
-
-    const handleGoCrystal = () => {
-        router.push(`/SaleCrystalPage/${id}`);
-    };
+    const handleGoCrystal = () => router.push(`/SaleCrystalPage/${id}`);
 
     const handleDelete = async () => {
         try {
-            const res = await fetch(`http://localhost:5000/sale/${id}`, {
-                method: "DELETE",
-            });
+            await fetch(`${BASE_URL}/sale/${id}`, { method: "DELETE" });
             setIsModalOpen(true);
-        } catch (error) {}
+        } catch {}
     };
 
+    if (loading) return <div className="p-10">불러오는 중…</div>;
+    if (error) return <div className="p-10 text-red-500">오류: {error}</div>;
     if (!post) return <div className="p-10 text-red-500">해당 게시물을 찾을 수 없습니다.</div>;
+
     return (
         <div className="w-full flex justify-center flex-col items-center p-5 sm:p-15">
             {isLoggedIn && (
@@ -58,10 +52,13 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
             )}
             <div className="w-[95%] sm:w-[80%] flex flex-col sm:gap-15 gap-5">
                 <div className="w-full flex flex-col sm:flex-row justify-center gap-5 sm:gap-15">
-                    <img
-                        src={post.thumbnail}
-                        className="border-1 shadow-lg rounded-xl w-[500px] sm:h-[500px] h-[300px] "
-                    />
+                    {post.thumbnail ? (
+                        <img
+                            src={post.thumbnail}
+                            className="border-1 shadow-lg rounded-xl w-[500px] sm:h-[500px] h-[300px]"
+                            alt="썸네일"
+                        />
+                    ) : null}
                     <div className="flex flex-col justify-around">
                         <div className="font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2">
                             {post.name}

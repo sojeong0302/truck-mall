@@ -14,6 +14,7 @@ import { useSimpleTagStore } from "@/store/simpleTagStore";
 import { useRouter } from "next/navigation";
 
 export default function WritingUpload() {
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
     const { simpleTag } = useSimpleTagStore();
     const { manufacturer, model, subModel, grade } = useFilterTagStore();
     const { files, clear } = useImageStore();
@@ -90,7 +91,7 @@ export default function WritingUpload() {
                 transmission,
             };
 
-            const res = await axios.post("http://localhost:5000/sale/uploadSale", formData, {
+            const res = await axios.post(`${BASE_URL}/sale/uploadSale`, formData, {
                 headers: {
                     "Content-Type": "application/json",
                 },

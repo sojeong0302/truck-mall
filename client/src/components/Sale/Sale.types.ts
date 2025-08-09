@@ -1,3 +1,4 @@
+// Sale/Sale.types.ts
 export interface SaleProps {
     id: number;
     thumbnail?: string;

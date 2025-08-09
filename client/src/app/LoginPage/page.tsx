@@ -55,7 +55,7 @@ export default function LoginPage() {
                     />
                     <button
                         type="submit"
-                        className="mb-10 sm:mb-20 bg-[#2E7D32] text-white w-[100%] flex justify-center shadow-lg text-2xl cursor-pointer p-3 sm:p-5 rounded-xl font-medium transition transform duration-200 hover:scale-103 active:scale-97"
+                        className="mb-10 sm:mb-20 bg-[#2E7D32] text-white w-[100%] flex justify-center shadow-lg text-xl sm:text-2xl cursor-pointer p-3 sm:p-5 rounded-xl font-medium transition transform duration-200 hover:scale-103 active:scale-97"
                     >
                         로그인
                     </button>
