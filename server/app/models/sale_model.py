@@ -27,7 +27,7 @@ class Sale(db.Model):
     status = db.Column(Boolean, default=True, nullable=False)
     simple_tags = Column(JSON)
     tags = db.Column(JSON)
-    simple_tags = db.Column(db.Text)
+    simple_tags = db.Column(db.JSON, nullable=True)
 
     def to_dict(self):
         return {
