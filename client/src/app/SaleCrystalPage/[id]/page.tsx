@@ -109,8 +109,9 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         //formData=서버로 보낼 데이터 묶음
         const formData = new FormData();
         if (thumbFileRef.current) {
-            formData.append("thumbnail", thumbFileRef.current);
+            formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
         }
+
         formData.append("name", name);
         formData.append("fuel", fuel);
         formData.append("type", type);
@@ -124,9 +125,8 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
 
         // ✅ 새로 추가된 이미지
         files.forEach((file) => {
-            formData.append("images", file);
+            formData.append("images", file, file.name); // ← filename 명시
         });
-
         try {
             const res = await fetch(`${BASE_URL}/sale/${id}`, {
                 method: "PUT",

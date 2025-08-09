@@ -266,12 +266,15 @@ def update_sale(sale_id):
             sale.thumbnail = save_uploaded_file(files.get("thumbnail"))
 
         # 이미지 교체
-        if files.getlist("images"):
-            img_urls = []
-            for f in files.getlist("images"):
-                img_urls.append(save_uploaded_file(f))
-            sale.images = json.dumps(img_urls, ensure_ascii=False)
+        # 이미지 교체
+        incoming_files = files.getlist("images") or files.getlist("images[]")
+        valid_files = [f for f in incoming_files if getattr(f, "filename", None)]
 
+        if valid_files:
+            new_urls = [save_uploaded_file(f) for f in valid_files]
+
+            # 완전 교체
+            sale.images = new_urls
         # simple_tags 처리
         sale.simple_tags = parse_simple_tags(form.get("simple_tags"))
 
