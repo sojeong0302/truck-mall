@@ -39,22 +39,23 @@ def parse_tag(raw):
 
 
 def parse_simple_tags(raw):
-    """simple_tags도 dict list 또는 JSON 문자열 가능 → 최종은 JSON 문자열로 저장"""
+    """simple_tags를 항상 list 형태로 반환"""
     if not raw:
-        return "[]"
-    if isinstance(raw, (list, dict)):
-        try:
-            return json.dumps(raw, ensure_ascii=False)
-        except Exception:
-            return "[]"
+        return []
+    if isinstance(raw, list):
+        return raw
+    if isinstance(raw, dict):
+        return [raw]  # dict가 하나면 리스트로 감싸기
     if isinstance(raw, str):
-        # 이미 문자열이면 유효성만 가볍게 확인
         try:
-            json.loads(raw)
-            return raw
+            data = json.loads(raw)
+            if isinstance(data, list):
+                return data
+            elif isinstance(data, dict):
+                return [data]
         except Exception:
-            return "[]"
-    return "[]"
+            pass
+    return []
 
 
 def to_int_or_none(v):
@@ -318,7 +319,7 @@ def update_sale(sale_id):
             else:
                 sale.images = data.get("images") or "[]"
 
-        sale.simple_tags = parse_simple_tags(data.get("simple_tags"))
+        sale.simple_tags = parse_simple_tags(form.get("simple_tags"))
 
     db.session.commit()
     return jsonify({"message": "success", "sale": sale.to_dict()})
