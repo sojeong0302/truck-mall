@@ -248,9 +248,12 @@ def update_sale(sale_id):
             except Exception as e:
                 current_app.logger.warning(f"tag 파싱 실패: {e}")
 
+        # 숫자 필드
         sale.year = to_int_or_none(form.get("year"))
         sale.price = to_int_or_none(form.get("price"))
         sale.mileage = to_int_or_none(form.get("mileage"))
+
+        # 문자열 필드
         sale.name = form.get("name") or ""
         sale.fuel = form.get("fuel") or ""
         sale.type = form.get("type") or ""
@@ -258,11 +261,11 @@ def update_sale(sale_id):
         sale.color = form.get("color") or ""
         sale.content = form.get("content") or ""
 
-        # 썸네일
+        # 썸네일 교체
         if files.get("thumbnail"):
             sale.thumbnail = save_uploaded_file(files.get("thumbnail"))
 
-        # 기존 이미지 URL
+        # 기존 이미지 URL들
         existing_urls = []
         if form.get("originURLs"):
             try:
@@ -275,13 +278,13 @@ def update_sale(sale_id):
         valid_files = [f for f in incoming_files if getattr(f, "filename", None)]
         new_urls = [save_uploaded_file(f) for f in valid_files]
 
-        # 합치기
+        # 기존 + 새 이미지 합치기
         final_urls = existing_urls + new_urls
 
-        # DB 저장 (컬럼 타입에 따라)
-        sale.images = final_urls  # JSON 컬럼
-        # sale.images = json.dumps(final_urls, ensure_ascii=False)  # TEXT 컬럼이면
+        # TEXT 컬럼이므로 json.dumps
+        sale.images = json.dumps(final_urls, ensure_ascii=False)
 
+        # simple_tags 처리
         sale.simple_tags = parse_simple_tags(form.get("simple_tags"))
 
     else:
