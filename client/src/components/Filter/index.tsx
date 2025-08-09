@@ -72,33 +72,37 @@ function SelectBox({
 }
 
 export default function Filter({ skipReset = false }: { skipReset?: boolean }) {
-    const { manufacturer, model, subModel, grade, set } = useFilterTagStore();
+    const { tags, setManufacturer, setModel, setSubModel, setGrade } = useFilterTagStore();
+
+    const manufacturer = tags.manufacturer;
+    const model = tags.models[0]?.name || "";
+    const subModel = tags.models[0]?.subModels[0]?.name || "";
+    const grade = tags.models[0]?.subModels[0]?.grades[0] || "";
 
     const models = data.find((m) => m.manufacturer === manufacturer)?.models || [];
     const subModels = models.find((m) => m.name === model)?.subModels || [];
     const grades = subModels.find((s) => s.name === subModel)?.grades || [];
-
     return (
         <div className="flex gap-4 flex-col sm:flex-row">
             <SelectBox
                 title="제조사"
                 options={data.map((d) => d.manufacturer)}
                 selected={manufacturer}
-                onChange={(v) => set("manufacturer", v, skipReset)} // ✅ props로 넘김
+                onChange={(v) => setManufacturer(v, skipReset)}
             />
             <SelectBox
                 title="모델"
                 options={models.map((m) => m.name)}
                 selected={model}
-                onChange={(v) => set("model", v, skipReset)}
+                onChange={(v) => setModel(v, skipReset)}
             />
             <SelectBox
                 title="세부모델"
                 options={subModels.map((s) => s.name)}
                 selected={subModel}
-                onChange={(v) => set("subModel", v, skipReset)}
+                onChange={(v) => setSubModel(v, skipReset)}
             />
-            <SelectBox title="등급" options={grades} selected={grade} onChange={(v) => set("grade", v, skipReset)} />
+            <SelectBox title="등급" options={grades} selected={grade} onChange={(v) => setGrade(v, skipReset)} />
         </div>
     );
 }

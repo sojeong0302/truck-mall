@@ -1,40 +1,69 @@
 import { create } from "zustand";
-import { useSimpleTagStore } from "@/store/simpleTagStore"; // ✅ 다른 store import
+import { useSimpleTagStore } from "@/store/simpleTagStore";
+
+interface GradeData {
+    name: string;
+    grades: string[];
+}
+
+interface ModelData {
+    name: string;
+    subModels: GradeData[];
+}
+
+interface Tags {
+    manufacturer: string;
+    models: ModelData[];
+}
 
 interface FilterTagState {
-    manufacturer: string;
-    model: string;
-    subModel: string;
-    grade: string;
-    set: (key: keyof FilterTagState, value: string, skipReset?: boolean) => void; // ✅ 인자 추가
+    tags: Tags;
+    setManufacturer: (manufacturer: string, skipReset?: boolean) => void;
+    setModel: (model: string, skipReset?: boolean) => void;
+    setSubModel: (subModel: string, skipReset?: boolean) => void;
+    setGrade: (grade: string, skipReset?: boolean) => void;
     clear: () => void;
 }
 
 export const useFilterTagStore = create<FilterTagState>((set, get) => ({
-    manufacturer: "",
-    model: "",
-    subModel: "",
-    grade: "",
-    set: (key, value, skipReset = false) => {
-        if (!skipReset) {
-            useSimpleTagStore.getState().resetSimpleTag(); // 조건부 초기화
-        }
-
-        const state = get();
-        let newState;
-
-        if (key === "manufacturer") {
-            newState = { manufacturer: value, model: "", subModel: "", grade: "" };
-        } else if (key === "model") {
-            newState = { ...state, model: value, subModel: "", grade: "" };
-        } else if (key === "subModel") {
-            newState = { ...state, subModel: value, grade: "" };
-        } else {
-            newState = { ...state, [key]: value };
-        }
-
-        console.log("✅ 현재 선택 상태:", newState);
-        set(newState);
+    tags: {
+        manufacturer: "",
+        models: [],
     },
-    clear: () => set({ manufacturer: "", model: "", subModel: "", grade: "" }),
+
+    setManufacturer: (manufacturer, skipReset = false) => {
+        if (!skipReset) useSimpleTagStore.getState().resetSimpleTag();
+        set({ tags: { manufacturer, models: [] } });
+    },
+
+    setModel: (model, skipReset = false) => {
+        if (!skipReset) useSimpleTagStore.getState().resetSimpleTag();
+        const tags = get().tags;
+        set({
+            tags: {
+                ...tags,
+                models: [{ name: model, subModels: [] }],
+            },
+        });
+    },
+
+    setSubModel: (subModel, skipReset = false) => {
+        if (!skipReset) useSimpleTagStore.getState().resetSimpleTag();
+        const tags = get().tags;
+        if (!tags.models.length) return;
+        const updatedModels = [...tags.models];
+        updatedModels[0] = { ...updatedModels[0], subModels: [{ name: subModel, grades: [] }] };
+        set({ tags: { ...tags, models: updatedModels } });
+    },
+
+    setGrade: (grade, skipReset = false) => {
+        if (!skipReset) useSimpleTagStore.getState().resetSimpleTag();
+        const tags = get().tags;
+        if (!tags.models.length || !tags.models[0].subModels.length) return;
+        const updatedModels = [...tags.models];
+        updatedModels[0].subModels[0] = { ...updatedModels[0].subModels[0], grades: [grade] };
+        set({ tags: { ...tags, models: updatedModels } });
+    },
+
+    clear: () => set({ tags: { manufacturer: "", models: [] } }),
 }));

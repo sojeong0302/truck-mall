@@ -49,7 +49,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
 
     const { files, originURLs } = useImageStore();
     const { simpleTag, setSimpleTag } = useSimpleTagStore();
-    const { manufacturer, model, subModel, grade } = useFilterTagStore();
+    const { tags, setManufacturer, setModel, setSubModel, setGrade } = useFilterTagStore();
 
     const thumbFileRef = useRef<File | null>(null);
 
@@ -101,6 +101,19 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                     if (type && grade) {
                         setSimpleTag(type, grade, true);
                     }
+
+                    if (data.tags) {
+                        setManufacturer(data.tags.manufacturer || "", true);
+                        if (data.tags.models?.[0]) {
+                            setModel(data.tags.models[0].name || "", true);
+                            if (data.tags.models[0].subModels?.[0]) {
+                                setSubModel(data.tags.models[0].subModels[0].name || "", true);
+                                if (data.tags.models[0].subModels[0].grades?.[0]) {
+                                    setGrade(data.tags.models[0].subModels[0].grades[0] || "", true);
+                                }
+                            }
+                        }
+                    }
                 }
             } catch (error) {
                 console.error("데이터 가져오기 실패:", error);
@@ -134,14 +147,16 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         const formData = new FormData();
 
         formData.append("simple_tags", JSON.stringify(simpleTag || null));
-        const tags = {
-            manufacturer,
-            model,
-            subModel,
-            grade,
-        };
+        const manufacturer = tags.manufacturer;
+        const model = tags.models[0]?.name || "";
+        const subModel = tags.models[0]?.subModels[0]?.name || "";
+        const grade = tags.models[0]?.subModels[0]?.grades[0] || "";
+
+        // 서버에서 원하는 계층형 구조로 전송
         formData.append("tags", JSON.stringify(tags));
-        console.log(tags);
+
+        console.log("전송 tags 구조:", tags);
+
         if (thumbFileRef.current) {
             formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
         }
