@@ -12,6 +12,7 @@ import { SaleCrystalPagePropStore } from "./SaleCrystalPage.types";
 import { useRouter } from "next/navigation";
 import SimpleFilter from "@/components/SimpleFilter";
 import Filter from "@/components/Filter";
+import { useImageStore } from "@/store/imageStore";
 
 export default function SaleCrystalPage({ params }: { params: Promise<{ id: string }> }) {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
@@ -42,47 +43,49 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         setPrice,
         content,
         setContent,
+        setImages,
     } = store;
 
-    // ✅ 썸네일 실제 파일을 보관할 ref
+    const { files, originURLs } = useImageStore();
+
     const thumbFileRef = useRef<File | null>(null);
 
-    // ✅ EtcPoto가 File[]를 넘겨줄 수 있다면 이렇게 받는 걸 추천
-    // (지금은 string[]을 쓰고 있어서 fallback도 아래에 제공)
-    const [files, setFiles] = useState<File[]>([]);
-
-    // 서버에서 기존 데이터 불러오기
     const [post, setPost] = useState<SaleProps | null>(null);
+
+    //기존 값 가져오기
     useEffect(() => {
         const fetchPost = async () => {
             try {
                 const res = await axios.get(`${BASE_URL}/sale/${id}`);
-                setPost(res.data);
-            } catch (error) {}
+                const data = res.data;
+
+                // 썸네일 처리
+                const t = data.thumbnail;
+                setThumbnail(t && !t.startsWith("blob:") ? `${BASE_URL}${t}` : "");
+
+                // 이미지 배열 처리
+                const imgs = (data.images ?? [])
+                    .filter((u: string) => typeof u === "string" && !u.startsWith("blob:"))
+                    .map((u: string) => (u.startsWith("http") ? u : `${BASE_URL}${u}`));
+                setSanitizedImages(imgs);
+
+                // 나머지 필드
+                setName(data.name ?? "");
+                setFuel(data.fuel ?? "");
+                setType(data.type ?? "");
+                setTrim(data.trim ?? "");
+                setYear(data.year?.toString() ?? "");
+                setMileage(data.mileage ?? "");
+                setColor(data.color ?? "");
+                setPrice(data.price?.toString() ?? "");
+                setContent(data.content ?? "");
+            } catch (error) {
+                console.error("데이터 가져오기 실패:", error);
+            }
         };
+
         fetchPost();
     }, [BASE_URL, id]);
-
-    useEffect(() => {
-        if (!post) return;
-        // 썸네일: blob이면 비우기
-        const t = post.thumbnail;
-        setThumbnail(t && !t.startsWith("blob:") ? t : "");
-
-        setName(post.name ?? "");
-        setFuel(post.fuel ?? "");
-        setType(post.type ?? "");
-        setTrim(post.trim ?? "");
-        setYear(post.year?.toString() ?? "");
-        setMileage(post.mileage ?? "");
-        setColor(post.color ?? "");
-        setPrice(post.price?.toString() ?? "");
-        setContent(post.content ?? "");
-
-        // 이미지 배열: blob 들어있으면 제외
-        const imgs = (post.images ?? []).filter((u) => typeof u === "string" && !u.startsWith("blob:"));
-        setSanitizedImages(imgs);
-    }, [post]);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -93,92 +96,49 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         const f = e.target.files?.[0];
         if (!f) return;
 
-        // 이전 blob 미리보기 정리
         if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
 
-        thumbFileRef.current = f; // 실제 전송할 파일로 보관
-        const preview = URL.createObjectURL(f); // 미리보기 주소
+        thumbFileRef.current = f;
+        const preview = URL.createObjectURL(f);
         previewUrlRef.current = preview;
-        setThumbnail(preview); // 화면엔 blob 표시
+        setThumbnail(preview);
     };
 
-    // 컴포넌트 언마운트 시 정리
-    useEffect(
-        () => () => {
-            if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
-        },
-        []
-    );
-
-    // ❗ (선택) base64 → Blob 변환 도우미 (EtcPoto가 string[]를 줄 때만 사용)
-    const dataUrlToBlob = (dataUrl: string) => {
-        const arr = dataUrl.split(",");
-        const mime = arr[0].match(/:(.*?);/)?.[1] || "image/jpeg";
-        const bstr = atob(arr[1]);
-        let n = bstr.length;
-        const u8arr = new Uint8Array(n);
-        while (n--) u8arr[n] = bstr.charCodeAt(n);
-        return new Blob([u8arr], { type: mime });
-    };
-
-    const safeThumbSrc = thumbnail?.startsWith("blob:") ? thumbnail : thumbnail || "";
-
-    // ✅ 제출: FormData로 전송 (절대 JSON으로 blob URL을 보내지 말 것)
+    //수정 api 연동
     const handleSubmit = async () => {
-        if (!post) return;
-
-        const form = new FormData();
-
-        // 텍스트/숫자 필드
-        form.append("name", name);
-        form.append("fuel", fuel);
-        form.append("type", type);
-        form.append("trim", trim);
-        form.append("year", year); // 숫자면 String(...)으로 명확화 가능
-        form.append("mileage", mileage);
-        form.append("color", color);
-        form.append("price", price);
-        form.append("content", content);
-
-        // 태그는 JSON 문자열로
-        form.append(
-            "tag",
-            JSON.stringify({
-                manufacturer: (post as any).manufacturer ?? "",
-                model: (post as any).model ?? "",
-                subModel: (post as any).sub_model ?? "",
-                grade: (post as any).grade ?? "",
-            })
-        );
-
-        // 썸네일 전송 로직
+        //formData=서버로 보낼 데이터 묶음
+        const formData = new FormData();
         if (thumbFileRef.current) {
-            form.append("thumbnail", thumbFileRef.current); // 새 파일 있으면 파일만!
-        } else if (post.thumbnail && !post.thumbnail.startsWith("blob:")) {
-            form.append("thumbnail_url", post.thumbnail); // 기존 URL만! (blob 금지)
+            formData.append("thumbnail", thumbFileRef.current);
         }
+        formData.append("name", name);
+        formData.append("fuel", fuel);
+        formData.append("type", type);
+        formData.append("trim", trim);
+        formData.append("year", year);
+        formData.append("mileage", mileage);
+        formData.append("color", color);
+        formData.append("price", price);
+        // ✅ 기존 URL 이미지도 같이 보내기 (서버에서 유지 처리)
+        originURLs.forEach((url) => formData.append("originImages", url));
 
-        if (files.length > 0) {
-            files.forEach((f) => form.append("images", f, f.name));
-        } else {
-            // (Fallback) images가 base64 string[]인 경우 Blob으로 변환해서 첨부
-            // 기존 코드에서 setImages가 string[]를 주고 있다면 이 부분을 사용
-            // 주의: base64는 용량이 커지니 가능하면 EtcPoto를 File[]로 바꾸는 게 훨씬 좋음
-            // example: base64Images.forEach((s, i)=>form.append("images", new File([dataUrlToBlob(s)], `img_${i}.jpg`)))
-        }
-
-        await axios.put(`${BASE_URL}/sale/${id}`, form, {
-            withCredentials: true, // 필요 시
-            // ⚠️ Content-Type 설정하지 마세요 (axios가 multipart boundary 자동 설정)
+        // ✅ 새로 추가된 이미지
+        files.forEach((file) => {
+            formData.append("images", file);
         });
 
-        alert("수정되었습니다.");
-        router.push("/");
-    };
+        try {
+            const res = await fetch(`${BASE_URL}/sale/${id}`, {
+                method: "PUT",
+                body: formData,
+            });
 
-    if (!post) {
-        return <div className="p-10 text-red-600">해당 매물을 찾을 수 없습니다.</div>;
-    }
+            const data = await res.json();
+            console.log("응답:", data);
+        } catch (error) {
+            console.error("요청 실패:", error);
+        }
+    };
 
     return (
         <>
@@ -198,8 +158,8 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                                 onChange={handleImageChange}
                                 className="hidden"
                             />
-                            {safeThumbSrc ? (
-                                <img src={safeThumbSrc} alt="선택된 이미지" className="w-full h-full object-cover" />
+                            {thumbnail ? (
+                                <img src={thumbnail} alt="선택된 이미지" className="w-full h-full object-cover" />
                             ) : (
                                 <img
                                     src="/images/addToPhoto.png"
@@ -208,7 +168,6 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                                 />
                             )}
                         </div>
-
                         <div className="flex flex-col justify-around">
                             <input
                                 className="font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2"
@@ -216,20 +175,20 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                                 onChange={(e) => setName(e.target.value)}
                                 placeholder="차량명을 입력해 주세요."
                             />
-
                             <div className="flex flex-col text-xl sm:text-2xl p-2 gap-5">
                                 {[
                                     { label: "연료", value: fuel, setter: setFuel },
                                     { label: "차체 타입", value: type, setter: setType },
                                     { label: "트림", value: trim, setter: setTrim },
-                                    { label: "연식", value: year, setter: setYear },
+                                    { label: "연식", value: year, setter: setYear, type: "number" },
                                     { label: "주행거리", value: mileage, setter: setMileage },
                                     { label: "색상", value: color, setter: setColor },
-                                    { label: "가격", value: price, setter: setPrice },
+                                    { label: "가격", value: price, setter: setPrice, type: "number" },
                                 ].map((field, idx) => (
                                     <div className="flex gap-1 sm:gap-3 sm:items-center flex-col sm:flex-row" key={idx}>
                                         <div className="font-bold">{field.label}</div>
                                         <input
+                                            type={field.type || "text"}
                                             className="flex-1 shadow-md text-lg sm:text-xl border-2 border-[#2E7D32] rounded-xl p-2"
                                             value={field.value}
                                             onChange={(e) => field.setter(e.target.value)}
@@ -240,7 +199,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                             </div>
                         </div>
                     </div>
-                    <EtcPoto initialImages={sanitizedImages} setImages={undefined as any} />
+                    <EtcPoto initialImages={sanitizedImages} setImages={setImages} />
                     <TextArea value={content} onChange={(e) => setContent(e.target.value)} />
                     <div className="flex gap-3 justify-end">
                         <ShortButton onClick={handleSubmit} className="bg-[#2E7D32] text-white">

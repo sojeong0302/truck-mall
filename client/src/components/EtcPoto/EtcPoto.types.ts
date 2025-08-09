@@ -1,4 +1,5 @@
+// EtcPoto.types.ts
 export interface EtcPotoProps {
     initialImages?: string[];
-    setImages?: (images: string[]) => void;
+    setImages?: (files: File[]) => void; // ✅ 여기 변경
 }

@@ -80,7 +80,16 @@ def register_sale():
         if ct.startswith("multipart/form-data"):
             form, files = request.form, request.files
 
-            tag = parse_tag(form.get("tag"))
+            tag_str = form.get("tag")
+            if tag_str:
+                try:
+                    tag = json.loads(tag_str) if isinstance(tag_str, str) else tag_str
+                    sale.manufacturer = tag.get("manufacturer", sale.manufacturer)
+                    sale.model = tag.get("model", sale.model)
+                    sale.sub_model = tag.get("subModel", sale.sub_model)
+                    sale.grade = tag.get("grade", sale.grade)
+                except Exception as e:
+                    current_app.logger.warning(f"tag 파싱 실패: {e}")
 
             thumb_url = ""
             if files.get("thumbnail"):
@@ -217,128 +226,98 @@ def get_sale_by_id(sale_id):
     return jsonify(sale.to_dict()), 200
 
 
-# =========================
-# Update
-# =========================
-@sale_bp.route("/<int:sale_id>", methods=["PUT"])
+# 수정 api
+@sale_bp.route("/sale/<int:sale_id>", methods=["PUT"])
 def update_sale(sale_id):
-    try:
-        sale = Sale.query.get(sale_id)
-        if sale is None:
-            return jsonify({"error": "해당 매물을 찾을 수 없습니다."}), 404
+    sale = Sale.query.get_or_404(sale_id)
 
-        ct = (request.content_type or "").lower()
+    current_app.logger.info(
+        "PUT /sale/%s content_type=%s, form_keys=%s, file_keys=%s, file_counts=%s",
+        sale_id,
+        request.content_type,
+        list(request.form.keys()),
+        list(request.files.keys()),
+        {k: len(request.files.getlist(k)) for k in request.files.keys()},
+    )
 
-        if ct.startswith("multipart/form-data"):
-            form, files = request.form, request.files
+    ct = (request.content_type or "").lower()
 
-            sale.name = form.get("name", sale.name)
-            sale.fuel = form.get("fuel", sale.fuel)
-            sale.type = form.get("type", sale.type)
-            sale.trim = form.get("trim", sale.trim)
-            sale.content = form.get("content", sale.content)
+    if ct.startswith("multipart/form-data"):
+        form, files = request.form, request.files
 
-            year = to_int_or_none(form.get("year"))
-            if year is not None:
-                sale.year = year
+        # tag 처리
+        tag_str = form.get("tag")
+        if tag_str:
+            try:
+                tag = json.loads(tag_str) if isinstance(tag_str, str) else tag_str
+                sale.manufacturer = tag.get("manufacturer", "")
+                sale.model = tag.get("model", "")
+                sale.sub_model = tag.get("subModel", "")
+                sale.grade = tag.get("grade", "")
+            except Exception as e:
+                current_app.logger.warning(f"tag 파싱 실패: {e}")
 
-            mileage = to_int_or_none(form.get("mileage"))
-            if mileage is not None:
-                sale.mileage = mileage
+        # 숫자 필드 처리
+        sale.year = to_int_or_none(form.get("year"))
+        sale.price = to_int_or_none(form.get("price"))
+        sale.mileage = to_int_or_none(form.get("mileage"))
 
-            color = form.get("color")
-            if color is not None:
-                sale.color = color
+        # 문자열 필드 처리
+        sale.name = form.get("name") or ""
+        sale.fuel = form.get("fuel") or ""
+        sale.type = form.get("type") or ""
+        sale.trim = form.get("trim") or ""
+        sale.color = form.get("color") or ""
+        sale.content = form.get("content") or ""
 
-            price = to_int_or_none(form.get("price"))
-            if price is not None:
-                sale.price = price
+        # 썸네일 교체
+        if files.get("thumbnail"):
+            sale.thumbnail = save_uploaded_file(files.get("thumbnail"))
 
-            tag = parse_tag(form.get("tag"))
-            if tag:
-                sale.manufacturer = tag.get("manufacturer", sale.manufacturer)
-                sale.model = tag.get("model", sale.model)
-                sale.sub_model = tag.get("subModel", sale.sub_model)
-                sale.grade = tag.get("grade", sale.grade)
+        # 이미지 교체
+        if files.getlist("images"):
+            img_urls = []
+            for f in files.getlist("images"):
+                img_urls.append(save_uploaded_file(f))
+            sale.images = json.dumps(img_urls, ensure_ascii=False)
 
-            # 썸네일
-            if files.get("thumbnail"):
-                sale.thumbnail = save_uploaded_file(files.get("thumbnail"))
-            else:
-                thumb_url = form.get("thumbnail_url")
-                if (
-                    thumb_url
-                    and isinstance(thumb_url, str)
-                    and not thumb_url.startswith("blob:")
-                ):
-                    sale.thumbnail = thumb_url
+        # simple_tags 처리
+        sale.simple_tags = parse_simple_tags(form.get("simple_tags"))
 
-            # 추가 이미지
-            imgs = files.getlist("images")
-            if imgs:
-                new_urls = [save_uploaded_file(f) for f in imgs]
-                try:
-                    current = (
-                        json.loads(sale.images or "[]")
-                        if isinstance(sale.images, str)
-                        else (sale.images or [])
-                    )
-                except Exception:
-                    current = []
-                merged = (current or []) + new_urls
-                sale.images = json.dumps(merged, ensure_ascii=False)
-
-            db.session.commit()
-            return jsonify({"message": "수정 성공", "car": sale.to_dict()}), 200
-
-        # ----- JSON -----
+    else:
+        # JSON 요청일 경우
         data = request.get_json(silent=True) or {}
-
-        sale.name = data.get("name", sale.name)
-        sale.fuel = data.get("fuel", sale.fuel)
-        sale.type = data.get("type", sale.type)
-        sale.trim = data.get("trim", sale.trim)
-        sale.content = data.get("content", sale.content)
-
-        year = to_int_or_none(data.get("year"))
-        if year is not None:
-            sale.year = year
-
-        mileage = to_int_or_none(data.get("mileage"))
-        if mileage is not None:
-            sale.mileage = mileage
-
-        if "color" in data:
-            sale.color = data.get("color") or sale.color
-
-        price = to_int_or_none(data.get("price"))
-        if price is not None:
-            sale.price = price
-
         tag = parse_tag(data.get("tag"))
-        if tag:
-            sale.manufacturer = tag.get("manufacturer", sale.manufacturer)
-            sale.model = tag.get("model", sale.model)
-            sale.sub_model = tag.get("subModel", sale.sub_model)
-            sale.grade = tag.get("grade", sale.grade)
 
-        if "thumbnail" in data:
-            val = data["thumbnail"]
-            if isinstance(val, str) and val.strip() and not val.startswith("blob:"):
-                sale.thumbnail = val
+        sale.manufacturer = tag.get("manufacturer", "")
+        sale.model = tag.get("model", "")
+        sale.sub_model = tag.get("subModel", "")
+        sale.grade = tag.get("grade", "")
 
-        if "images" in data:
-            imgs = data["images"]
-            if isinstance(imgs, list):
-                sale.images = json.dumps(imgs, ensure_ascii=False)
-            elif isinstance(imgs, str):
-                sale.images = imgs
+        sale.year = to_int_or_none(data.get("year"))
+        sale.price = to_int_or_none(data.get("price"))
+        sale.mileage = to_int_or_none(data.get("mileage"))
 
-        db.session.commit()
-        return jsonify({"message": "수정 성공", "car": sale.to_dict()}), 200
+        sale.name = data.get("name") or ""
+        sale.fuel = data.get("fuel") or ""
+        sale.type = data.get("type") or ""
+        sale.trim = data.get("trim") or ""
+        sale.color = data.get("color") or ""
+        sale.content = data.get("content") or ""
 
-    except Exception as e:
-        return jsonify({"error": "update failed", "detail": str(e)}), 400
+        if data.get("thumbnail") is not None:
+            sale.thumbnail = data.get("thumbnail") or ""
+
+        if data.get("images") is not None:
+            if isinstance(data.get("images"), list):
+                sale.images = json.dumps(data.get("images"), ensure_ascii=False)
+            else:
+                sale.images = data.get("images") or "[]"
+
+        sale.simple_tags = parse_simple_tags(data.get("simple_tags"))
+
+    db.session.commit()
+    return jsonify({"message": "success"})
 
 
 # =========================

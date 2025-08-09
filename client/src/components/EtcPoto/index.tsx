@@ -9,29 +9,28 @@ export default function EtcPoto({ initialImages = [], setImages }: EtcPotoProps)
     const { previews, addPreview, removePreview, addFile, setPreviews, setOriginURLs, originURLs, files } =
         useImageStore();
 
-    // 초기 이미지 설정
     useEffect(() => {
-        if (initialImages.length > 0) {
+        if (initialImages.length > 0 && files.length === 0) {
             setPreviews(initialImages);
             setOriginURLs(initialImages);
+
+            Promise.all(
+                initialImages.map(async (url) => {
+                    const res = await fetch(url);
+                    const blob = await res.blob();
+                    const fileName = url.split("/").pop() || "image.jpg";
+                    const file = new File([blob], fileName, { type: blob.type });
+                    addFile(file);
+                })
+            );
         }
-    }, [initialImages, setPreviews, setOriginURLs]);
+    }, [initialImages, files.length, setPreviews, setOriginURLs, addFile]);
 
-    // ✅ 상위에 최종 이미지 목록 전달
     useEffect(() => {
-        const fileReaders: Promise<string>[] = files.map((file) => {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result as string);
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
-        });
-
-        Promise.all(fileReaders).then((base64s) => {
-            setImages?.([...originURLs, ...base64s]);
-        });
-    }, [originURLs, files, setImages]);
+        if (setImages) {
+            setImages(files);
+        }
+    }, [files, setImages]);
 
     const handleClick = () => {
         fileInputRef.current?.click();
@@ -42,12 +41,8 @@ export default function EtcPoto({ initialImages = [], setImages }: EtcPotoProps)
         if (!files || files.length === 0) return;
 
         Array.from(files).forEach((file) => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                addPreview(reader.result as string);
-                addFile(file);
-            };
-            reader.readAsDataURL(file);
+            addPreview(URL.createObjectURL(file));
+            addFile(file);
         });
     };
 
