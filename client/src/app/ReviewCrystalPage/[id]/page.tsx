@@ -20,5 +20,5 @@ export default function ReviewCrystalPage() {
 
     if (!post) return <div className="p-10">로딩 중...</div>;
 
-    return <WritingCrystal url="/ReviewPage" post={post} />;
+    return <WritingCrystal url="ReviewPage" post={post} />;
 }
