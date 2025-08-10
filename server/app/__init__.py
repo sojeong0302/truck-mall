@@ -11,22 +11,18 @@ from app.routes.sms import sms_bp
 from dotenv import load_dotenv
 from .routes.ping import ping_bp
 import os
-
+from flask_jwt_extended import JWTManager
 
 load_dotenv()
-
-
-migrate = Migrate()  # 먼저 migrate 객체만 생성해두고
+jwt = JWTManager()
+migrate = Migrate()
 
 
 def create_app():
     app = Flask(__name__)
+    app.config.from_envvar("FLASK_CONFIG")
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
-
-    # app.config.from_object(Config)
-
-    # CORS 설정
 
     CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
 

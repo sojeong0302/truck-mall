@@ -24,7 +24,7 @@ export default function MainPage() {
     useEffect(() => {
         const fetchCarTips = async () => {
             try {
-                const res = await axios.get("/api/proxy/carTIP/list");
+                const res = await axios.get(`${BASE_URL}/carTIP/list`);
                 setCarTIPs(res.data);
             } catch (err) {}
         };

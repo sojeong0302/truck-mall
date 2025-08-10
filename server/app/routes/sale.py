@@ -3,6 +3,7 @@ from ..models.sale_model import Sale
 from ..extensions import db
 from werkzeug.utils import secure_filename
 import os, json, datetime
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 sale_bp = Blueprint("sale", __name__)
 
@@ -65,10 +66,10 @@ def to_int_or_none(v):
 
 # 등록 api
 @sale_bp.route("/uploadSale", methods=["POST"])
+@jwt_required()
 def register_sale():
     try:
         ct = (request.content_type or "").lower()
-
         if ct.startswith("multipart/form-data"):
             form, files = request.form, request.files
 
