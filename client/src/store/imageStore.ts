@@ -10,12 +10,14 @@ interface ImageStoreState {
     addFile: (file: File) => void;
     clear: () => void;
     setPreviews: (urls: string[]) => void;
+    setFiles: (files: File[]) => void; // <- 함수 시그니처만 정의
 }
 
 export const useImageStore = create<ImageStoreState>((set) => ({
     previews: [],
     files: [],
     originURLs: [],
+
     setOriginURLs: (urls) =>
         set({
             originURLs: urls,
@@ -23,6 +25,7 @@ export const useImageStore = create<ImageStoreState>((set) => ({
         }),
 
     addPreview: (url) => set((state) => ({ previews: [...state.previews, url] })),
+
     removePreview: (index) =>
         set((state) => {
             const newPreviews = state.previews.filter((_, i) => i !== index);
@@ -45,6 +48,10 @@ export const useImageStore = create<ImageStoreState>((set) => ({
         }),
 
     addFile: (file) => set((state) => ({ files: [...state.files, file] })),
+
+    setFiles: (files) => set({ files }), // <- 구현부 추가
+
     clear: () => set({ files: [], previews: [], originURLs: [] }),
+
     setPreviews: (urls) => set({ previews: urls }),
 }));

@@ -23,6 +23,7 @@ export default function WritingUpload() {
     const {
         transmission,
         thumbnail,
+        thumbnailFile,
         name,
         fuel,
         type,
@@ -34,6 +35,8 @@ export default function WritingUpload() {
         images,
         content,
         setField,
+        setThumbnail,
+        setThumbnailFile,
         clearForm,
     } = useCarFormStore();
 
@@ -57,12 +60,8 @@ export default function WritingUpload() {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // ✅ 서버로 보낼 실제 파일 보관
-        thumbFileRef.current = file;
-
-        // ✅ 미리보기는 가벼운 Object URL로 (base64 말고)
-        const preview = URL.createObjectURL(file);
-        setField("thumbnail", preview);
+        setThumbnailFile(file); // 서버 전송용
+        setThumbnail(URL.createObjectURL(file)); // 미리보기
     };
 
     const handleClick = () => {
@@ -81,12 +80,10 @@ export default function WritingUpload() {
         formData.append("tags", JSON.stringify(tags));
         formData.append("transmission", transmission);
 
-        if (thumbFileRef.current) {
-            formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
-        } else if (thumbnail && thumbnail.startsWith("blob:") === false) {
-            // 혹시 URL이거나 base64로 저장된 경우에도 보내고 싶으면 처리
-            const response = await fetch(thumbnail);
-            const blob = await response.blob();
+        if (thumbnailFile) {
+            formData.append("thumbnail", thumbnailFile, thumbnailFile.name);
+        } else if (thumbnail && !thumbnail.startsWith("blob:") && !thumbnail.startsWith("data:")) {
+            const blob = await fetch(thumbnail).then((r) => r.blob());
             formData.append("thumbnail", new File([blob], "thumbnail.jpg", { type: blob.type }));
         }
 

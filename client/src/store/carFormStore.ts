@@ -1,20 +1,8 @@
-// store/carFormStore.ts
 import { create } from "zustand";
 
-interface SimpleTag {
-    type: string;
-    grade: string;
-}
-
 interface CarFormState {
-    simpleTags: SimpleTag[];
-    tag: {
-        manufacturer: string;
-        model: string;
-        subModel: string;
-        grade: string;
-    };
-    thumbnail: string | null;
+    thumbnail: string; // 미리보기 URL
+    thumbnailFile: File | null; // 서버 전송용 파일
     name: string;
     fuel: string;
     type: string;
@@ -27,14 +15,15 @@ interface CarFormState {
     content: string;
     transmission: string;
 
-    setField: <K extends keyof CarFormState>(key: K, value: CarFormState[K]) => void;
+    setField: (key: keyof CarFormState, value: any) => void;
+    setThumbnail: (url: string) => void;
+    setThumbnailFile: (file: File | null) => void;
     clearForm: () => void;
 }
 
 export const useCarFormStore = create<CarFormState>((set) => ({
-    simpleTags: [],
-    tag: { manufacturer: "", model: "", subModel: "", grade: "" },
-    thumbnail: null,
+    thumbnail: "",
+    thumbnailFile: null,
     name: "",
     fuel: "",
     type: "",
@@ -47,12 +36,14 @@ export const useCarFormStore = create<CarFormState>((set) => ({
     content: "",
     transmission: "",
 
-    setField: (key, value) => set({ [key]: value }),
+    setField: (key, value) => set({ [key]: value } as any),
+    setThumbnail: (url) => set({ thumbnail: url }),
+    setThumbnailFile: (file) => set({ thumbnailFile: file }),
+
     clearForm: () =>
         set({
-            simpleTags: [],
-            tag: { manufacturer: "", model: "", subModel: "", grade: "" },
-            thumbnail: null,
+            thumbnail: "",
+            thumbnailFile: null,
             name: "",
             fuel: "",
             type: "",
@@ -63,5 +54,6 @@ export const useCarFormStore = create<CarFormState>((set) => ({
             price: "",
             images: [],
             content: "",
+            transmission: "",
         }),
 }));
