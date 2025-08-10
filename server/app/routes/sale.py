@@ -108,6 +108,7 @@ def register_sale():
                 images=img_urls,
                 simple_tags=parse_simple_tags(form.get("simple_tags")),
                 tags=tags,
+                status=True,
             )
 
         else:
@@ -136,7 +137,8 @@ def register_sale():
                     else (data.get("images") or "[]")
                 ),
                 simple_tags=parse_simple_tags(data.get("simple_tags")),
-                tags=tags,  # 전체 계층 구조 저장
+                tags=tags,
+                status=True,
             )
         db.session.add(sale)
         db.session.commit()
@@ -227,6 +229,12 @@ def update_sale(sale_id):
     if ct.startswith("multipart/form-data"):
         form, files = request.form, request.files
 
+        if "status" in form:
+            status_val = form.get("status")
+            if isinstance(status_val, str):
+                status_val = status_val.lower() in ["true", "1", "yes"]
+            sale.status = bool(status_val)
+
         # tags 처리
         tags_raw = form.get("tags")
         if tags_raw:
@@ -280,6 +288,8 @@ def update_sale(sale_id):
     else:
         # JSON 요청일 경우
         data = request.get_json(silent=True) or {}
+        if "status" in data:
+            sale.status = bool(data.get("status"))
         tag = parse_tag(data.get("tag"))
 
         sale.manufacturer = tag.get("manufacturer", "")

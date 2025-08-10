@@ -110,12 +110,10 @@ export default function WritingUpload() {
                 method: "POST",
                 body: formData,
             });
-
             const data = await res.json();
-            console.log("응답:", data);
-        } catch (error) {
-            console.error("요청 실패:", error);
-        }
+
+            router.push(`/SaleDetailPage/${data.car.id}`);
+        } catch (error) {}
     };
 
     //변속기 선택지

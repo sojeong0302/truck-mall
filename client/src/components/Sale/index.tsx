@@ -26,12 +26,17 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
     const { currentPage } = usePaginationStore();
     const { isLoggedIn } = useAuthStore();
     const { simpleTag } = useSimpleTagStore();
-    const { manufacturer, model, subModel, grade } = useFilterTagStore();
+    const { tags } = useFilterTagStore();
     const { trigger } = useSearchTriggerStore();
     const { sales, setSales, clearSales } = useSaleStore();
     const isDefaultPrice = !priceRange || (priceRange[0] === PriceMIN && priceRange[1] === PriceMAX);
     const isDefaultYear = !yearRange || (yearRange[0] === YearMIN && yearRange[1] === YearMAX);
     const toServerPrice = (v: number) => v * 10000;
+
+    const manufacturer = tags.manufacturer;
+    const model = tags.models[0]?.name || "";
+    const subModel = tags.models[0]?.subModels[0]?.name || "";
+    const grade = tags.models[0]?.subModels[0]?.grades[0] || "";
 
     // 최초 전체 조회
     useEffect(() => {
@@ -109,6 +114,15 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
     const totalPages = useMemo(() => Math.ceil(sales.length / ITEMS_PER_PAGE), [sales]);
     const handleGoUpload = () => router.push("/SaleUploadPage");
 
+    // utils/getImageUrl.ts
+    const getImageUrl = (path: string) => {
+        if (!path) return "";
+        // 절대경로가 이미 있는 경우 그대로 반환
+        if (path.startsWith("http")) return path;
+        const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
+        return `${BASE_URL}${path}`;
+    };
+
     return (
         <div className="w-[100%] flex flex-col items-center justify-center">
             <div className="w-[90%] sm:w-[70%] p-3 flex items-center justify-between border-b-2 border-[#575757]">
@@ -134,7 +148,11 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                     >
                         <div className="hidden sm:block w-[25%] h-[180px] min-w-[150px] rounded-xl shadow-lg flex items-center justify-center bg-gray-100 overflow-hidden">
                             {post.thumbnail && !post.thumbnail.startsWith("blob:") ? (
-                                <img src={post.thumbnail} alt="썸네일" className="w-full h-full object-cover" />
+                                <img
+                                    src={getImageUrl(post.thumbnail)}
+                                    alt="썸네일"
+                                    className="w-full h-full object-cover"
+                                />
                             ) : (
                                 <div className="text-gray-500 text-sm text-center">이미지 준비중 입니다.</div>
                             )}

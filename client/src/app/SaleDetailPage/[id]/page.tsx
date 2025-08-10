@@ -15,7 +15,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
     const { id } = use(params);
     const router = useRouter();
     const { isLoggedIn } = useAuthStore();
-    const { isModalOpen, setIsModalOpen } = useModalStore();
+    const { isModalOpen, setIsModalOpen, isSaleCompleteModalOpen, setIsSaleCompleteModalOpen } = useModalStore();
 
     const { post, loading, error, fetchById, clear } = useSaleDetailStore();
 
@@ -33,16 +33,36 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
             setIsModalOpen(true);
         } catch {}
     };
+
     const getImageUrl = (url: string) => {
         if (!url) return "";
         if (url.startsWith("http")) return url;
         return `${BASE_URL}${url}`;
     };
 
+    //판매완료 시키기
+    const salesCompleted = async () => {
+        try {
+            await fetch(`${BASE_URL}/sale/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: false }),
+            });
+
+            useSaleDetailStore.setState((state) => ({
+                post: state.post ? { ...state.post, status: false } : state.post,
+            }));
+
+            setIsSaleCompleteModalOpen(false);
+        } catch (error) {
+            console.error("판매완료 변경 실패:", error);
+        }
+    };
+
     if (loading) return <div className="p-10">불러오는 중…</div>;
     if (error) return <div className="p-10 text-red-500">오류: {error}</div>;
     if (!post) return <div className="p-10 text-red-500">해당 게시물을 찾을 수 없습니다.</div>;
-    console.log(post);
+    console.log(post.status);
     return (
         <div className="w-full flex justify-center flex-col items-center p-5 sm:p-15">
             {isLoggedIn && (
@@ -109,11 +129,23 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                     {post.content}
                 </div>
                 <div className="flex justify-end">
-                    <ShortButton onClick={() => router.back()} className="bg-[#2E7D32] text-white">
-                        뒤로가기
+                    {Boolean(post.status) && (
+                        <ShortButton onClick={salesCompleted} className="bg-[#2E7D32] text-white">
+                            판매완료
+                        </ShortButton>
+                    )}
+                    <ShortButton onClick={() => router.push("/CarSearchPage")} className="bg-[#2E7D32] text-white">
+                        목록으로
                     </ShortButton>
                 </div>
             </div>
+            {isSaleCompleteModalOpen && (
+                <Modal
+                    // url={"/CarSearchPage"}
+                    text={"판매완료 처리하시겠습니까?\n이 작업은 되돌릴 수 없습니다."}
+                    onConfirm={salesCompleted}
+                />
+            )}
             {isModalOpen && (
                 <Modal url={"/CarSearchPage"} text={"삭제된 내용은 복구할 수 없습니다.\n정말 삭제하시겠습니까?"} />
             )}

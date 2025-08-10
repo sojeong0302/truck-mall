@@ -3,13 +3,17 @@ import { useRouter } from "next/navigation";
 import ShortButton from "../ShortButton";
 import { useModalStore } from "@/store/ModalStateStroe";
 
-export default function Modal({ text, url }: { text: string; url?: string }) {
+export default function Modal({ text, url, onConfirm }: { text: string; url?: string; onConfirm?: () => void }) {
     const router = useRouter();
     const store = useModalStore();
     const { setIsModalOpen } = store;
     const handleYes = () => {
         setIsModalOpen(false);
-        if (url) router.push(url);
+        if (onConfirm) {
+            // ✅ 전달받은 함수 실행
+            onConfirm();
+        }
+        // if (url) router.push(url);
     };
     const handleNo = () => {
         setIsModalOpen(false);
