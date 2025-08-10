@@ -230,11 +230,8 @@ def update_sale(sale_id):
         form, files = request.form, request.files
 
         if "status" in form:
-            status_val = form.get("status")
-            if isinstance(status_val, str):
-                status_val = status_val.lower() in ["true", "1", "yes"]
-            sale.status = bool(status_val)
-
+            status_val = (form.get("status") or "").lower()
+            sale.status = status_val in ["true", "1", "yes"]
         # tags 처리
         tags_raw = form.get("tags")
         if tags_raw:
