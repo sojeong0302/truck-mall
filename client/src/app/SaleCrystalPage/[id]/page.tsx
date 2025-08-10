@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState, useMemo, useCallback } from "react";
 import axios from "axios";
 import ShortButton from "@/components/ShortButton";
 import EtcPoto from "@/components/EtcPoto";
@@ -21,6 +21,10 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
     const modalStore = useModalStore();
     const { isModalOpen, setIsModalOpen } = modalStore;
     const router = useRouter();
+    // 새로 추가
+    const [prevImages, setPrevImages] = useState<string[]>([]);
+    const [newImages, setNewImages] = useState<File[]>([]);
+
     const store = SaleCrystalPagePropStore();
     const [sanitizedImages, setSanitizedImages] = useState<string[]>([]);
     const {
@@ -167,13 +171,11 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         formData.append("mileage", mileage);
         formData.append("color", color);
         formData.append("price", price);
-        // 기존 이미지도 같이 보내기
-        originURLs.forEach((url) => formData.append("originImages", url));
+        // 기존 이미지
+        prevImages.forEach((url) => formData.append("originImages", url));
+        // 새 이미지
+        newImages.forEach((file) => formData.append("images", file, file.name));
 
-        // 새로 추가된 이미지
-        files.forEach((file) => {
-            formData.append("images", file, file.name);
-        });
         formData.append("content", content);
 
         try {
@@ -194,6 +196,22 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         setIsOpen(false);
         setTransmission(item !== "전체" ? item : "");
     };
+
+    // 기존 이미지 URL 변환
+    const getImageUrl = (url: string) => {
+        if (!url) return "";
+        if (url.startsWith("http")) return url;
+        return `${BASE_URL}${url}`;
+    };
+
+    const initialImageUrls = useMemo(() => {
+        return sanitizedImages.map((img) => getImageUrl(img));
+    }, [sanitizedImages, BASE_URL]);
+
+    const handleImagesChange = useCallback((files: File[], keepImages: string[]) => {
+        setNewImages(files); // 새로 추가한 이미지
+        setPrevImages(keepImages); // 남길 기존 이미지
+    }, []);
 
     return (
         <>
@@ -282,7 +300,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                             </div>
                         </div>
                     </div>
-                    <EtcPoto initialImages={sanitizedImages} setImages={setImages} />
+                    <EtcPoto initialImages={initialImageUrls} onChange={handleImagesChange} />
                     <TextArea value={content} onChange={(e) => setContent(e.target.value)} />
                     <div className="flex gap-3 justify-end">
                         <ShortButton onClick={handleSubmit} className="bg-[#2E7D32] text-white">
