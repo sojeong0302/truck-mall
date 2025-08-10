@@ -49,12 +49,18 @@ export default function WritingDetail({
             setIsModalOpen(true);
         } catch (error) {}
     };
+
+    const getImageUrl = (url: string) => {
+        if (!url) return "";
+        if (url.startsWith("http")) return url;
+        return `${BASE_URL}${url}`;
+    };
+
     if (!post) {
         return <div className="p-10 text-red-600">해당 글을 찾을 수 없습니다.</div>;
     }
     return (
         <div className="w-[100%] p-0 sm:p-10 flex flex-col gap-5 items-center">
-            {/* ✅ post가 없으면 오류 메시지 */}
             {!post ? (
                 <div className="p-10 text-red-600">해당 글을 찾을 수 없습니다.</div>
             ) : (
@@ -75,7 +81,9 @@ export default function WritingDetail({
                         <div className="font-medium w-[100%] text-3xl border-b-2 border-[#575757] p-4">
                             {post.title}
                         </div>
-                        {post.images && post.images.length > 0 && <SwiperWithLightbox images={post.images} />}
+                        {post.images && post.images.length > 0 && (
+                            <SwiperWithLightbox images={post.images.map((img) => getImageUrl(img))} />
+                        )}
                         <div className="text-2xl w-full bg-white border-4 border-[#2E7D32] p-4 rounded-md">
                             {post.content}
                         </div>
@@ -83,7 +91,7 @@ export default function WritingDetail({
 
                     <div className="flex justify-end w-[90%] sm:w-[80%] sm:mb-0 mb-5">
                         <ShortButton onClick={() => router.back()} className="bg-[#2E7D32] text-white">
-                            뒤로가기
+                            목록으로
                         </ShortButton>
                     </div>
                 </>

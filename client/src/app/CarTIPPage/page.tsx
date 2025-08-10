@@ -7,6 +7,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 
 export default function CarTIPPage() {
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
     const { currentPage } = usePaginationStore();
     const [carTIPs, setCarTIPs] = useState<any[]>([]);
     const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -14,7 +15,7 @@ export default function CarTIPPage() {
     useEffect(() => {
         const fetchReviews = async () => {
             try {
-                const res = await axios.get("http://localhost:5000/carTIP/list");
+                const res = await axios.get(`${BASE_URL}/carTIP/list`);
                 setCarTIPs(res.data);
                 console.log(res.data);
             } catch (err) {

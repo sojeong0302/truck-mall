@@ -5,8 +5,8 @@ import WritingDetail from "@/components/WritingDetail";
 import { useEffect, useRef, useState } from "react";
 
 export default function CarTIPDetailPage({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = use(params); // ✅ use()로 언래핑
-
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+    const { id } = use(params);
     const [post, setPost] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const hasFetchedRef = useRef(false);
@@ -16,12 +16,12 @@ export default function CarTIPDetailPage({ params }: { params: Promise<{ id: str
 
         const fetchPost = async () => {
             try {
-                const res = await fetch(`http://localhost:5000/carTIP/${id}`);
+                const res = await fetch(`${BASE_URL}/carTIP/${id}`);
                 const data = await res.json();
                 setPost(data);
                 hasFetchedRef.current = true;
 
-                await fetch(`http://localhost:5000/carTIP/${id}/view`, {
+                await fetch(`${BASE_URL}/carTIP/${id}/view`, {
                     method: "POST",
                 });
             } catch (error) {

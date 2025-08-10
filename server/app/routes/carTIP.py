@@ -53,8 +53,8 @@ def create_carTIP():
         save_path = os.path.join(UPLOAD_DIR, unique_filename)
         image.save(save_path)
 
-        # ✅ 저장할 경로는 외부에서 접근 가능한 URL로
-        image_url = f"http://localhost:5000/carTIP/uploads/{unique_filename}"
+        # ✅ 절대 URL 대신 상대 경로로 저장
+        image_url = f"/carTIP/uploads/{unique_filename}"
         saved_image_paths.append(image_url)
 
     new_carTIP = CarTIP(
@@ -150,7 +150,7 @@ def update_cartip(carTIP_id):
         )
         save_path = os.path.join(UPLOAD_DIR, unique_filename)
         image.save(save_path)
-        image_url = f"http://localhost:5000/carTIP/uploads/{unique_filename}"
+        image_url = f"/carTIP/uploads/{unique_filename}"
         new_image_urls.append(image_url)
 
     cartip.images = prev_images + new_image_urls
