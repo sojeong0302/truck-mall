@@ -10,9 +10,9 @@ export default function EtcPoto({ initialImages = [], setImages }: EtcPotoProps)
         useImageStore();
 
     useEffect(() => {
-        if (initialImages.length > 0 && files.length === 0) {
-            setPreviews(Array.isArray(initialImages) ? initialImages : []);
-            setOriginURLs(Array.isArray(initialImages) ? initialImages : []);
+        if (initialImages && initialImages.length > 0 && files.length === 0) {
+            setPreviews(initialImages);
+            setOriginURLs(initialImages);
 
             Promise.all(
                 initialImages.map(async (url) => {
@@ -24,7 +24,7 @@ export default function EtcPoto({ initialImages = [], setImages }: EtcPotoProps)
                 })
             );
         }
-    }, [initialImages, files.length, setPreviews, setOriginURLs, addFile]);
+    }, [initialImages]);
 
     useEffect(() => {
         if (setImages) {
@@ -47,8 +47,6 @@ export default function EtcPoto({ initialImages = [], setImages }: EtcPotoProps)
     };
 
     const handleDelete = (idx: number) => {
-        const newOrigin = originURLs.filter((_, i) => i !== idx);
-        setOriginURLs(newOrigin);
         removePreview(idx);
     };
 

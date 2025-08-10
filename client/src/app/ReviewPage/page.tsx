@@ -9,6 +9,7 @@ import axios from "axios";
 const ITEMS_PER_PAGE = 10;
 
 export default function ReviewPage() {
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
     const { currentPage } = usePaginationStore();
     const [reviews, setReviews] = useState<any[]>([]);
     const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -16,7 +17,7 @@ export default function ReviewPage() {
     useEffect(() => {
         const fetchReviews = async () => {
             try {
-                const res = await axios.get("http://localhost:5000/review/list");
+                const res = await axios.get(`${BASE_URL}/review/list`);
                 setReviews(res.data);
                 console.log(res.data);
             } catch (err) {

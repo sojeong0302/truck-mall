@@ -80,6 +80,12 @@ export default function WritingCrystal({ post, url }: { post: Post; url?: string
     const handleCancellation = () => {
         setIsModalOpen(true);
     };
+
+    const getImageUrl = (url: string) => {
+        if (!url) return "";
+        if (url.startsWith("http")) return url;
+        return `${BASE_URL}${url}`;
+    };
     if (!post) {
         return <div className="p-10 text-red-600">해당 글을 찾을 수 없습니다.</div>;
     }
@@ -91,7 +97,7 @@ export default function WritingCrystal({ post, url }: { post: Post; url?: string
                 onChange={(e) => setTitle(e.target.value)}
                 className="font-medium w-full text-xl sm:text-3xl border-b-2 border-[#575757] p-4 focus:outline-none"
             />
-            <EtcPoto initialImages={post.images} />
+            <EtcPoto initialImages={(post.images || []).map((img) => getImageUrl(img))} />
             <TextArea value={content} onChange={(e) => setContent(e.target.value)} />
             <div className="flex gap-3 justify-end sm:mb-0 mb-5">
                 <ShortButton onClick={handleSubmit} className="bg-[#2E7D32] text-white">

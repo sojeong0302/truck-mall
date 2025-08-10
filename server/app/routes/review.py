@@ -33,8 +33,7 @@ def create_review():
         save_path = os.path.join(UPLOAD_DIR, unique_filename)
         image.save(save_path)
 
-        # ✅ 저장할 경로는 외부에서 접근 가능한 URL로
-        image_url = f"http://localhost:5000/review/uploads/{unique_filename}"
+        image_url = f"/review/uploads/{unique_filename}"
         saved_image_paths.append(image_url)
 
     new_review = Review(
@@ -139,7 +138,7 @@ def update_review(review_id):
         )
         save_path = os.path.join(UPLOAD_DIR, unique_filename)
         image.save(save_path)
-        image_url = f"http://localhost:5000/review/uploads/{unique_filename}"
+        image_url = f"/review/uploads/{unique_filename}"
         new_image_urls.append(image_url)
 
     # ✅ 완전 새로운 이미지 배열로 덮어쓰기 (삭제된 이미지 제거됨)

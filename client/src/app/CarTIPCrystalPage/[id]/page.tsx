@@ -6,12 +6,13 @@ import WritingCrystal from "@/components/WritingCrystal";
 import { useEffect, useState } from "react";
 
 export default function CarTIPCrystalPage() {
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
     const { id } = useParams();
     const [post, setPost] = useState<any | null>(null);
 
     useEffect(() => {
         const fetchReview = async () => {
-            const res = await fetch(`http://localhost:5000/carTIP/${id}`);
+            const res = await fetch(`${BASE_URL}/carTIP/${id}`);
             const data = await res.json();
             setPost(data);
         };

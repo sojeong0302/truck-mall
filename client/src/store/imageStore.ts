@@ -10,7 +10,7 @@ interface ImageStoreState {
     addFile: (file: File) => void;
     clear: () => void;
     setPreviews: (urls: string[]) => void;
-    setFiles: (files: File[]) => void; // <- 함수 시그니처만 정의
+    setFiles: (files: File[]) => void;
 }
 
 export const useImageStore = create<ImageStoreState>((set) => ({
@@ -21,7 +21,7 @@ export const useImageStore = create<ImageStoreState>((set) => ({
     setOriginURLs: (urls) =>
         set({
             originURLs: urls,
-            previews: [...urls], // 기존 미리보기 동기화
+            previews: [...urls],
         }),
 
     addPreview: (url) => set((state) => ({ previews: [...state.previews, url] })),
@@ -29,16 +29,13 @@ export const useImageStore = create<ImageStoreState>((set) => ({
     removePreview: (index) =>
         set((state) => {
             const newPreviews = state.previews.filter((_, i) => i !== index);
-            const removed = state.previews[index];
 
-            const newOriginURLs = state.originURLs.includes(removed)
-                ? state.originURLs.filter((url) => url !== removed)
-                : state.originURLs;
+            const isOrigin = index < state.originURLs.length;
+            const newOriginURLs = isOrigin ? state.originURLs.filter((_, i) => i !== index) : state.originURLs;
 
-            const newFiles =
-                index < state.originURLs.length
-                    ? state.files // 기존 이미지 삭제 시 파일 변화 없음
-                    : state.files.filter((_, i) => i !== index - state.originURLs.length);
+            const newFiles = isOrigin
+                ? state.files
+                : state.files.filter((_, i) => i !== index - state.originURLs.length);
 
             return {
                 previews: newPreviews,

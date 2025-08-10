@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import WritingDetail from "@/components/WritingDetail";
 
 export default function ReviewDetailPage({ params }: { params: Promise<{ id: string }> }) {
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
     const [post, setPost] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [id, setId] = useState<string | null>(null);
@@ -26,13 +27,13 @@ export default function ReviewDetailPage({ params }: { params: Promise<{ id: str
 
         const fetchPost = async () => {
             try {
-                const res = await fetch(`http://localhost:5000/review/${id}`);
+                const res = await fetch(`${BASE_URL}/review/${id}`);
                 const data = await res.json();
                 setPost(data);
                 hasFetchedRef.current = true;
 
                 // ✅ 조회수 증가
-                await fetch(`http://localhost:5000/review/${id}/view`, {
+                await fetch(`${BASE_URL}/review/${id}/view`, {
                     method: "POST",
                 });
             } catch (error) {
