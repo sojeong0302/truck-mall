@@ -30,7 +30,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
     const handleDelete = async () => {
         try {
             await fetch(`${BASE_URL}/sale/${id}`, { method: "DELETE" });
-            setIsModalOpen(true);
+            router.push("/CarSearchPage");
         } catch {}
     };
 
@@ -52,7 +52,6 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
             useSaleDetailStore.setState((state) => ({
                 post: state.post ? { ...state.post, status: false } : state.post,
             }));
-
             setIsSaleCompleteModalOpen(false);
         } catch (error) {
             console.error("판매완료 변경 실패:", error);
@@ -71,7 +70,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                         수정
                     </div>
                     |
-                    <div className="cursor-pointer" onClick={handleDelete}>
+                    <div className="cursor-pointer" onClick={() => setIsModalOpen(true)}>
                         삭제
                     </div>
                 </div>
@@ -130,7 +129,10 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                 </div>
                 <div className="flex justify-end">
                     {Boolean(post.status) && (
-                        <ShortButton onClick={salesCompleted} className="bg-[#2E7D32] text-white">
+                        <ShortButton
+                            onClick={() => setIsSaleCompleteModalOpen(true)}
+                            className="bg-[#2E7D32] text-white"
+                        >
                             판매완료
                         </ShortButton>
                     )}
@@ -140,14 +142,10 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                 </div>
             </div>
             {isSaleCompleteModalOpen && (
-                <Modal
-                    // url={"/CarSearchPage"}
-                    text={"판매완료 처리하시겠습니까?\n이 작업은 되돌릴 수 없습니다."}
-                    onConfirm={salesCompleted}
-                />
+                <Modal text={"판매완료 처리하시겠습니까?\n이 작업은 되돌릴 수 없습니다."} onConfirm={salesCompleted} />
             )}
             {isModalOpen && (
-                <Modal url={"/CarSearchPage"} text={"삭제된 내용은 복구할 수 없습니다.\n정말 삭제하시겠습니까?"} />
+                <Modal onConfirm={handleDelete} text={"삭제된 내용은 복구할 수 없습니다.\n정말 삭제하시겠습니까?"} />
             )}
         </div>
     );

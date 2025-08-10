@@ -6,7 +6,7 @@ import { useModalStore } from "@/store/ModalStateStroe";
 export default function Modal({ text, url, onConfirm }: { text: string; url?: string; onConfirm?: () => void }) {
     const router = useRouter();
     const store = useModalStore();
-    const { setIsModalOpen } = store;
+    const { setIsModalOpen, setIsSaleCompleteModalOpen } = store;
     const handleYes = () => {
         setIsModalOpen(false);
         if (onConfirm) {
@@ -17,6 +17,7 @@ export default function Modal({ text, url, onConfirm }: { text: string; url?: st
     };
     const handleNo = () => {
         setIsModalOpen(false);
+        setIsSaleCompleteModalOpen(false);
     };
 
     return (
