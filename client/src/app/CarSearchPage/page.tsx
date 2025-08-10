@@ -4,7 +4,6 @@ import SimpleFilter from "@/components/SimpleFilter";
 import Filter from "@/components/Filter";
 import Sns from "@/components/Sns";
 import ShortButton from "@/components/ShortButton";
-import { useState } from "react";
 import { Range } from "react-range";
 import Sale from "@/components/Sale";
 import { useSearchTriggerStore } from "@/store/searchTriggerStore";
@@ -12,22 +11,25 @@ import { useSearchFilterStore, PriceMIN, PriceMAX, YearMIN, YearMAX } from "./Ca
 
 export default function CarSearchPage() {
     const { fire } = useSearchTriggerStore();
-
+    const { isOpen, toggleOpen, draftSelectedLabel, handleSelectDraft } = useSearchFilterStore();
     const {
+        draftPrice,
+        setDraftPrice,
+        handleInputChangeDraft,
+        draftYear,
+        setDraftYear,
         price,
         year,
         transmission,
-        selectedLabel,
-        isOpen,
-        setPrice,
-        setYear,
-        toggleOpen,
-        handleInputChange,
-        handleSelect,
+        applyFilters,
+        resetDraft,
         resetAll,
     } = useSearchFilterStore();
 
-    const handleSubmit = () => fire();
+    const handleSubmit = () => {
+        applyFilters(); // ✨ draft → applied 반영
+        fire(); // 목록 갱신 트리거
+    };
     const handleReset = () => {
         resetAll();
         fire();
@@ -38,7 +40,6 @@ export default function CarSearchPage() {
             <div className="hidden md:block">
                 <SimpleFilter />
             </div>
-
             <div className="w-[80%]">
                 <Filter />
             </div>
@@ -58,10 +59,10 @@ export default function CarSearchPage() {
                                 step={100}
                                 min={PriceMIN}
                                 max={PriceMAX}
-                                values={price}
-                                onChange={(vals) => setPrice(vals as [number, number])}
+                                values={draftPrice}
+                                onChange={(vals) => setDraftPrice(vals as [number, number])}
                                 renderTrack={({ props, children }) => {
-                                    const [minVal, maxVal] = price;
+                                    const [minVal, maxVal] = draftPrice;
                                     const percentLeft = ((minVal - PriceMIN) / (PriceMAX - PriceMIN)) * 100;
                                     const percentRight = ((maxVal - PriceMIN) / (PriceMAX - PriceMIN)) * 100;
 
@@ -98,8 +99,8 @@ export default function CarSearchPage() {
                             <input
                                 type="number"
                                 className="border border-[#2E7D32] rounded-md px-3 py-1 w-32 text-sm sm:text-xl text-right"
-                                value={price[0]}
-                                onChange={(e) => handleInputChange("price", 0, e.target.value)}
+                                value={draftPrice[0]}
+                                onChange={(e) => handleInputChangeDraft("price", 0, e.target.value)}
                                 min={PriceMIN}
                                 max={PriceMAX}
                             />
@@ -107,8 +108,8 @@ export default function CarSearchPage() {
                             <input
                                 type="number"
                                 className="border border-[#2E7D32] rounded-md px-3 py-1 w-32 text-sm sm:text-xl text-right"
-                                value={price[1]}
-                                onChange={(e) => handleInputChange("price", 1, e.target.value)}
+                                value={draftPrice[1]}
+                                onChange={(e) => handleInputChangeDraft("price", 1, e.target.value)}
                                 min={PriceMIN}
                                 max={PriceMAX}
                             />
@@ -127,10 +128,10 @@ export default function CarSearchPage() {
                                 step={1}
                                 min={YearMIN}
                                 max={YearMAX}
-                                values={year}
-                                onChange={(vals) => setYear(vals as [number, number])}
+                                values={draftYear}
+                                onChange={(vals) => setDraftYear(vals as [number, number])}
                                 renderTrack={({ props, children }) => {
-                                    const [minVal, maxVal] = year;
+                                    const [minVal, maxVal] = draftYear;
                                     const percentLeft = ((minVal - YearMIN) / (YearMAX - YearMIN)) * 100;
                                     const percentRight = ((maxVal - YearMIN) / (YearMAX - YearMIN)) * 100;
 
@@ -167,8 +168,8 @@ export default function CarSearchPage() {
                             <input
                                 type="number"
                                 className="border border-[#2E7D32] rounded-md px-3 py-1 w-32 text-sm sm:text-xl text-right"
-                                value={year[0]}
-                                onChange={(e) => handleInputChange("year", 0, e.target.value)}
+                                value={draftYear[0]}
+                                onChange={(e) => handleInputChangeDraft("year", 0, e.target.value)}
                                 min={YearMIN}
                                 max={YearMAX}
                             />
@@ -176,8 +177,8 @@ export default function CarSearchPage() {
                             <input
                                 type="number"
                                 className="border border-[#2E7D32] rounded-md px-3 py-1 w-32 text-sm sm:text-xl text-right"
-                                value={year[1]}
-                                onChange={(e) => handleInputChange("year", 1, e.target.value)}
+                                value={draftYear[1]}
+                                onChange={(e) => handleInputChangeDraft("year", 1, e.target.value)}
                                 min={YearMIN}
                                 max={YearMAX}
                             />
@@ -196,7 +197,7 @@ export default function CarSearchPage() {
                                 className="transition transform duration-200 active:scale-95 cursor-pointer w-full text-left border border-[#2E7D32] rounded-md px-3 py-2 text-sm sm:text-xl"
                                 onClick={toggleOpen}
                             >
-                                {selectedLabel || "전체"}
+                                {draftSelectedLabel || "전체"}
                             </button>
 
                             {isOpen && (
@@ -205,7 +206,7 @@ export default function CarSearchPage() {
                                         <li
                                             key={item}
                                             className="px-3 py-2 hover:bg-[#2E7D32]/10 cursor-pointer"
-                                            onClick={() => handleSelect(item)}
+                                            onClick={() => handleSelectDraft(item)}
                                         >
                                             {item}
                                         </li>
@@ -226,7 +227,6 @@ export default function CarSearchPage() {
                     </div>
                 </div>
             </div>
-
             <Sale priceRange={price} yearRange={year} transmission={transmission} />
         </div>
     );
