@@ -119,13 +119,14 @@ export default function WritingUpload() {
         }
     };
 
+    //나중에 Filter부분으로 넘겨도될듯
     const handleSelect = (item: string) => {
         setSelected(item);
         setIsOpen(false);
         if (item !== "전체") {
-            setField("transmission", item); // ✅ 상태에 저장
+            setField("transmission", item);
         } else {
-            setField("transmission", ""); // 전체 선택 시 빈 값
+            setField("transmission", "");
         }
     };
 

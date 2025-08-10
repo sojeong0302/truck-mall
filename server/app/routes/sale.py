@@ -72,17 +72,13 @@ def register_sale():
         if ct.startswith("multipart/form-data"):
             form, files = request.form, request.files
 
+            tags = {}
             tags_raw = form.get("tags")
             if tags_raw:
                 try:
                     tags = (
                         json.loads(tags_raw) if isinstance(tags_raw, str) else tags_raw
                     )
-                    sale.tags = tags
-                    sale.manufacturer = tags.get("manufacturer", "")
-                    sale.model = tags.get("model", "")
-                    sale.sub_model = tags.get("subModel", "")
-                    sale.grade = tags.get("grade", "")
                 except Exception as e:
                     current_app.logger.warning(f"tags 파싱 실패: {e}")
 
@@ -90,9 +86,7 @@ def register_sale():
             if files.get("thumbnail"):
                 thumb_url = save_uploaded_file(files.get("thumbnail"))
 
-            img_urls = []
-            for f in files.getlist("images"):
-                img_urls.append(save_uploaded_file(f))
+            img_urls = [save_uploaded_file(f) for f in files.getlist("images")]
 
             sale = Sale(
                 name=form.get("name"),
@@ -112,6 +106,7 @@ def register_sale():
                 content=form.get("content"),
                 images=json.dumps(img_urls, ensure_ascii=False),
                 simple_tags=parse_simple_tags(form.get("simple_tags")),
+                tags=tags,
             )
 
         else:
