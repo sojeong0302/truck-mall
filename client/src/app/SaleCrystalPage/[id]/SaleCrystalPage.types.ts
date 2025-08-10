@@ -74,5 +74,6 @@ export const SaleCrystalPagePropStore = create<SaleCrystalPageProp>((set) => ({
             price: "",
             content: "",
             images: [],
+            transmission: "",
         }),
 }));

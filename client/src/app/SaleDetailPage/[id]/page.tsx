@@ -26,6 +26,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
 
     const handleGoCrystal = () => router.push(`/SaleCrystalPage/${id}`);
 
+    //삭제 api 연동
     const handleDelete = async () => {
         try {
             await fetch(`${BASE_URL}/sale/${id}`, { method: "DELETE" });
@@ -36,7 +37,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
     if (loading) return <div className="p-10">불러오는 중…</div>;
     if (error) return <div className="p-10 text-red-500">오류: {error}</div>;
     if (!post) return <div className="p-10 text-red-500">해당 게시물을 찾을 수 없습니다.</div>;
-
+    console.log(post);
     return (
         <div className="w-full flex justify-center flex-col items-center p-5 sm:p-15">
             {isLoggedIn && (

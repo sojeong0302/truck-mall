@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import EtcPoto from "@/components/EtcPoto";
 import TextArea from "@/components/TextArea";
 import ShortButton from "@/components/ShortButton";
@@ -12,6 +12,7 @@ import { useImageStore } from "@/store/imageStore";
 import axios from "axios";
 import { useSimpleTagStore } from "@/store/simpleTagStore";
 import { useRouter } from "next/navigation";
+import { SaleCrystalPagePropStore } from "../SaleCrystalPage/[id]/SaleCrystalPage.types";
 
 export default function WritingUpload() {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -35,40 +36,37 @@ export default function WritingUpload() {
         setField,
         clearForm,
     } = useCarFormStore();
-    const manufacturer = tags.manufacturer || "";
-    const model = tags.models?.[0]?.name || "";
-    const subModel = tags.models?.[0]?.subModels?.[0]?.name || "";
-    const grade = tags.models?.[0]?.subModels?.[0]?.grades?.[0] || "";
+
+    const resetForm = SaleCrystalPagePropStore((s) => s.reset);
+    const clearFilter = useFilterTagStore((s) => s.clear); // tags 초기화
+    const resetSimpleTag = useSimpleTagStore((s) => s.resetSimpleTag); // simple_tags 초기화
+    const clearImages = useImageStore((s) => s.clear); // (옵션) 이미지 초기화
+    useEffect(() => {
+        resetForm(); // 폼 필드 + transmission 초기화
+        clearFilter(); // tags { manufacturer: "", models: [] }
+        resetSimpleTag(); // simple_tags null
+        clearImages(); // (옵션) 이미지 초기화
+        setSelected(""); // 변속기 드롭다운 표시도 '전체'로
+    }, [resetForm, clearFilter, resetSimpleTag, clearImages]);
 
     const [selected, setSelected] = useState("");
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [isOpen, setIsOpen] = useState(false);
+
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const base64 = reader.result as string;
-                setField("thumbnail", base64);
-            };
-            reader.readAsDataURL(file);
-        }
+        if (!file) return;
+
+        // ✅ 서버로 보낼 실제 파일 보관
+        thumbFileRef.current = file;
+
+        // ✅ 미리보기는 가벼운 Object URL로 (base64 말고)
+        const preview = URL.createObjectURL(file);
+        setField("thumbnail", preview);
     };
 
     const handleClick = () => {
         fileInputRef.current?.click();
-    };
-
-    const convertFilesToBase64 = async (files: File[]) => {
-        const promises = files.map((file) => {
-            return new Promise<string>((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result as string);
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
-        });
-        return Promise.all(promises);
     };
 
     const thumbFileRef = useRef<File | null>(null);
@@ -85,7 +83,13 @@ export default function WritingUpload() {
 
         if (thumbFileRef.current) {
             formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
+        } else if (thumbnail && thumbnail.startsWith("blob:") === false) {
+            // 혹시 URL이거나 base64로 저장된 경우에도 보내고 싶으면 처리
+            const response = await fetch(thumbnail);
+            const blob = await response.blob();
+            formData.append("thumbnail", new File([blob], "thumbnail.jpg", { type: blob.type }));
         }
+
         formData.append("name", name);
         formData.append("fuel", fuel);
         formData.append("type", type);
