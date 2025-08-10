@@ -89,7 +89,6 @@ def register_sale():
             img_files = files.getlist("images") or files.getlist("images[]")
             valid_files = [f for f in img_files if getattr(f, "filename", None)]
             img_urls = [save_uploaded_file(f) for f in valid_files]
-
             sale = Sale(
                 name=form.get("name"),
                 fuel=form.get("fuel"),
@@ -106,7 +105,7 @@ def register_sale():
                 transmission=form.get("transmission"),
                 thumbnail=thumb_url,
                 content=form.get("content"),
-                images=json.dumps(img_urls, ensure_ascii=False),
+                images=img_urls,
                 simple_tags=parse_simple_tags(form.get("simple_tags")),
                 tags=tags,
             )
