@@ -78,15 +78,10 @@ export default function WritingUpload() {
         const formData = new FormData();
 
         formData.append("simple_tags", JSON.stringify(simpleTag || null));
-        const manufacturer = tags.manufacturer;
-        const model = tags.models[0]?.name || "";
-        const subModel = tags.models[0]?.subModels[0]?.name || "";
-        const grade = tags.models[0]?.subModels[0]?.grades[0] || "";
 
         // 서버에서 원하는 계층형 구조로 전송
         formData.append("tags", JSON.stringify(tags));
-
-        console.log("전송 tags 구조:", tags);
+        formData.append("transmission", transmission);
 
         if (thumbFileRef.current) {
             formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
@@ -119,7 +114,7 @@ export default function WritingUpload() {
         }
     };
 
-    //나중에 Filter부분으로 넘겨도될듯
+    //변속기 선택지
     const handleSelect = (item: string) => {
         setSelected(item);
         setIsOpen(false);

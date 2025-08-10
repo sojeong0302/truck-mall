@@ -21,10 +21,12 @@ interface SaleCrystalPageProp {
     setPrice: (value: string) => void;
     content: string;
     setContent: (value: string) => void;
-    images: File[]; // ✅ 이미지 상태
-    setImages: (files: File[]) => void; // ✅ 한 번에 세팅
-    addImage: (file: File) => void; // ✅ 개별 추가
-    removeImage: (index: number) => void; // ✅ 삭제
+    images: File[];
+    setImages: (files: File[]) => void;
+    addImage: (file: File) => void;
+    removeImage: (index: number) => void;
+    transmission: string; // ✅ 변속기 추가
+    setTransmission: (value: string) => void; // ✅ 변속기 setter 추가
     reset: () => void;
 }
 
@@ -49,13 +51,15 @@ export const SaleCrystalPagePropStore = create<SaleCrystalPageProp>((set) => ({
     setPrice: (value) => set({ price: value }),
     content: "",
     setContent: (value) => set({ content: value }),
-    images: [], // ✅ 초기값
+    images: [],
     setImages: (files) => set({ images: files }),
     addImage: (file) => set((state) => ({ images: [...state.images, file] })),
     removeImage: (index) =>
         set((state) => ({
             images: state.images.filter((_, i) => i !== index),
         })),
+    transmission: "",
+    setTransmission: (value) => set({ transmission: value }),
 
     reset: () =>
         set({
@@ -69,6 +73,6 @@ export const SaleCrystalPagePropStore = create<SaleCrystalPageProp>((set) => ({
             color: "",
             price: "",
             content: "",
-            images: [], // ✅ 이미지도 초기화
+            images: [],
         }),
 }));

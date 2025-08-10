@@ -220,10 +220,6 @@ def get_sale_by_id(sale_id):
 @sale_bp.route("/<int:sale_id>", methods=["PUT"])
 def update_sale(sale_id):
     sale = Sale.query.get_or_404(sale_id)
-    current_app.logger.info(f"📌 request.content_type: {request.content_type}")
-    current_app.logger.info(f"📌 request.form: {request.form}")
-    current_app.logger.info(f"📌 request.files: {request.files}")
-    current_app.logger.info(f"📌 JSON body: {request.get_json(silent=True)}")
 
     ct = (request.content_type or "").lower()
 
@@ -252,6 +248,7 @@ def update_sale(sale_id):
         sale.trim = form.get("trim") or ""
         sale.color = form.get("color") or ""
         sale.content = form.get("content") or ""
+        sale.transmission = form.get("transmission") or ""
 
         # 썸네일
         if files.get("thumbnail"):

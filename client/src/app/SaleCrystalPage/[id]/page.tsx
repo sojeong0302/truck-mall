@@ -45,12 +45,15 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         content,
         setContent,
         setImages,
+        transmission,
+        setTransmission,
     } = store;
 
     const { files, originURLs } = useImageStore();
     const { simpleTag, setSimpleTag } = useSimpleTagStore();
     const { tags, setManufacturer, setModel, setSubModel, setGrade } = useFilterTagStore();
-
+    const [selected, setSelected] = useState("");
+    const [isOpen, setIsOpen] = useState(false);
     const thumbFileRef = useRef<File | null>(null);
 
     //기존 값 가져오기
@@ -80,6 +83,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                 setColor(data.color ?? "");
                 setPrice(data.price?.toString() ?? "");
                 setContent(data.content ?? "");
+                setTransmission(data.transmission ?? "");
                 if (data.simple_tags) {
                     let type, grade;
 
@@ -147,15 +151,10 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         const formData = new FormData();
 
         formData.append("simple_tags", JSON.stringify(simpleTag || null));
-        const manufacturer = tags.manufacturer;
-        const model = tags.models[0]?.name || "";
-        const subModel = tags.models[0]?.subModels[0]?.name || "";
-        const grade = tags.models[0]?.subModels[0]?.grades[0] || "";
 
         // 서버에서 원하는 계층형 구조로 전송
         formData.append("tags", JSON.stringify(tags));
-
-        console.log("전송 tags 구조:", tags);
+        formData.append("transmission", transmission);
 
         if (thumbFileRef.current) {
             formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
@@ -173,7 +172,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
 
         // 새로 추가된 이미지
         files.forEach((file) => {
-            formData.append("images", file, file.name); // ← filename 명시
+            formData.append("images", file, file.name);
         });
         formData.append("content", content);
 
@@ -190,10 +189,44 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         }
     };
 
+    //변속기 선택지
+    const handleSelect = (item: string) => {
+        setIsOpen(false);
+        setTransmission(item !== "전체" ? item : "");
+    };
+
     return (
         <>
             <SimpleFilter />
             <Filter skipReset={true} />
+            <div className="flex flex-col sm:flex-row w-full gap-0 sm:gap-10">
+                <div className="flex items-center gap-3">
+                    <div className="text-sm sm:text-lg text-[#2E7D32]">▶</div>
+                    <div className="text-lg sm:text-2xl font-medium">변속기</div>
+                </div>
+                <div className="relative w-48">
+                    <button
+                        className="transition transform duration-200 active:scale-95 cursor-pointer w-full text-left border border-[#2E7D32] rounded-md px-3 py-2 text-xl"
+                        onClick={() => setIsOpen((prev) => !prev)}
+                    >
+                        {transmission || "전체"}
+                    </button>
+
+                    {isOpen && (
+                        <ul className="absolute z-10 bg-white border border-[#2E7D32] rounded-md w-full mt-1">
+                            {["전체", "오토", "수동", "세미오토", "무단변속기"].map((item) => (
+                                <li
+                                    key={item}
+                                    className="px-3 py-2 hover:bg-[#2E7D32]/10 cursor-pointer"
+                                    onClick={() => handleSelect(item)}
+                                >
+                                    {item}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+            </div>
             <div className="w-full flex justify-center flex-col items-center p-5 sm:p-15">
                 <div className="w-[95%] sm:w-[80%] flex flex-col sm:gap-15 gap-5">
                     <div className="w-full flex-col flex justify-center gap-5 sm:gap-15">
