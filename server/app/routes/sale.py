@@ -285,19 +285,23 @@ def update_sale(sale_id):
     else:
         # JSON 요청일 경우
         data = request.get_json(silent=True) or {}
+
+        # ✅ status만 넘어올 수도 있으니 먼저 처리
         if "status" in data:
             sale.status = bool(data.get("status"))
-        tag = parse_tag(data.get("tag"))
 
-        sale.manufacturer = tag.get("manufacturer", "")
-        sale.model = tag.get("model", "")
-        sale.sub_model = tag.get("subModel", "")
-        sale.grade = tag.get("grade", "")
+        # ✅ tag가 없을 수도 있으니 안전하게 처리
+        tag = parse_tag(data.get("tag")) if data.get("tag") else {}
+        if isinstance(tag, dict):
+            sale.manufacturer = tag.get("manufacturer", "")
+            sale.model = tag.get("model", "")
+            sale.sub_model = tag.get("subModel", "")
+            sale.grade = tag.get("grade", "")
 
+        # 이하 나머지 필드 처리
         sale.year = to_int_or_none(data.get("year"))
         sale.price = to_int_or_none(data.get("price"))
         sale.mileage = to_int_or_none(data.get("mileage"))
-
         sale.name = data.get("name") or ""
         sale.fuel = data.get("fuel") or ""
         sale.type = data.get("type") or ""
@@ -314,8 +318,7 @@ def update_sale(sale_id):
             else:
                 sale.images = data.get("images") or "[]"
 
-        sale.simple_tags = parse_simple_tags(form.get("simple_tags"))
-
+        sale.simple_tags = parse_simple_tags(data.get("simple_tags"))
     db.session.commit()
     return jsonify({"message": "success", "sale": sale.to_dict()})
 
