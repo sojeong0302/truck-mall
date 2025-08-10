@@ -98,8 +98,11 @@ export default function WritingUpload() {
 
         // 새로 추가된 이미지
         files.forEach((file) => {
-            formData.append("images", file, file.name);
+            if (file instanceof File && file.name) {
+                formData.append("images", file, file.name);
+            }
         });
+
         formData.append("content", content);
 
         try {

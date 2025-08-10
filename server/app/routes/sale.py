@@ -87,9 +87,8 @@ def register_sale():
                 thumb_url = save_uploaded_file(files.get("thumbnail"))
 
             img_files = files.getlist("images") or files.getlist("images[]")
-            img_urls = [
-                save_uploaded_file(f) for f in img_files if getattr(f, "filename", None)
-            ]
+            valid_files = [f for f in img_files if getattr(f, "filename", None)]
+            img_urls = [save_uploaded_file(f) for f in valid_files]
 
             sale = Sale(
                 name=form.get("name"),
