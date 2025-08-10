@@ -11,6 +11,7 @@ interface ImageStoreState {
     clear: () => void;
     setPreviews: (urls: string[]) => void;
     setFiles: (files: File[]) => void;
+    removeOriginURL: (url: string) => void;
 }
 
 export const useImageStore = create<ImageStoreState>((set) => ({
@@ -51,4 +52,8 @@ export const useImageStore = create<ImageStoreState>((set) => ({
     clear: () => set({ files: [], previews: [], originURLs: [] }),
 
     setPreviews: (urls) => set({ previews: urls }),
+    removeOriginURL: (url) =>
+        set((state) => ({
+            originURLs: state.originURLs.filter((origin) => origin !== url),
+        })),
 }));

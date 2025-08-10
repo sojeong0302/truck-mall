@@ -86,6 +86,12 @@ export default function WritingUpload({ post, url }: WritingUploadProps) {
         setIsModalOpen(true);
     };
 
+    useEffect(() => {
+        return () => {
+            useImageStore.getState().clear(); // ✅ 떠날 때 깨끗하게
+        };
+    }, []);
+
     return (
         <div className="w-[90%] sm:w-[80%] h-[100%] mx-auto flex flex-col justify-center p-0 sm:p-20 gap-7">
             <input

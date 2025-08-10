@@ -5,7 +5,7 @@ import TextArea from "../TextArea";
 import { useWritingCrystalPropsStore } from "./WritingCrystal.types";
 import Modal from "../Modal";
 import { useModalStore } from "@/store/ModalStateStroe";
-import { useEffect } from "react";
+import { useEffect, useCallback, useMemo } from "react";
 import { useImageStore } from "@/store/imageStore";
 import { useRouter } from "next/navigation";
 
@@ -27,45 +27,45 @@ export default function WritingCrystal({ post, url }: { post: Post; url?: string
         content,
         setContent,
         prevImages,
-        setPrevImages,
-        removePrevImage,
+        setPrevImages, // ✅ 남길 기존 이미지 URL 목록
         newImages,
-        setNewImages,
+        setNewImages, // ✅ 새로 추가한 파일 목록
         clearAll,
     } = useWritingCrystalPropsStore();
     const router = useRouter();
 
     useEffect(() => {
-        if (post) {
-            useWritingCrystalPropsStore.getState().clearAll();
-
-            setTimeout(() => {
-                setTitle(post.title);
-                setContent(post.content);
-                setPrevImages(post.images || []);
-            }, 0);
-        }
-    }, [post, setTitle, setContent, setPrevImages]);
+        if (!post) return;
+        clearAll();
+        // 폼 기본값 세팅
+        setTitle(post.title);
+        setContent(post.content);
+        setPrevImages(post.images || []); // ✅ 초기엔 서버 이미지 전부 유지
+    }, [post, clearAll, setTitle, setContent, setPrevImages]);
+    const getImageUrl = (url: string) => {
+        if (!url) return "";
+        if (url.startsWith("http")) return url;
+        return `${BASE_URL}${url}`;
+    };
+    const initialImageUrls = useMemo(() => (post.images || []).map((img) => getImageUrl(img)), [post.images, BASE_URL]);
 
     const handleSubmit = async () => {
-        const currentPrevImageURLs = previews.filter((p) => originURLs.includes(p));
         const formData = new FormData();
         formData.append("title", title);
         formData.append("content", content);
-        currentPrevImageURLs.forEach((url) => formData.append("prevImages", url));
-        files.forEach((file) => formData.append("images", file));
+
+        // ✅ 남길 기존 이미지들
+        prevImages.forEach((url) => formData.append("prevImages", url));
+        // ✅ 새로 추가한 파일들
+        newImages.forEach((file) => formData.append("images", file));
 
         const baseURL = url === "ReviewPage" ? `${BASE_URL}/review/${post.id}` : `${BASE_URL}/carTIP/${post.id}`;
 
         try {
-            const res = await fetch(baseURL, {
-                method: "PATCH",
-                body: formData,
-            });
-
+            const res = await fetch(baseURL, { method: "PATCH", body: formData });
             if (res.ok) {
                 alert("수정 되었습니다.");
-                useWritingCrystalPropsStore.getState().clearAll();
+                clearAll();
                 router.back();
             } else {
                 const err = await res.json();
@@ -81,14 +81,22 @@ export default function WritingCrystal({ post, url }: { post: Post; url?: string
         setIsModalOpen(true);
     };
 
-    const getImageUrl = (url: string) => {
-        if (!url) return "";
-        if (url.startsWith("http")) return url;
-        return `${BASE_URL}${url}`;
-    };
+    useEffect(() => {
+        // ✅ 페이지 진입 시 항상 store 비우기
+        useImageStore.getState().clear();
+    }, [post]); // post가 바뀔 때만 초기화
+
     if (!post) {
         return <div className="p-10 text-red-600">해당 글을 찾을 수 없습니다.</div>;
     }
+    const handleImagesChange = useCallback(
+        (files: File[], keepImages: string[]) => {
+            setNewImages(files);
+            setPrevImages(keepImages);
+        },
+        [setNewImages, setPrevImages]
+    );
+
     return (
         <div className="sm:w-[80%] w-[90%] h-[100%] mx-auto flex flex-col justify-center sm:p-20 p-0 gap-7">
             <input
@@ -97,7 +105,7 @@ export default function WritingCrystal({ post, url }: { post: Post; url?: string
                 onChange={(e) => setTitle(e.target.value)}
                 className="font-medium w-full text-xl sm:text-3xl border-b-2 border-[#575757] p-4 focus:outline-none"
             />
-            <EtcPoto initialImages={(post.images || []).map((img) => getImageUrl(img))} />
+            <EtcPoto initialImages={initialImageUrls} onChange={handleImagesChange} />
             <TextArea value={content} onChange={(e) => setContent(e.target.value)} />
             <div className="flex gap-3 justify-end sm:mb-0 mb-5">
                 <ShortButton onClick={handleSubmit} className="bg-[#2E7D32] text-white">

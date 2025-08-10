@@ -1,53 +1,42 @@
 "use client";
-
-import { useEffect, useRef } from "react";
-import { useImageStore } from "@/store/imageStore";
+import { useState, useRef, useEffect } from "react";
 import { EtcPotoProps } from "./EtcPoto.types";
 
-export default function EtcPoto({ initialImages = [], setImages }: EtcPotoProps) {
+export default function EtcPoto({ initialImages = [], onChange }: EtcPotoProps) {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const { previews, addPreview, removePreview, addFile, setPreviews, setOriginURLs, originURLs, files } =
-        useImageStore();
+    const [existingImages, setExistingImages] = useState<string[]>([]);
+    const [newFiles, setNewFiles] = useState<File[]>([]);
 
     useEffect(() => {
-        if (initialImages && initialImages.length > 0 && files.length === 0) {
-            setPreviews(initialImages);
-            setOriginURLs(initialImages);
+        // 배열(문자열 배열)이 완전 동일하면 반영 생략
+        const same =
+            existingImages.length === initialImages.length && existingImages.every((v, i) => v === initialImages[i]);
+        if (!same) setExistingImages(initialImages);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [initialImages]); // existingImages는 의존성 제외 (의도적)
 
-            Promise.all(
-                initialImages.map(async (url) => {
-                    const res = await fetch(url);
-                    const blob = await res.blob();
-                    const fileName = url.split("/").pop() || "image.jpg";
-                    const file = new File([blob], fileName, { type: blob.type });
-                    addFile(file);
-                })
-            );
-        }
-    }, [initialImages]);
-
+    // ✅ 부모 통지는 렌더 후에 한 번만 (경고 해결 포인트)
     useEffect(() => {
-        if (setImages) {
-            setImages(files);
-        }
-    }, [files, setImages]);
+        onChange?.(newFiles, existingImages);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [newFiles, existingImages]); // onChange 제외
 
-    const handleClick = () => {
-        fileInputRef.current?.click();
+    // 파일 선택창 열기
+    const handleClick = () => fileInputRef.current?.click();
+
+    const handleDeleteExisting = (idx: number) => {
+        setExistingImages((prev) => prev.filter((_, i) => i !== idx));
     };
 
+    const handleDeleteNew = (idx: number) => {
+        setNewFiles((prev) => prev.filter((_, i) => i !== idx));
+    };
+
+    // 파일 추가
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = e.target.files;
-        if (!files || files.length === 0) return;
-
-        Array.from(files).forEach((file) => {
-            addPreview(URL.createObjectURL(file));
-            addFile(file);
-        });
-    };
-
-    const handleDelete = (idx: number) => {
-        removePreview(idx);
+        if (!e.target.files) return;
+        const picked = Array.from(e.target.files);
+        setNewFiles((prev) => [...prev, ...picked]);
     };
 
     return (
@@ -61,7 +50,7 @@ export default function EtcPoto({ initialImages = [], setImages }: EtcPotoProps)
                 accept="image/*"
             />
 
-            {previews.length === 0 ? (
+            {existingImages.length + newFiles.length === 0 ? (
                 <div className="flex justify-center">
                     <div
                         onClick={handleClick}
@@ -76,21 +65,32 @@ export default function EtcPoto({ initialImages = [], setImages }: EtcPotoProps)
                 </div>
             ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-5 gap-y-5 sm:gap-x-5 sm:gap-y-10 w-fit mx-auto">
-                    {previews.map((src, idx) => (
+                    {existingImages.map((src, idx) => (
                         <div
-                            key={idx}
-                            className="sm:w-[200px] sm:h-[200px] w-[130px] h-[130px]  cursor-pointer"
-                            onClick={() => handleDelete(idx)}
-                            title="클릭하면 삭제됩니다"
+                            key={`exist-${idx}`}
+                            className="sm:w-[200px] sm:h-[200px] w-[130px] h-[130px] cursor-pointer"
+                            onClick={() => handleDeleteExisting(idx)}
                         >
                             <img
                                 src={src}
-                                alt={`미리보기 ${idx + 1}`}
+                                alt={`기존 이미지 ${idx + 1}`}
                                 className="w-full h-full object-cover rounded-md shadow"
                             />
                         </div>
                     ))}
-
+                    {newFiles.map((file, idx) => (
+                        <div
+                            key={`new-${idx}`}
+                            className="sm:w-[200px] sm:h-[200px] w-[130px] h-[130px] cursor-pointer"
+                            onClick={() => handleDeleteNew(idx)}
+                        >
+                            <img
+                                src={URL.createObjectURL(file)}
+                                alt={`새 이미지 ${idx + 1}`}
+                                className="w-full h-full object-cover rounded-md shadow"
+                            />
+                        </div>
+                    ))}
                     <div
                         onClick={handleClick}
                         className="sm:w-[200px] sm:h-[200px] w-[130px] h-[130px] bg-[rgba(179,179,179,0.25)] flex justify-center items-center rounded-md shadow cursor-pointer"
