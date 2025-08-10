@@ -33,6 +33,11 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
             setIsModalOpen(true);
         } catch {}
     };
+    const getImageUrl = (url: string) => {
+        if (!url) return "";
+        if (url.startsWith("http")) return url;
+        return `${BASE_URL}${url}`;
+    };
 
     if (loading) return <div className="p-10">불러오는 중…</div>;
     if (error) return <div className="p-10 text-red-500">오류: {error}</div>;
@@ -55,7 +60,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                 <div className="w-full flex flex-col sm:flex-row justify-center gap-5 sm:gap-15">
                     {post.thumbnail ? (
                         <img
-                            src={post.thumbnail}
+                            src={getImageUrl(post.thumbnail)}
                             className="border-1 shadow-lg rounded-xl w-[500px] sm:h-[500px] h-[300px]"
                             alt="썸네일"
                         />
@@ -96,7 +101,10 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                         </div>
                     </div>
                 </div>
-                {post.images && post.images.length > 0 && <SwiperWithLightbox images={post.images} />}
+                {post.images && post.images.length > 0 && (
+                    <SwiperWithLightbox images={post.images.map((img) => getImageUrl(img))} />
+                )}
+
                 <div className="text-xl sm:text-2xl w-full bg-white border-4 border-[#2E7D32] p-4 rounded-md">
                     {post.content}
                 </div>

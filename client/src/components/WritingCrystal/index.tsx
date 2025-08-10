@@ -17,6 +17,7 @@ interface Post {
 }
 
 export default function WritingCrystal({ post, url }: { post: Post; url?: string }) {
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
     const store = useModalStore();
     const { isModalOpen, setIsModalOpen } = store;
     const { previews, files, originURLs } = useImageStore();
@@ -54,10 +55,7 @@ export default function WritingCrystal({ post, url }: { post: Post; url?: string
         currentPrevImageURLs.forEach((url) => formData.append("prevImages", url));
         files.forEach((file) => formData.append("images", file));
 
-        const baseURL =
-            url === "ReviewPage"
-                ? `http://localhost:5000/review/${post.id}`
-                : `http://localhost:5000/carTIP/${post.id}`;
+        const baseURL = url === "ReviewPage" ? `${BASE_URL}/review/${post.id}` : `${BASE_URL}/carTIP/${post.id}`;
 
         try {
             const res = await fetch(baseURL, {

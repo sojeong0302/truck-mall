@@ -29,6 +29,7 @@ export default function WritingDetail({
     crystalPath: string;
     url: string;
 }) {
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
     const store = useModalStore();
     const router = useRouter();
     const { isModalOpen, setIsModalOpen } = store;
@@ -42,7 +43,7 @@ export default function WritingDetail({
     // 글 삭제
     const handleDelete = async () => {
         try {
-            const res = await fetch(`http://localhost:5000/${deletePath}/${id}`, {
+            const res = await fetch(`${BASE_URL}/${deletePath}/${id}`, {
                 method: "DELETE",
             });
             setIsModalOpen(true);
