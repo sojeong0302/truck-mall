@@ -16,8 +16,8 @@ import { useRouter } from "next/navigation";
 export default function WritingUpload() {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
     const { simpleTag } = useSimpleTagStore();
-    const { manufacturer, model, subModel, grade } = useFilterTagStore();
-    const { files, clear } = useImageStore();
+    const { tags, setManufacturer, setModel, setSubModel, setGrade } = useFilterTagStore();
+    const { files, originURLs } = useImageStore();
     const router = useRouter();
     const {
         transmission,
@@ -35,8 +35,11 @@ export default function WritingUpload() {
         setField,
         clearForm,
     } = useCarFormStore();
+    const manufacturer = tags.manufacturer || "";
+    const model = tags.models?.[0]?.name || "";
+    const subModel = tags.models?.[0]?.subModels?.[0]?.name || "";
+    const grade = tags.models?.[0]?.subModels?.[0]?.grades?.[0] || "";
 
-    const selectedTags = [manufacturer, model, subModel, grade].filter(Boolean);
     const [selected, setSelected] = useState("");
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [isOpen, setIsOpen] = useState(false);
@@ -56,62 +59,66 @@ export default function WritingUpload() {
         fileInputRef.current?.click();
     };
 
-    const handleSubmit = async () => {
-        // ✅ File 객체 → base64 배열로 변환
-        const convertFilesToBase64 = async (files: File[]) => {
-            const promises = files.map((file) => {
-                return new Promise<string>((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => resolve(reader.result as string);
-                    reader.onerror = reject;
-                    reader.readAsDataURL(file);
-                });
+    const convertFilesToBase64 = async (files: File[]) => {
+        const promises = files.map((file) => {
+            return new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result as string);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
             });
-            return Promise.all(promises);
-        };
+        });
+        return Promise.all(promises);
+    };
+
+    const thumbFileRef = useRef<File | null>(null);
+
+    const handleSubmit = async () => {
+        //formData=서버로 보낼 데이터 묶음
+        const formData = new FormData();
+
+        formData.append("simple_tags", JSON.stringify(simpleTag || null));
+        const manufacturer = tags.manufacturer;
+        const model = tags.models[0]?.name || "";
+        const subModel = tags.models[0]?.subModels[0]?.name || "";
+        const grade = tags.models[0]?.subModels[0]?.grades[0] || "";
+
+        // 서버에서 원하는 계층형 구조로 전송
+        formData.append("tags", JSON.stringify(tags));
+
+        console.log("전송 tags 구조:", tags);
+
+        if (thumbFileRef.current) {
+            formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
+        }
+        formData.append("name", name);
+        formData.append("fuel", fuel);
+        formData.append("type", type);
+        formData.append("trim", trim);
+        formData.append("year", year);
+        formData.append("mileage", mileage);
+        formData.append("color", color);
+        formData.append("price", price);
+
+        // 새로 추가된 이미지
+        files.forEach((file) => {
+            formData.append("images", file, file.name);
+        });
+        formData.append("content", content);
 
         try {
-            const base64Images = await convertFilesToBase64(files);
-
-            const formData = {
-                simple_tags: simpleTag ? [simpleTag] : [],
-                // ✅ 이렇게 바꿔줘야 Flask가 인식함!
-                tag: { manufacturer, model, subModel, grade },
-                name,
-                fuel,
-                type,
-                trim,
-                year,
-                mileage,
-                color,
-                price,
-                thumbnail,
-                images: base64Images, // ✅ base64 이미지 저장
-                content,
-                transmission,
-            };
-
-            const res = await axios.post(`${BASE_URL}/sale/uploadSale`, formData, {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                withCredentials: true,
+            const res = await fetch(`${BASE_URL}/sale/uploadSale`, {
+                method: "POST",
+                body: formData,
             });
 
-            console.log("✅ 등록 성공:", res.data);
-            alert("등록 되었습니다.");
-
-            clearForm();
-            clear();
-            if (fileInputRef.current) {
-                fileInputRef.current.value = "";
-            }
-            router.push("/CarSearchPage");
-        } catch (err) {
-            console.error("❌ 등록 실패:", err);
-            alert("등록 중 오류가 발생했습니다.");
+            const data = await res.json();
+            console.log("응답:", data);
+        } catch (error) {
+            console.error("요청 실패:", error);
         }
     };
+
     const handleSelect = (item: string) => {
         setSelected(item);
         setIsOpen(false);
@@ -121,6 +128,13 @@ export default function WritingUpload() {
             setField("transmission", ""); // 전체 선택 시 빈 값
         }
     };
+
+    const selectedTags = [
+        tags.manufacturer,
+        tags.models?.[0]?.name,
+        tags.models?.[0]?.subModels?.[0]?.name,
+        tags.models?.[0]?.subModels?.[0]?.grades?.[0],
+    ].filter(Boolean);
 
     return (
         <>

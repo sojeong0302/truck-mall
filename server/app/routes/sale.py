@@ -63,9 +63,7 @@ def to_int_or_none(v):
         return None
 
 
-# =========================
-# Create
-# =========================
+# 등록 api
 @sale_bp.route("/uploadSale", methods=["POST"])
 def register_sale():
     try:
@@ -74,16 +72,19 @@ def register_sale():
         if ct.startswith("multipart/form-data"):
             form, files = request.form, request.files
 
-            tag_str = form.get("tag")
-            if tag_str:
+            tags_raw = form.get("tags")
+            if tags_raw:
                 try:
-                    tag = json.loads(tag_str) if isinstance(tag_str, str) else tag_str
-                    sale.manufacturer = tag.get("manufacturer", sale.manufacturer)
-                    sale.model = tag.get("model", sale.model)
-                    sale.sub_model = tag.get("subModel", sale.sub_model)
-                    sale.grade = tag.get("grade", sale.grade)
+                    tags = (
+                        json.loads(tags_raw) if isinstance(tags_raw, str) else tags_raw
+                    )
+                    sale.tags = tags
+                    sale.manufacturer = tags.get("manufacturer", "")
+                    sale.model = tags.get("model", "")
+                    sale.sub_model = tags.get("subModel", "")
+                    sale.grade = tags.get("grade", "")
                 except Exception as e:
-                    current_app.logger.warning(f"tag 파싱 실패: {e}")
+                    current_app.logger.warning(f"tags 파싱 실패: {e}")
 
             thumb_url = ""
             if files.get("thumbnail"):
@@ -102,10 +103,10 @@ def register_sale():
                 mileage=to_int_or_none(form.get("mileage")) or 0,
                 color=form.get("color"),
                 price=to_int_or_none(form.get("price")),
-                manufacturer=tag.get("manufacturer", ""),
-                model=tag.get("model", ""),
-                sub_model=tag.get("subModel", ""),
-                grade=tag.get("grade", ""),
+                manufacturer=tags.get("manufacturer", ""),
+                model=tags.get("model", ""),
+                sub_model=tags.get("subModel", ""),
+                grade=tags.get("grade", ""),
                 transmission=form.get("transmission"),
                 thumbnail=thumb_url,
                 content=form.get("content"),
@@ -115,7 +116,7 @@ def register_sale():
 
         else:
             data = request.get_json(silent=True) or {}
-            tag = parse_tag(data.get("tag"))
+            tags = parse_tag(data.get("tags"))
 
             sale = Sale(
                 name=data.get("name"),
@@ -126,10 +127,10 @@ def register_sale():
                 mileage=to_int_or_none(data.get("mileage")) or 0,
                 color=data.get("color"),
                 price=to_int_or_none(data.get("price")),
-                manufacturer=tag.get("manufacturer", ""),
-                model=tag.get("model", ""),
-                sub_model=tag.get("subModel", ""),
-                grade=tag.get("grade", ""),
+                manufacturer=tags.get("manufacturer", ""),
+                model=tags.get("model", ""),
+                sub_model=tags.get("subModel", ""),
+                grade=tags.get("grade", ""),
                 transmission=data.get("transmission"),
                 thumbnail=(data.get("thumbnail") or ""),
                 content=data.get("content"),
@@ -139,8 +140,8 @@ def register_sale():
                     else (data.get("images") or "[]")
                 ),
                 simple_tags=parse_simple_tags(data.get("simple_tags")),
+                tags=tags,  # 전체 계층 구조 저장
             )
-
         db.session.add(sale)
         db.session.commit()
         return jsonify({"message": "등록 성공", "car": sale.to_dict()}), 201
