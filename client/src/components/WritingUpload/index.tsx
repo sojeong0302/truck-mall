@@ -34,6 +34,13 @@ export default function WritingUpload({ post, url }: WritingUploadProps) {
         formData.append("content", content);
         currentPrevImageURLs.forEach((u) => formData.append("prevImages", u));
         files.forEach((f) => formData.append("images", f)); // 새로 추가된 파일만 업로드
+        for (const [key, value] of formData.entries()) {
+            if (value instanceof File) {
+                console.log(`FormData ${key}:`, value.name, value.type, value.size + " bytes");
+            } else {
+                console.log(`FormData ${key}:`, value);
+            }
+        }
 
         const endpoint = url === "ReviewPage" ? `${BASE_URL}/review/uploadReview` : `${BASE_URL}/carTIP/uploadCarTIP`;
 
