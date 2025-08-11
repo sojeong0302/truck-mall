@@ -55,7 +55,7 @@ export default function WritingUpload({ post, url }: WritingUploadProps) {
             setContent("");
             clear(); // 이미지 스토어 정리
 
-            router.back();
+            router.push(`/${url}`);
         } catch (err) {
             console.error("요청 실패", err);
             alert("서버 오류");

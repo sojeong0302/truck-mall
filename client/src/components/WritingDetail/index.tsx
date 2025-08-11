@@ -5,7 +5,7 @@ import "yet-another-react-lightbox/styles.css";
 import ShortButton from "@/components/ShortButton";
 import { useRouter } from "next/navigation";
 import SwiperWithLightbox from "@/components/SwiperWithLightbox";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useAuthToggle } from "../Header/Header.hooks";
 import Modal from "../Modal";
 import { useModalStore } from "@/store/ModalStateStroe";
 import { getClientToken } from "@/utils/auth";
@@ -35,8 +35,7 @@ export default function WritingDetail({
     const store = useModalStore();
     const router = useRouter();
     const { isModalOpen, setIsModalOpen } = store;
-    const { isLoggedIn } = useAuthStore();
-
+    const { isLoggedIn, toggleAuth, isHydrated } = useAuthToggle();
     // 수정 페이지 이동
     const handleGoCrystal = () => {
         router.push(`/${crystalPath}/${id}`);

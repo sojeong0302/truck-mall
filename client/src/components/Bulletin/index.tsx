@@ -2,11 +2,11 @@
 
 import { BulletinComponentProps } from "./Bulletin.types";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useAuthToggle } from "../Header/Header.hooks";
 
 export default function Bulletin({ posts, basePath, uploadPath }: BulletinComponentProps) {
     const router = useRouter();
-    const { isLoggedIn } = useAuthStore();
+    const { isLoggedIn, toggleAuth, isHydrated } = useAuthToggle();
 
     const handleClick = (id: number) => {
         router.push(`/${basePath}/${id}`);
