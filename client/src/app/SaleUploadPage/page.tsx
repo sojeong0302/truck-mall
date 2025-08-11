@@ -19,7 +19,7 @@ export default function WritingUpload() {
     const { simpleTag } = useSimpleTagStore();
     const { tags, setManufacturer, setModel, setSubModel, setGrade } = useFilterTagStore();
     const { files, originURLs } = useImageStore();
-    const token = localStorage.getItem("token");
+    // const token = localStorage.getItem("token");
 
     const router = useRouter();
     const {
