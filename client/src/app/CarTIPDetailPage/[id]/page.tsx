@@ -26,6 +26,8 @@ export default function CarTIPDetailPage({ params }: { params: Promise<{ id: str
                 });
             } catch (error) {
                 console.error(error);
+            } finally {
+                setLoading(false);
             }
         };
         fetchPost();
