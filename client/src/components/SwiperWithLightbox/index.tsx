@@ -5,6 +5,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import Lightbox from "yet-another-react-lightbox";
 import { useLightboxStore } from "@/store/lightboxStore";
+import { getImageUrl } from "@/utils/getImageUrl";
 
 export default function SwiperWithLightbox({ images }: { images: string[] }) {
     const { open, selectedIndex, setOpen, setSelectedIndex } = useLightboxStore();
@@ -36,7 +37,7 @@ export default function SwiperWithLightbox({ images }: { images: string[] }) {
                                 setSelectedIndex(index);
                                 setOpen(true);
                             }}
-                            src={src}
+                            src={getImageUrl(src)}
                             alt={`truck-${index}`}
                             className="w-full h-[200px] object-cover shadow cursor-pointer border border-black"
                         />
@@ -55,7 +56,7 @@ export default function SwiperWithLightbox({ images }: { images: string[] }) {
                 open={open}
                 close={() => setOpen(false)}
                 index={selectedIndex}
-                slides={images.map((src) => ({ src }))}
+                slides={images.map((src) => ({ src: getImageUrl(src) }))}
             />
         </div>
     );

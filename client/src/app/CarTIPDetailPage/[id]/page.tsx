@@ -25,12 +25,9 @@ export default function CarTIPDetailPage({ params }: { params: Promise<{ id: str
                     method: "POST",
                 });
             } catch (error) {
-                console.error("리뷰 조회 실패", error);
-            } finally {
-                setLoading(false);
+                console.error(error);
             }
         };
-
         fetchPost();
     }, [id]);
 
