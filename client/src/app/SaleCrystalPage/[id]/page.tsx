@@ -188,7 +188,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
             });
 
             const data = await res.json();
-            console.log("응답:", data);
+            router.push("/CarSearchPage");
         } catch (error) {
             console.error("요청 실패:", error);
         }
@@ -215,6 +215,10 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         setNewImages(files); // 새로 추가한 이미지
         setPrevImages(keepImages); // 남길 기존 이미지
     }, []);
+
+    const handleCancel = () => {
+        router.back();
+    };
 
     return (
         <>
@@ -318,7 +322,11 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                     </div>
                 </div>
                 {isModalOpen && (
-                    <Modal url="/CarSearchPage" text={"수정 중인 내용이 모두 삭제됩니다.\n그래도 취소하시겠습니까?"} />
+                    <Modal
+                        onConfirm={handleCancel}
+                        url="/CarSearchPage"
+                        text={"수정 중인 내용이 모두 삭제됩니다.\n그래도 취소하시겠습니까?"}
+                    />
                 )}
             </div>
         </>

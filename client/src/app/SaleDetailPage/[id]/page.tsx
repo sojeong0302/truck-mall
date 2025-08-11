@@ -144,7 +144,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                 </div>
             </div>
             {isSaleCompleteModalOpen && (
-                <Modal text={"판매완료 처리하시겠습니까?\n이 작업은 되돌릴 수 없습니다."} onConfirm={salesCompleted} />
+                <Modal onConfirm={salesCompleted} text={"판매완료 처리하시겠습니까?\n이 작업은 되돌릴 수 없습니다."} />
             )}
             {isModalOpen && (
                 <Modal onConfirm={handleDelete} text={"삭제된 내용은 복구할 수 없습니다.\n정말 삭제하시겠습니까?"} />
