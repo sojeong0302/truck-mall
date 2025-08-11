@@ -111,7 +111,9 @@ export default function WritingUpload() {
             const res = await fetch(`${BASE_URL}/sale/uploadSale`, {
                 method: "POST",
                 body: formData,
-                headers: { Authorization: `Bearer ${token}` },
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             });
             const data = await res.json();
 
