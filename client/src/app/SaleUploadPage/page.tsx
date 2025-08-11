@@ -13,6 +13,7 @@ import axios from "axios";
 import { useSimpleTagStore } from "@/store/simpleTagStore";
 import { useRouter } from "next/navigation";
 import { SaleCrystalPagePropStore } from "../SaleCrystalPage/[id]/SaleCrystalPage.types";
+import { getClientToken } from "@/utils/auth";
 
 export default function WritingUpload() {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -114,10 +115,9 @@ export default function WritingUpload() {
 
         formData.append("content", content);
 
-        const token = getToken();
+        const token = getClientToken();
         if (!token) {
             alert("로그인이 필요합니다.");
-            // router.push("/LoginPage"); // 필요시
             return;
         }
 
