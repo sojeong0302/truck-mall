@@ -46,14 +46,14 @@ export default function WritingDetail({
             const res = await fetch(`${BASE_URL}/${deletePath}/${id}`, {
                 method: "DELETE",
             });
-            setIsModalOpen(true);
+            router.push(`${BASE_URL}${url}`);
         } catch (error) {}
     };
 
     const getImageUrl = (url: string) => {
         if (!url) return "";
         if (url.startsWith("http")) return url;
-        return `${BASE_URL}${url}`;
+        return `${BASE_URL}/${url}`;
     };
 
     if (!post) {
@@ -71,7 +71,7 @@ export default function WritingDetail({
                                 수정
                             </div>
                             |
-                            <div className="cursor-pointer" onClick={handleDelete}>
+                            <div className="cursor-pointer" onClick={() => setIsModalOpen(true)}>
                                 삭제
                             </div>
                         </div>
@@ -96,7 +96,9 @@ export default function WritingDetail({
                     </div>
                 </>
             )}
-            {isModalOpen && <Modal url={url} text={"삭제된 내용은 복구할 수 없습니다.\n정말 삭제하시겠습니까?"} />}
+            {isModalOpen && (
+                <Modal onConfirm={handleDelete} text={"삭제된 내용은 복구할 수 없습니다.\n정말 삭제하시겠습니까?"} />
+            )}
         </div>
     );
 }
