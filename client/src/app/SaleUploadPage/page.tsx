@@ -116,6 +116,7 @@ export default function WritingUpload() {
                 },
             });
             const data = await res.json();
+            console.log(token);
 
             router.push(`/SaleDetailPage/${data.car.id}`);
         } catch (error) {}
