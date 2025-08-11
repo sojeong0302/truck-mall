@@ -34,7 +34,15 @@ export default function WritingUpload({ post, url }: WritingUploadProps) {
         formData.append("content", content);
         currentPrevImageURLs.forEach((u) => formData.append("prevImages", u));
         files.forEach((f) => formData.append("images", f)); // 새로 추가된 파일만 업로드
-
+        console.log("=== 업로드할 데이터 목록 ===");
+        formData.forEach((value, key) => {
+            if (key === "images" && value instanceof File) {
+                console.log(`${key}: ${value.name}, size: ${value.size} bytes`);
+            } else {
+                console.log(`${key}:`, value);
+            }
+        });
+        console.log("==========================");
         const endpoint = url === "ReviewPage" ? `${BASE_URL}/review/uploadReview` : `${BASE_URL}/carTIP/uploadCarTIP`;
 
         try {
@@ -42,20 +50,12 @@ export default function WritingUpload({ post, url }: WritingUploadProps) {
             await axios.post(endpoint, formData, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            for (const [key, value] of formData.entries()) {
-                if (value instanceof File) {
-                    console.log(`FormData ${key}:`, value.name, value.type, value.size + " bytes");
-                } else {
-                    console.log(`FormData ${key}:`, value);
-                }
-            }
-
             alert("등록되었습니다.");
             setTitle("");
             setContent("");
             clear(); // 이미지 스토어 정리
 
-            router.push(`/${url}`);
+            // router.push(`/${url}`);
         } catch (err) {
             console.error("요청 실패", err);
             alert("서버 오류");
