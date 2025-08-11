@@ -22,13 +22,9 @@ export default function LoginPage() {
             );
 
             const token = data.access_token;
-
             setToken(token);
-
             axios.defaults.headers.common.Authorization = `Bearer ${token}`;
-
             router.push("/");
-            console.log(data);
         } catch (err) {
             console.log(err);
         }
