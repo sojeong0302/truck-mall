@@ -12,26 +12,11 @@ import { useEffect } from "react";
 import { WritingUploadProps } from "./WritingUpload.types";
 import { getClientToken } from "@/utils/auth";
 
-const joinUrl = (base: string | undefined, path: string) =>
-    `${(base || "").replace(/\/+$/, "")}/${(path || "").replace(/^\/+/, "")}`;
-
-const toAbsolute = (base: string | undefined, url: string) => (/^https?:\/\//i.test(url) ? url : joinUrl(base, url));
-
-const toRelative = (u: string) => {
-    try {
-        if (/^https?:\/\//i.test(u)) return new URL(u).pathname.replace(/^\/?/, "/");
-        return `/${u.replace(/^\/+/, "")}`;
-    } catch {
-        return u;
-    }
-};
-
-/* 서버 저장 이미지를 파일로 바꿀 때, 상대경로면 절대경로로 보정 */
-async function urlToFile(url: string, base?: string): Promise<File> {
-    const abs = toAbsolute(base, url);
-    const res = await fetch(abs);
-    const blob = await res.blob();
-    const fileName = abs.split("/").pop() || "file.jpg";
+//이미지를 업로드 가능한 파일처럼 변환해줌
+async function urlToFile(url: string): Promise<File> {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const fileName = url.split("/").pop() || "file.jpg";
     return new File([blob], fileName, { type: blob.type });
 }
 
@@ -52,13 +37,10 @@ export default function WritingUpload({ post, url }: WritingUploadProps) {
         formData.append("title", title);
         formData.append("content", content);
         currentPrevImageURLs.forEach((url) => formData.append("prevImages", url));
-        const kept = previews.filter((p) => originURLs.includes(p)).map(toRelative);
-        kept.forEach((u) => formData.append("prevImages", u));
+        files.forEach((file) => formData.append("images", file));
 
-        // 새로 추가된 파일들
-        files.forEach((f) => formData.append("images", f));
+        const endpoint = url === "ReviewPage" ? `${BASE_URL}/review/uploadReview` : `${BASE_URL}/carTIP/uploadCarTIP`;
 
-        const endpoint = joinUrl(BASE_URL, url === "ReviewPage" ? "/review/uploadReview" : "/carTIP/uploadCarTIP");
         try {
             const token = getClientToken();
             const res = await axios.post(endpoint, formData, {
@@ -92,13 +74,7 @@ export default function WritingUpload({ post, url }: WritingUploadProps) {
 
                 setTitle(post.title || "");
                 setContent(post.content || "");
-                const list: File[] = [];
-                if (post.images?.length) {
-                    for (const u of post.images) {
-                        list.push(await urlToFile(u, BASE_URL));
-                    }
-                }
-                setImages(list);
+                setImages(fileList);
             }
         };
 
