@@ -20,6 +20,7 @@ export default function WritingUpload() {
     const { tags, setManufacturer, setModel, setSubModel, setGrade } = useFilterTagStore();
     const { files, originURLs } = useImageStore();
     const token = localStorage.getItem("accessToken");
+
     const router = useRouter();
     const {
         transmission,
@@ -116,10 +117,11 @@ export default function WritingUpload() {
                 },
             });
             const data = await res.json();
-            console.log(token);
 
             router.push(`/SaleDetailPage/${data.car.id}`);
-        } catch (error) {}
+        } catch (error) {
+            console.log("토큰 출력" + token);
+        }
     };
 
     //변속기 선택지
