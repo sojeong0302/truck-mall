@@ -61,9 +61,6 @@ export default function WritingUpload({ post, url }: WritingUploadProps) {
             alert("서버 오류");
         }
     };
-    useEffect(() => {
-        console.log("현재 files 상태:", files);
-    }, [files]);
 
     // 편집 진입 시: 기존 이미지 URL은 EtcPoto의 initialImages로만 처리 (File로 변환 X)
     useEffect(() => {
@@ -84,7 +81,7 @@ export default function WritingUpload({ post, url }: WritingUploadProps) {
 
     const handleCancel = () => {
         router.push(`/${url}`);
-        console.log(url);
+        console.log("hi" + url);
     };
 
     return (
