@@ -109,9 +109,10 @@ export default function WritingUpload() {
         formData.append("content", content);
 
         const token = getClientToken();
-        console.log("token?", token ? `${token.slice(0, 12)}...${token.slice(-6)}` : token);
+        console.log("[upload] token ok? ", token ? `${token.slice(0, 12)}...${token.slice(-6)}` : token);
         if (!token) {
             alert("로그인이 필요합니다.");
+            // router.push("/LoginPage");
             return;
         }
 
@@ -119,12 +120,19 @@ export default function WritingUpload() {
             const res = await fetch(`${BASE_URL}/sale/uploadSale`, {
                 method: "POST",
                 body: formData,
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+                headers: { Authorization: `Bearer ${token}` },
             });
-            const data = await res.json();
 
+            // 👇 여기 추가
+            if (!res.ok) {
+                const text = await res.text().catch(() => "");
+                console.error("[upload] FAIL", res.status, text);
+                alert(`업로드 실패 ${res.status}`);
+                return;
+            }
+
+            // 성공 처리
+            const data = await res.json();
             router.push(`/SaleDetailPage/${data.car.id}`);
         } catch (error) {}
     };
