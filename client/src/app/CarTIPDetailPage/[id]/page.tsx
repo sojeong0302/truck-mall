@@ -31,7 +31,6 @@ export default function CarTIPDetailPage({ params }: { params: Promise<{ id: str
         fetchPost();
     }, [id]);
 
-    if (loading) return <div className="p-10 text-gray-500">불러오는 중...</div>;
     if (!post) return <div className="p-10 text-red-500">해당 글을 찾을 수 없습니다.</div>;
 
     return <WritingDetail url="/CarTIPPage" id={id} deletePath="carTIP" crystalPath="CarTIPCrystalPage" post={post} />;
