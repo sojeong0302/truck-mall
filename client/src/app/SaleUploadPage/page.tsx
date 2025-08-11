@@ -20,13 +20,6 @@ export default function WritingUpload() {
     const { simpleTag } = useSimpleTagStore();
     const { tags, setManufacturer, setModel, setSubModel, setGrade } = useFilterTagStore();
     const { files, originURLs } = useImageStore();
-    const getToken = () => {
-        if (typeof window === "undefined") return null;
-        const raw = localStorage.getItem("access_Token") || localStorage.getItem("access_token") || null;
-        if (!raw || raw === "null" || raw === "undefined") return null;
-        // 앞뒤 따옴표 제거 + "Bearer " 접두어 제거
-        return raw.replace(/^"|"$/g, "").replace(/^Bearer\s+/i, "");
-    };
 
     const router = useRouter();
     const {
@@ -116,6 +109,7 @@ export default function WritingUpload() {
         formData.append("content", content);
 
         const token = getClientToken();
+        console.log("token?", token ? `${token.slice(0, 12)}...${token.slice(-6)}` : token);
         if (!token) {
             alert("로그인이 필요합니다.");
             return;
