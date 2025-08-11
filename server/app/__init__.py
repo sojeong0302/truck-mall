@@ -36,13 +36,13 @@ def create_app():
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
 
     # CORS: API 전반 허용
-    CORS(
-        app,
-        origins=ALLOWED_ORIGINS,
-        supports_credentials=True,
-        allow_headers=["Content-Type", "Authorization"],  # 허용할 요청 헤더
-        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # 허용할 메서드
-    )
+    # CORS(
+    #     app,
+    #     origins=ALLOWED_ORIGINS,
+    #     supports_credentials=True,
+    #     allow_headers=["Content-Type", "Authorization"],  # 허용할 요청 헤더
+    #     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # 허용할 메서드
+    # )
 
     # 확장 모듈 초기화
     db.init_app(app)
