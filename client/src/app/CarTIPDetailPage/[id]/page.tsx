@@ -8,7 +8,6 @@ export default function CarTIPDetailPage({ params }: { params: Promise<{ id: str
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
     const { id } = use(params);
     const [post, setPost] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
     const hasFetchedRef = useRef(false);
 
     useEffect(() => {
@@ -26,8 +25,6 @@ export default function CarTIPDetailPage({ params }: { params: Promise<{ id: str
                 });
             } catch (error) {
                 console.error(error);
-            } finally {
-                setLoading(false);
             }
         };
         fetchPost();
