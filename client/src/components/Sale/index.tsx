@@ -13,6 +13,7 @@ import { useFilterTagStore } from "@/components/Filter/Filter.types";
 import { useSimpleTagStore } from "@/store/simpleTagStore";
 import { useSearchTriggerStore } from "@/store/searchTriggerStore";
 import { useSaleStore } from "@/store/saleStore";
+import { getImageUrl } from "@/utils/getImageUrl";
 
 const YearMIN = 2000;
 const YearMAX = new Date().getFullYear();
@@ -114,14 +115,14 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
     const totalPages = useMemo(() => Math.ceil(sales.length / ITEMS_PER_PAGE), [sales]);
     const handleGoUpload = () => router.push("/SaleUploadPage");
 
-    // utils/getImageUrl.ts
-    const getImageUrl = (path: string) => {
-        if (!path) return "";
-        // 절대경로가 이미 있는 경우 그대로 반환
-        if (path.startsWith("http")) return path;
-        const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
-        return `${BASE_URL}${path}`;
-    };
+    // // utils/getImageUrl.ts
+    // const getImageUrl = (path: string) => {
+    //     if (!path) return "";
+    //     // 절대경로가 이미 있는 경우 그대로 반환
+    //     if (path.startsWith("http")) return path;
+    //     const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
+    //     return `${BASE_URL}${path}`;
+    // };
 
     return (
         <div className="w-[100%] flex flex-col items-center justify-center">
