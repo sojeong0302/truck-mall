@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useAuthToggle } from "./Header.hooks";
 import { useRouter } from "next/navigation";
 

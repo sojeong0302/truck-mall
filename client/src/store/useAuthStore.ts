@@ -1,16 +1,21 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
-interface AuthState {
+type AuthState = {
     isLoggedIn: boolean;
-    login: () => void;
+    token: string | null;
+    login: (token?: string) => void;
     logout: () => void;
-}
+};
 
-export const useAuthStore = create<AuthState>((set) => ({
-    isLoggedIn: false,
-    login: () => set({ isLoggedIn: true }),
-    logout: () => {
-        localStorage.removeItem("token"); // 로그아웃 시 토큰 제거
-        set({ isLoggedIn: false });
-    },
-}));
+export const useAuthStore = create<AuthState>()(
+    persist(
+        (set) => ({
+            isLoggedIn: false,
+            token: null,
+            login: (token) => set({ isLoggedIn: true, token: token ?? null }),
+            logout: () => set({ isLoggedIn: false, token: null }),
+        }),
+        { name: "auth" } // localStorage key
+    )
+);
