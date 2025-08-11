@@ -54,12 +54,6 @@ export default function WritingDetail({
         } catch (error) {}
     };
 
-    // const getImageUrl = (url: string) => {
-    //     if (!url) return "";
-    //     if (url.startsWith("http")) return url;
-    //     return `${BASE_URL}/${url}`;
-    // };
-
     if (!post) {
         return <div className="p-10 text-red-600">해당 글을 찾을 수 없습니다.</div>;
     }
