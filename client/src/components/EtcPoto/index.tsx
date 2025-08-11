@@ -1,12 +1,13 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { EtcPotoProps } from "./EtcPoto.types";
+import { useImageStore } from "@/store/imageStore";
 
 export default function EtcPoto({ initialImages = [], onChange }: EtcPotoProps) {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [existingImages, setExistingImages] = useState<string[]>([]);
     const [newFiles, setNewFiles] = useState<File[]>([]);
-
+    const { setFiles, setPreviews, setOriginURLs } = useImageStore();
     useEffect(() => {
         // 배열(문자열 배열)이 완전 동일하면 반영 생략
         const same =
@@ -36,7 +37,13 @@ export default function EtcPoto({ initialImages = [], onChange }: EtcPotoProps) 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) return;
         const picked = Array.from(e.target.files);
-        setNewFiles((prev) => [...prev, ...picked]);
+        const updatedFiles = [...newFiles, ...picked];
+        setNewFiles(updatedFiles);
+
+        // ✅ store에도 반영
+        setFiles(updatedFiles);
+        setPreviews(updatedFiles.map((f) => URL.createObjectURL(f)));
+        setOriginURLs(existingImages); // 기존 URL도 같이 저장
     };
 
     return (
