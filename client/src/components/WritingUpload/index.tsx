@@ -39,7 +39,7 @@ export default function WritingUpload({ post, url }: WritingUploadProps) {
         currentPrevImageURLs.forEach((url) => formData.append("prevImages", url));
         files.forEach((file) => formData.append("images", file));
 
-        const endpoint = url === "ReviewPage" ? `${BASE_URL}review/uploadReview` : `${BASE_URL}carTIP/uploadCarTIP`;
+        const endpoint = url === "ReviewPage" ? `${BASE_URL}/review/uploadReview` : `${BASE_URL}/carTIP/uploadCarTIP`;
 
         try {
             const token = getClientToken();
