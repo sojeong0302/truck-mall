@@ -30,6 +30,7 @@ const nextConfig = {
                             "default-src 'self'",
                             "img-src 'self' blob: data: https: http:",
                             "media-src 'self' blob: data: https: http:",
+                            "font-src 'self' data: https: http:", // ✅ 폰트 data: 허용
                             "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
                             "style-src 'self' 'unsafe-inline' https:",
                             "connect-src *",
