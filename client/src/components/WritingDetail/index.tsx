@@ -51,7 +51,9 @@ export default function WritingDetail({
                 headers: { Authorization: `Bearer ${token}` },
             });
             router.back();
-        } catch (error) {}
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     if (!post) {
