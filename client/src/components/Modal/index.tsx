@@ -7,14 +7,37 @@ export default function Modal({ text, url, onConfirm }: { text: string; url?: st
     const router = useRouter();
     const store = useModalStore();
     const { setIsModalOpen, setIsSaleCompleteModalOpen } = store;
+    // const handleYes = () => {
+    //     setIsModalOpen(false);
+    //     requestAnimationFrame(() => {
+    //         console.log("[Modal] YES clicked");
+    //         if (onConfirm) {
+    //             onConfirm();
+    //         } else if (url) {
+    //             router.push(url);
+    //         }
+    //     });
+    // };
     const handleYes = () => {
         setIsModalOpen(false);
+
+        // 상태 반영 뒤에 네비게이션
         requestAnimationFrame(() => {
-            console.log("[Modal] YES clicked");
-            if (onConfirm) {
-                onConfirm();
-            } else if (url) {
-                router.push(url);
+            console.log("[Modal] YES clicked, url =", url);
+            const path =
+                url && url.trim().length > 0
+                    ? url.startsWith("/")
+                        ? url
+                        : `/${url}` // ✅ 슬래시 보정
+                    : null;
+
+            if (path) {
+                // 같은 페이지로 push하면 변화 없으니 replace 권장
+                router.replace(path);
+            } else if (window.history.length > 1) {
+                router.back();
+            } else {
+                router.replace("/"); // 최종 폴백
             }
         });
     };
