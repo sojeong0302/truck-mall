@@ -10,11 +10,15 @@ export default function Modal({ text, url, onConfirm }: { text: string; url?: st
     const handleYes = () => {
         setIsModalOpen(false);
         requestAnimationFrame(() => {
+            console.log("[Modal] YES clicked");
             if (onConfirm) {
                 onConfirm();
+            } else if (url) {
+                router.push(url);
             }
         });
     };
+
     const handleNo = () => {
         setIsModalOpen(false);
         setIsSaleCompleteModalOpen(false);
