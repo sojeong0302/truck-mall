@@ -80,8 +80,7 @@ export default function WritingUpload({ post, url }: WritingUploadProps) {
     }, [clear]);
 
     const handleCancel = () => {
-        router.push(`/${url}`);
-        console.log("hi" + url);
+        router.back();
     };
 
     return (
