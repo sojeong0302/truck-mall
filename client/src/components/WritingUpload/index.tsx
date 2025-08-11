@@ -12,84 +12,66 @@ import { useEffect } from "react";
 import { WritingUploadProps } from "./WritingUpload.types";
 import { getClientToken } from "@/utils/auth";
 
-//이미지를 업로드 가능한 파일처럼 변환해줌
-async function urlToFile(url: string): Promise<File> {
-    const response = await fetch(url);
-    const blob = await response.blob();
-    const fileName = url.split("/").pop() || "file.jpg";
-    return new File([blob], fileName, { type: blob.type });
-}
-
 export default function WritingUpload({ post, url }: WritingUploadProps) {
-    const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
     const router = useRouter();
-    const { files, previews, originURLs } = useImageStore();
+
+    // ✅ 업로드는 useImageStore만 단일 소스로 사용
+    const { files, previews, originURLs, clear } = useImageStore();
+
     const title = useReviewUploadStore((state) => state.title);
     const setTitle = useReviewUploadStore((state) => state.setTitle);
     const content = useReviewUploadStore((state) => state.content);
     const setContent = useReviewUploadStore((state) => state.setContent);
-    const setImages = useReviewUploadStore((state) => state.setImages);
     const { isModalOpen, setIsModalOpen } = useModalStore();
 
     const handleSubmit = async () => {
+        // 기존 이미지(URL) 중 남겨둘 것만 prevImages로 전송
         const currentPrevImageURLs = previews.filter((p) => originURLs.includes(p));
+
         const formData = new FormData();
         formData.append("title", title);
         formData.append("content", content);
-        currentPrevImageURLs.forEach((url) => formData.append("prevImages", url));
-        files.forEach((file) => formData.append("images", file));
+        currentPrevImageURLs.forEach((u) => formData.append("prevImages", u));
+        files.forEach((f) => formData.append("images", f)); // 새로 추가된 파일만 업로드
 
         const endpoint = url === "ReviewPage" ? `${BASE_URL}/review/uploadReview` : `${BASE_URL}/carTIP/uploadCarTIP`;
 
         try {
             const token = getClientToken();
-            const res = await axios.post(endpoint, formData, {
+            await axios.post(endpoint, formData, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
             alert("등록되었습니다.");
             setTitle("");
             setContent("");
-            setImages([]);
-            useImageStore.getState().clear();
+            clear(); // 이미지 스토어 정리
             router.push(`/${url}`);
         } catch (err) {
             console.error("요청 실패", err);
             alert("서버 오류");
         }
     };
+
+    // 편집 진입 시: 기존 이미지 URL은 EtcPoto의 initialImages로만 처리 (File로 변환 X)
     useEffect(() => {
-        const init = async () => {
-            if (post) {
-                useImageStore.getState().clear();
-
-                const fileList: File[] = [];
-
-                if (post.images && post.images.length > 0) {
-                    for (const url of post.images) {
-                        const file = await urlToFile(url);
-                        fileList.push(file);
-                    }
-                }
-
-                setTitle(post.title || "");
-                setContent(post.content || "");
-                setImages(fileList);
-            }
-        };
-
-        init();
+        clear();
+        if (post) {
+            setTitle(post.title || "");
+            setContent(post.content || "");
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [post?.id]);
 
-    const handleCancellation = () => {
-        setIsModalOpen(true);
-    };
-
+    // 언마운트 시 이미지 스토어 정리
     useEffect(() => {
         return () => {
-            useImageStore.getState().clear();
+            clear();
         };
-    }, []);
+    }, [clear]);
+
+    const handleCancellation = () => setIsModalOpen(true);
 
     return (
         <div className="w-[90%] sm:w-[80%] h-[100%] mx-auto flex flex-col justify-center p-0 sm:p-20 gap-7">
@@ -97,8 +79,9 @@ export default function WritingUpload({ post, url }: WritingUploadProps) {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="제목을 입력해 주세요."
-                className="font-medium w-full  text-xl sm:text-3xl border-b-2 border-[#575757] p-4 focus:outline-none"
+                className="font-medium w-full text-xl sm:text-3xl border-b-2 border-[#575757] p-4 focus:outline-none"
             />
+            {/* 기존 이미지(URL)는 initialImages로 넘겨서 prevImages 관리 */}
             <EtcPoto initialImages={post?.images || []} />
             <TextArea value={content} setContent={setContent} />
             <div className="flex gap-3 justify-end sm:mb-0 mb-5">
