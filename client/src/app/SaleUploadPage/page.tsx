@@ -20,8 +20,11 @@ export default function WritingUpload() {
     const { tags, setManufacturer, setModel, setSubModel, setGrade } = useFilterTagStore();
     const { files, originURLs } = useImageStore();
     const getToken = () => {
-        if (typeof window === "undefined") return "";
-        return localStorage.getItem("token");
+        if (typeof window === "undefined") return null;
+        const t = localStorage.getItem("accessToken") || localStorage.getItem("access_token") || null;
+        // 혹시 문자열로 "abc.def.ghi"가 아닌 "null" / '"abc.def.ghi"' 형태 방지
+        if (!t || t === "null" || t === "undefined") return null;
+        return t.replace(/^"|"$/g, "");
     };
 
     const router = useRouter();
