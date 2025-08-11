@@ -83,14 +83,9 @@ export default function WritingCrystal({ post, url }: { post: Post; url?: string
         }
     };
 
-    const handleCancellation = () => {
-        setIsModalOpen(true);
-    };
-
     useEffect(() => {
-        // ✅ 페이지 진입 시 항상 store 비우기
         useImageStore.getState().clear();
-    }, [post]); // post가 바뀔 때만 초기화
+    }, [post]);
 
     if (!post) {
         return <div className="p-10 text-red-600">해당 글을 찾을 수 없습니다.</div>;
@@ -102,6 +97,10 @@ export default function WritingCrystal({ post, url }: { post: Post; url?: string
         },
         [setNewImages, setPrevImages]
     );
+
+    const handleCancel = () => {
+        router.back();
+    };
 
     return (
         <div className="sm:w-[80%] w-[90%] h-[100%] mx-auto flex flex-col justify-center sm:p-20 p-0 gap-7">
@@ -117,11 +116,13 @@ export default function WritingCrystal({ post, url }: { post: Post; url?: string
                 <ShortButton onClick={handleSubmit} className="bg-[#2E7D32] text-white">
                     수정하기
                 </ShortButton>
-                <ShortButton onClick={handleCancellation} className="bg-white border-3 border-[#2E7D32]">
+                <ShortButton onClick={() => setIsModalOpen(true)} className="bg-white border-3 border-[#2E7D32]">
                     취소
                 </ShortButton>
             </div>
-            {isModalOpen && <Modal url={url} text={"수정 중인 내용이 모두 삭제됩니다.\n그래도 취소하시겠습니까?"} />}
+            {isModalOpen && (
+                <Modal onConfirm={handleCancel} text={"수정 중인 내용이 모두 삭제됩니다.\n그래도 취소하시겠습니까?"} />
+            )}
         </div>
     );
 }

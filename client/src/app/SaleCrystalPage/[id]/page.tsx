@@ -212,13 +212,12 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
     }, [sanitizedImages, BASE_URL]);
 
     const handleImagesChange = useCallback((files: File[], keepImages: string[]) => {
-        setNewImages(files); // 새로 추가한 이미지
-        setPrevImages(keepImages); // 남길 기존 이미지
+        setNewImages(files);
+        setPrevImages(keepImages);
     }, []);
 
     const handleCancel = () => {
         router.back();
-        console.log("호출");
     };
 
     return (
