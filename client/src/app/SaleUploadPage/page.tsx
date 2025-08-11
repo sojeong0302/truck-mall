@@ -21,10 +21,10 @@ export default function WritingUpload() {
     const { files, originURLs } = useImageStore();
     const getToken = () => {
         if (typeof window === "undefined") return null;
-        const t = localStorage.getItem("accessToken") || localStorage.getItem("access_token") || null;
-        // 혹시 문자열로 "abc.def.ghi"가 아닌 "null" / '"abc.def.ghi"' 형태 방지
-        if (!t || t === "null" || t === "undefined") return null;
-        return t.replace(/^"|"$/g, "");
+        const raw = localStorage.getItem("accessToken") || localStorage.getItem("access_token") || null;
+        if (!raw || raw === "null" || raw === "undefined") return null;
+        // 앞뒤 따옴표 제거 + "Bearer " 접두어 제거
+        return raw.replace(/^"|"$/g, "").replace(/^Bearer\s+/i, "");
     };
 
     const router = useRouter();
