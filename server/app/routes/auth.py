@@ -44,7 +44,7 @@ def login():
         if not user or not user.check_password(password):
             return jsonify({"error": "아이디 또는 비밀번호가 올바르지 않습니다."}), 401
 
-        access_token = create_access_token(identity=user.id)
+        access_token = create_access_token(identity=str(user.id))
         return jsonify({"message": "로그인 성공", "access_token": access_token}), 200
     except Exception as e:
         # 로그 남기기(운영 시 꼭 권장)
