@@ -79,10 +79,10 @@ export default function WritingUpload({ post, url }: WritingUploadProps) {
         };
     }, [clear]);
 
-    // const handleCancel = () => {
-    //     router.push(`/${url}`);
-    //     console.log("hi" + url);
-    // };
+    const handleCancel = () => {
+        router.push(`/${url}`);
+        console.log("hi" + url);
+    };
 
     return (
         <div className="w-[90%] sm:w-[80%] h-[100%] mx-auto flex flex-col justify-center p-0 sm:p-20 gap-7">
@@ -103,7 +103,9 @@ export default function WritingUpload({ post, url }: WritingUploadProps) {
                     취소
                 </ShortButton>
             </div>
-            {isModalOpen && <Modal url={url} text={"작성 중인 내용이 모두 삭제됩니다.\n그래도 취소하시겠습니까?"} />}
+            {isModalOpen && (
+                <Modal onConfirm={handleCancel} text={"작성 중인 내용이 모두 삭제됩니다.\n그래도 취소하시겠습니까?"} />
+            )}
         </div>
     );
 }
