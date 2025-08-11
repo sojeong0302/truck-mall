@@ -59,18 +59,10 @@ def create_app():
     @app.after_request
     def add_cors_headers(resp):
         path = request.path or ""
-        # 업로드된 이미지 경로만 타겟팅 (필요하면 경로 더 추가)
         if path.startswith(("/carTIP/uploads", "/sale/uploads", "/review/uploads")):
-            # 단일 배포 프론트만 허용
-            # 여러 개 허용하려면 Origin 헤더 값을 검사해서 매칭되면 그대로 echo도 가능
-            resp.headers["Access-Control-Allow-Origin"] = (
-                "https://truck-mall-truck-mall.vercel.app"
-            )
             resp.headers["Vary"] = "Origin"
-            # 이미지 캐시 (원하면 기간 조정)
             if "Cache-Control" not in resp.headers:
                 resp.headers["Cache-Control"] = "public, max-age=31536000, immutable"
-        # 사전요청(OPTIONS) 대응이 필요한 경우 여기에 추가로 처리 가능
         return resp
 
     return app
