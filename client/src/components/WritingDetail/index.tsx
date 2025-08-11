@@ -8,6 +8,7 @@ import SwiperWithLightbox from "@/components/SwiperWithLightbox";
 import { useAuthStore } from "@/store/useAuthStore";
 import Modal from "../Modal";
 import { useModalStore } from "@/store/ModalStateStroe";
+import { getClientToken } from "@/utils/auth";
 
 interface Post {
     id: number;
@@ -42,9 +43,11 @@ export default function WritingDetail({
 
     // 글 삭제
     const handleDelete = async () => {
+        const token = getClientToken();
         try {
             const res = await fetch(`${BASE_URL}/${deletePath}/${id}`, {
                 method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
             });
             router.push(`${BASE_URL}${url}`);
         } catch (error) {}

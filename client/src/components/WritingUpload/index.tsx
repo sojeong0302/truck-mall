@@ -10,6 +10,7 @@ import { useImageStore } from "@/store/imageStore";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { WritingUploadProps } from "./WritingUpload.types";
+import { getClientToken } from "@/utils/auth";
 
 //이미지를 업로드 가능한 파일처럼 변환해줌
 async function urlToFile(url: string): Promise<File> {
@@ -38,17 +39,15 @@ export default function WritingUpload({ post, url }: WritingUploadProps) {
         currentPrevImageURLs.forEach((url) => formData.append("prevImages", url));
         files.forEach((file) => formData.append("images", file));
 
-        const isEdit = !!post?.id;
         const endpoint = url === "ReviewPage" ? `${BASE_URL}/review/uploadReview` : `${BASE_URL}/carTIP/uploadCarTIP`;
 
         try {
+            const token = getClientToken();
             const res = await axios.post(endpoint, formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
+                headers: { Authorization: `Bearer ${token}` },
             });
 
-            alert(isEdit ? "수정되었습니다." : "등록되었습니다.");
+            alert("등록되었습니다.");
             setTitle("");
             setContent("");
             setImages([]);
@@ -88,7 +87,7 @@ export default function WritingUpload({ post, url }: WritingUploadProps) {
 
     useEffect(() => {
         return () => {
-            useImageStore.getState().clear(); // ✅ 떠날 때 깨끗하게
+            useImageStore.getState().clear();
         };
     }, []);
 

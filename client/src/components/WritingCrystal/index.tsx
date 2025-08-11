@@ -8,6 +8,7 @@ import { useModalStore } from "@/store/ModalStateStroe";
 import { useEffect, useCallback, useMemo } from "react";
 import { useImageStore } from "@/store/imageStore";
 import { useRouter } from "next/navigation";
+import { getClientToken } from "@/utils/auth";
 
 interface Post {
     id: number;
@@ -62,7 +63,12 @@ export default function WritingCrystal({ post, url }: { post: Post; url?: string
         const baseURL = url === "ReviewPage" ? `${BASE_URL}/review/${post.id}` : `${BASE_URL}/carTIP/${post.id}`;
 
         try {
-            const res = await fetch(baseURL, { method: "PATCH", body: formData });
+            const token = getClientToken();
+            const res = await fetch(baseURL, {
+                method: "PATCH",
+                body: formData,
+                headers: { Authorization: `Bearer ${token}` },
+            });
             if (res.ok) {
                 alert("수정 되었습니다.");
                 clearAll();

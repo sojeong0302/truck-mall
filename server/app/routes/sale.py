@@ -149,9 +149,7 @@ def register_sale():
         return jsonify({"error": "create failed", "detail": str(e)}), 400
 
 
-# =========================
-# Read (list / detail)
-# =========================
+# 전체 데이터 조회
 @sale_bp.route("/list", methods=["GET"])
 def get_sales():
     simple_type = request.args.get("simple_type")
@@ -222,6 +220,7 @@ def get_sale_by_id(sale_id):
 
 # 수정 api
 @sale_bp.route("/<int:sale_id>", methods=["PUT"])
+@jwt_required()
 def update_sale(sale_id):
     sale = Sale.query.get_or_404(sale_id)
 
@@ -324,10 +323,9 @@ def update_sale(sale_id):
     return jsonify({"message": "success", "sale": sale.to_dict()})
 
 
-# =========================
-# Delete
-# =========================
+# 삭제 api
 @sale_bp.route("/<int:sale_id>", methods=["DELETE"])
+@jwt_required()
 def delete_sale(sale_id):
     sale = Sale.query.get(sale_id)
     if sale is None:

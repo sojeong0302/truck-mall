@@ -6,6 +6,7 @@ from datetime import datetime
 import os
 import uuid
 from werkzeug.utils import secure_filename
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 carTIP_bp = Blueprint("carTIP", __name__)
 
@@ -34,8 +35,9 @@ def get_carTIP_list():
     return jsonify(result), 200
 
 
-# ✅ 리뷰 업로드
+# 등록 api
 @carTIP_bp.route("/uploadCarTIP", methods=["POST"])
+@jwt_required()
 def create_carTIP():
     title = request.form.get("title")
     content = request.form.get("content")

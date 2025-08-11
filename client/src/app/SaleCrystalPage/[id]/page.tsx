@@ -14,6 +14,7 @@ import Filter from "@/components/Filter";
 import { useImageStore } from "@/store/imageStore";
 import { useSimpleTagStore } from "@/store/simpleTagStore";
 import { useFilterTagStore } from "@/components/Filter/Filter.types";
+import { getClientToken } from "@/utils/auth";
 
 export default function SaleCrystalPage({ params }: { params: Promise<{ id: string }> }) {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
@@ -179,9 +180,11 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         formData.append("content", content);
 
         try {
+            const token = getClientToken();
             const res = await fetch(`${BASE_URL}/sale/${id}`, {
                 method: "PUT",
                 body: formData,
+                headers: { Authorization: `Bearer ${token}` },
             });
 
             const data = await res.json();

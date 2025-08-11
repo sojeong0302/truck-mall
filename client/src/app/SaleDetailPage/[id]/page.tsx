@@ -9,6 +9,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import Modal from "@/components/Modal";
 import { useModalStore } from "@/store/ModalStateStroe";
 import { useSaleDetailStore } from "./saleDetailStore";
+import { getClientToken } from "@/utils/auth";
 
 export default function ReviewPage({ params }: { params: Promise<{ id: string }> }) {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
@@ -29,7 +30,8 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
     //삭제 api 연동
     const handleDelete = async () => {
         try {
-            await fetch(`${BASE_URL}/sale/${id}`, { method: "DELETE" });
+            const token = getClientToken();
+            await fetch(`${BASE_URL}/sale/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
             router.push("/CarSearchPage");
         } catch {}
     };

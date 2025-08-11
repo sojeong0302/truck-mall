@@ -5,6 +5,7 @@ from datetime import datetime
 import os
 import uuid
 from werkzeug.utils import secure_filename
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 review_bp = Blueprint("review", __name__)
 
@@ -16,6 +17,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # ✅ 리뷰 업로드
 @review_bp.route("/uploadReview", methods=["POST"])
+@jwt_required()
 def create_review():
     title = request.form.get("title")
     content = request.form.get("content")
@@ -113,6 +115,7 @@ def serve_image(filename):
 
 # ✅ 리뷰 수정
 @review_bp.route("/<int:review_id>", methods=["PATCH"])
+@jwt_required()
 def update_review(review_id):
     review = Review.query.get(review_id)
     if not review:
@@ -150,6 +153,7 @@ def update_review(review_id):
 
 
 @review_bp.route("/<int:review_id>", methods=["DELETE"])
+@jwt_required()
 def delete_review(review_id):
     review = Review.query.get(review_id)
     if not review:
