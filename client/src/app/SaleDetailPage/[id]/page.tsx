@@ -5,7 +5,7 @@ import SwiperWithLightbox from "@/components/SwiperWithLightbox";
 import ShortButton from "@/components/ShortButton";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useAuthToggle } from "@/components/Header/Header.hooks";
 import Modal from "@/components/Modal";
 import { useModalStore } from "@/store/ModalStateStroe";
 import { useSaleDetailStore } from "./saleDetailStore";
@@ -15,7 +15,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
     const { id } = use(params);
     const router = useRouter();
-    const { isLoggedIn } = useAuthStore();
+    const { isLoggedIn, toggleAuth, isHydrated } = useAuthToggle();
     const { isModalOpen, setIsModalOpen, isSaleCompleteModalOpen, setIsSaleCompleteModalOpen } = useModalStore();
 
     const { post, loading, error, fetchById, clear } = useSaleDetailStore();
