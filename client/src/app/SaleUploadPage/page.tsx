@@ -19,7 +19,10 @@ export default function WritingUpload() {
     const { simpleTag } = useSimpleTagStore();
     const { tags, setManufacturer, setModel, setSubModel, setGrade } = useFilterTagStore();
     const { files, originURLs } = useImageStore();
-    // const token = localStorage.getItem("token");
+    const getToken = () => {
+        if (typeof window === "undefined") return "";
+        return localStorage.getItem("token");
+    };
 
     const router = useRouter();
     const {
@@ -107,6 +110,13 @@ export default function WritingUpload() {
         });
 
         formData.append("content", content);
+
+        const token = getToken();
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            // router.push("/LoginPage"); // 필요시
+            return;
+        }
 
         try {
             const res = await fetch(`${BASE_URL}/sale/uploadSale`, {
