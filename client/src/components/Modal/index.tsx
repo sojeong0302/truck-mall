@@ -9,9 +9,11 @@ export default function Modal({ text, url, onConfirm }: { text: string; url?: st
     const { setIsModalOpen, setIsSaleCompleteModalOpen } = store;
     const handleYes = () => {
         setIsModalOpen(false);
-        if (onConfirm) {
-            onConfirm();
-        }
+        requestAnimationFrame(() => {
+            if (onConfirm) {
+                onConfirm();
+            }
+        });
     };
     const handleNo = () => {
         setIsModalOpen(false);
