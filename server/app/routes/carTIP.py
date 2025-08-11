@@ -7,6 +7,7 @@ import os
 import uuid
 from werkzeug.utils import secure_filename
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from .utils import to_abs_url
 
 carTIP_bp = Blueprint("carTIP", __name__)
 
@@ -15,23 +16,27 @@ UPLOAD_DIR = os.path.abspath(
 )
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
+BASE_URL = os.getenv("BASE_URL", "https://www.saemaeultruck.pics")
+
 
 # ✅ 차량 TIP 전체 리스트 조회
 @carTIP_bp.route("/list", methods=["GET"])
-def get_carTIP_list():
-    carTIPs = CarTIP.query.order_by(CarTIP.id.desc()).all()
-
-    result = [
-        {
-            "id": tip.id,
-            "title": tip.title,
-            "content": tip.content,
-            "images": tip.images,
-            "date": tip.date,
-            "view": tip.view,
-        }
-        for tip in carTIPs
-    ]
+def car_tip_list():
+    tips = CarTIP.query.order_by(CarTIP.id.desc()).all()
+    result = []
+    for tip in tips:
+        images = tip.images or []
+        abs_images = [to_abs_url(p) for p in images]
+        result.append(
+            {
+                "id": tip.id,
+                "title": tip.title,
+                "content": tip.content,
+                "images": abs_images,
+                "date": tip.date,
+                "view": tip.view,
+            }
+        )
     return jsonify(result), 200
 
 
@@ -57,7 +62,8 @@ def create_carTIP():
 
         # ✅ 절대 URL 대신 상대 경로로 저장
         image_url = f"/carTIP/uploads/{unique_filename}"
-        saved_image_paths.append(image_url)
+        # saved_image_paths.append(image_url)
+        saved_image_paths.append(f"{BASE_URL}/carTIP/uploads/{unique_filename}")
 
     new_carTIP = CarTIP(
         title=title,
@@ -75,19 +81,17 @@ def create_carTIP():
 # ✅ 특정 차량 TIP 상세 조회
 @carTIP_bp.route("/<int:carTIP_id>", methods=["GET"])
 def get_carTIP(carTIP_id):
-    carTIP = CarTIP.query.get(carTIP_id)
-    if not carTIP:
-        return jsonify({"error": "CarTIP not found"}), 404
-
+    tip = CarTIP.query.get_or_404(carTIP_id)
+    abs_images = [to_abs_url(p) for p in (tip.images or [])]
     return (
         jsonify(
             {
-                "id": carTIP.id,
-                "title": carTIP.title,
-                "content": carTIP.content,
-                "images": carTIP.images,
-                "date": carTIP.date,
-                "view": carTIP.view,
+                "id": tip.id,
+                "title": tip.title,
+                "content": tip.content,
+                "images": abs_images,
+                "date": tip.date,
+                "view": tip.view,
             }
         ),
         200,

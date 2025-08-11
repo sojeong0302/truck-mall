@@ -149,11 +149,7 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                     >
                         <div className="hidden sm:block w-[25%] h-[180px] min-w-[150px] rounded-xl shadow-lg flex items-center justify-center bg-gray-100 overflow-hidden">
                             {post.thumbnail && !post.thumbnail.startsWith("blob:") ? (
-                                <img
-                                    src={getImageUrl(post.thumbnail)}
-                                    alt="썸네일"
-                                    className="w-full h-full object-cover"
-                                />
+                                <img src={post.thumbnail} alt="썸네일" className="w-full h-full object-cover" />
                             ) : (
                                 <div className="text-gray-500 text-sm text-center">이미지 준비중 입니다.</div>
                             )}
