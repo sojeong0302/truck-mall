@@ -28,6 +28,7 @@ ALLOWED_ORIGINS = [
 
 def create_app():
     app = Flask(__name__)
+    app.config.from_object(Config)
 
     # 환경설정
     # (환경변수 파일을 FLASK_CONFIG로 지정해 두었다면 사용)
