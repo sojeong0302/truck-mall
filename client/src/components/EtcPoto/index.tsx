@@ -39,6 +39,9 @@ export default function EtcPoto({ initialImages = [], onChange }: EtcPotoProps) 
         if (!e.target.files) return;
         const picked = Array.from(e.target.files);
 
+        // ✅ 로컬 상태에 추가 (미리보기는 newFiles를 기준으로 렌더링함)
+        setNewFiles((prev) => [...prev, ...picked]);
+
         // store의 기존 files와 합침
         const updatedFiles = [...files, ...picked];
         setFiles(updatedFiles);
