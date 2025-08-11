@@ -7,7 +7,7 @@ export default function EtcPoto({ initialImages = [], onChange }: EtcPotoProps) 
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [existingImages, setExistingImages] = useState<string[]>([]);
     const [newFiles, setNewFiles] = useState<File[]>([]);
-    const { setFiles, setPreviews, setOriginURLs } = useImageStore();
+    const { files, setFiles, setPreviews, setOriginURLs } = useImageStore();
     useEffect(() => {
         // 배열(문자열 배열)이 완전 동일하면 반영 생략
         const same =
@@ -34,16 +34,16 @@ export default function EtcPoto({ initialImages = [], onChange }: EtcPotoProps) 
     };
 
     // 파일 추가
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) return;
         const picked = Array.from(e.target.files);
-        const updatedFiles = [...newFiles, ...picked];
-        setNewFiles(updatedFiles);
 
-        // ✅ store에도 반영
+        // store의 기존 files와 합침
+        const updatedFiles = [...files, ...picked];
         setFiles(updatedFiles);
         setPreviews(updatedFiles.map((f) => URL.createObjectURL(f)));
-        setOriginURLs(existingImages); // 기존 URL도 같이 저장
+        setOriginURLs(existingImages); // 기존 URL 저장
     };
 
     return (
