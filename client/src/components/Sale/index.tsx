@@ -115,15 +115,6 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
     const totalPages = useMemo(() => Math.ceil(sales.length / ITEMS_PER_PAGE), [sales]);
     const handleGoUpload = () => router.push("/SaleUploadPage");
 
-    // // utils/getImageUrl.ts
-    // const getImageUrl = (path: string) => {
-    //     if (!path) return "";
-    //     // 절대경로가 이미 있는 경우 그대로 반환
-    //     if (path.startsWith("http")) return path;
-    //     const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
-    //     return `${BASE_URL}${path}`;
-    // };
-
     return (
         <div className="w-[100%] flex flex-col items-center justify-center">
             <div className="w-[90%] sm:w-[70%] p-3 flex items-center justify-between border-b-2 border-[#575757]">
@@ -149,7 +140,11 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                     >
                         <div className="hidden sm:block w-[25%] h-[180px] min-w-[150px] rounded-xl shadow-lg flex items-center justify-center bg-gray-100 overflow-hidden">
                             {post.thumbnail && !post.thumbnail.startsWith("blob:") ? (
-                                <img src={post.thumbnail} alt="썸네일" className="w-full h-full object-cover" />
+                                <img
+                                    src={getImageUrl(post.thumbnail)}
+                                    alt="썸네일"
+                                    className="w-full h-full object-cover"
+                                />
                             ) : (
                                 <div className="text-gray-500 text-sm text-center">이미지 준비중 입니다.</div>
                             )}
