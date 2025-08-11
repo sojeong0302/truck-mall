@@ -19,19 +19,19 @@ export default function WritingUpload() {
     const { simpleTag } = useSimpleTagStore();
     const { tags, setManufacturer, setModel, setSubModel, setGrade } = useFilterTagStore();
     const { files, originURLs } = useImageStore();
-    // const token = localStorage.getItem("accessToken");
-    const [token, setToken] = useState<string | null>(null);
+    const token = localStorage.getItem("accessToken");
+    // const [token, setToken] = useState<string | null>(null);
 
-    useEffect(() => {
-        // 키가 다를 가능성 대비
-        const t =
-            (typeof window !== "undefined" &&
-                (localStorage.getItem("accessToken") || localStorage.getItem("access_token"))) ||
-            null;
+    // useEffect(() => {
+    //     // 키가 다를 가능성 대비
+    //     const t =
+    //         (typeof window !== "undefined" &&
+    //             (localStorage.getItem("accessToken") || localStorage.getItem("access_token"))) ||
+    //         null;
 
-        setToken(t);
-        console.log("토큰 로드:", t);
-    }, []);
+    //     setToken(t);
+    //     console.log("토큰 로드:", t);
+    // }, []);
 
     const router = useRouter();
     const {
