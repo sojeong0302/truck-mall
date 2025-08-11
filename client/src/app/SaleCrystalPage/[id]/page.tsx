@@ -218,6 +218,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
 
     const handleCancel = () => {
         router.back();
+        console.log("호출");
     };
 
     return (
