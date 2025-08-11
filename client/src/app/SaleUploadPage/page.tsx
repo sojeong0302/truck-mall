@@ -21,7 +21,7 @@ export default function WritingUpload() {
     const { files, originURLs } = useImageStore();
     const getToken = () => {
         if (typeof window === "undefined") return null;
-        const raw = localStorage.getItem("accessToken") || localStorage.getItem("access_token") || null;
+        const raw = localStorage.getItem("access_Token") || localStorage.getItem("access_token") || null;
         if (!raw || raw === "null" || raw === "undefined") return null;
         // 앞뒤 따옴표 제거 + "Bearer " 접두어 제거
         return raw.replace(/^"|"$/g, "").replace(/^Bearer\s+/i, "");

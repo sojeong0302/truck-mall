@@ -23,7 +23,7 @@ export default function LoginPage() {
             );
 
             const token = response.data.access_token;
-            localStorage.setItem("access_token", token);
+            localStorage.setItem("access_token", response.data.access_token);
             login();
             router.push("/");
             console.log(response.data);
