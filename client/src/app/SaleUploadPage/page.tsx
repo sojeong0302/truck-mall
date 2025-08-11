@@ -19,6 +19,7 @@ export default function WritingUpload() {
     const { simpleTag } = useSimpleTagStore();
     const { tags, setManufacturer, setModel, setSubModel, setGrade } = useFilterTagStore();
     const { files, originURLs } = useImageStore();
+    const token = localStorage.getItem("accessToken");
     const router = useRouter();
     const {
         transmission,
@@ -44,12 +45,13 @@ export default function WritingUpload() {
     const clearFilter = useFilterTagStore((s) => s.clear); // tags 초기화
     const resetSimpleTag = useSimpleTagStore((s) => s.resetSimpleTag); // simple_tags 초기화
     const clearImages = useImageStore((s) => s.clear); // (옵션) 이미지 초기화
+
     useEffect(() => {
-        resetForm(); // 폼 필드 + transmission 초기화
-        clearFilter(); // tags { manufacturer: "", models: [] }
-        resetSimpleTag(); // simple_tags null
-        clearImages(); // (옵션) 이미지 초기화
-        setSelected(""); // 변속기 드롭다운 표시도 '전체'로
+        resetForm();
+        clearFilter();
+        resetSimpleTag();
+        clearImages();
+        setSelected("");
     }, [resetForm, clearFilter, resetSimpleTag, clearImages]);
 
     const [selected, setSelected] = useState("");
@@ -60,8 +62,8 @@ export default function WritingUpload() {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        setThumbnailFile(file); // 서버 전송용
-        setThumbnail(URL.createObjectURL(file)); // 미리보기
+        setThumbnailFile(file);
+        setThumbnail(URL.createObjectURL(file));
     };
 
     const handleClick = () => {
@@ -109,6 +111,7 @@ export default function WritingUpload() {
             const res = await fetch(`${BASE_URL}/sale/uploadSale`, {
                 method: "POST",
                 body: formData,
+                headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();
 
