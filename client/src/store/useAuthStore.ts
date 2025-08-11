@@ -1,21 +1,31 @@
+"use client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 type AuthState = {
-    isLoggedIn: boolean;
     token: string | null;
-    login: (token?: string) => void;
-    logout: () => void;
+    isHydrated: boolean; // ✅ 로컬스토리지 로드 완료 여부
+    setToken: (t: string) => void;
+    clear: () => void;
+    setHydrated: (v: boolean) => void;
 };
 
 export const useAuthStore = create<AuthState>()(
     persist(
-        (set) => ({
-            isLoggedIn: false,
+        (set, get) => ({
             token: null,
-            login: (token) => set({ isLoggedIn: true, token: token ?? null }),
-            logout: () => set({ isLoggedIn: false, token: null }),
+            isHydrated: false,
+            setToken: (t) => set({ token: t }),
+            clear: () => set({ token: null }),
+            setHydrated: (v) => set({ isHydrated: v }),
         }),
-        { name: "auth" } // localStorage key
+        {
+            name: "auth",
+            partialize: (s) => ({ token: s.token }), // ✅ token만 저장
+            onRehydrateStorage: () => () => {
+                // ✅ 하이드레이션 완료 신호
+                useAuthStore.getState().setHydrated(true);
+            },
+        }
     )
 );

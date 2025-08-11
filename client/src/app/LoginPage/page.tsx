@@ -9,26 +9,28 @@ export default function LoginPage() {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
     const router = useRouter();
     const { username, setUsername, password, setPassword } = LoginPagePropStore();
-    const { login } = useAuthStore();
+    const { setToken } = useAuthStore();
 
     // 로그인 시도
     const handleLogin = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
-
         try {
-            const response = await axios.post(
+            const { data } = await axios.post(
                 `${BASE_URL}/auth/login`,
                 { username, password },
                 { headers: { "Content-Type": "application/json" } }
             );
 
-            const token = response.data.access_token;
-            localStorage.setItem("access_token", response.data.access_token);
-            login();
+            const token = data.access_token;
+
+            setToken(token);
+
+            axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+
             router.push("/");
-            console.log(response.data);
-        } catch (error) {
-            console.log(error);
+            console.log(data);
+        } catch (err) {
+            console.log(err);
         }
     };
 

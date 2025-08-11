@@ -1,24 +1,34 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useMemo, useCallback } from "react";
+import axios from "axios";
 import { useAuthStore } from "@/store/useAuthStore";
 
 export const useAuthToggle = () => {
-    const { isLoggedIn, login, logout } = useAuthStore();
+    const token = useAuthStore((s) => s.token);
+    const isHydrated = useAuthStore((s) => s.isHydrated);
+    const clear = useAuthStore((s) => s.clear);
 
-    // ✅ 새로고침 시 localStorage 토큰으로 로그인 상태 복원
+    // ✅ 하이드레이션 끝나면 axios 헤더에 토큰 반영
     useEffect(() => {
-        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-        if (token && !isLoggedIn) login(token as any); // login이 토큰 인자를 받지 않으면 인자 제거
-    }, [isLoggedIn, login]);
-
-    const toggleAuth = () => {
-        if (isLoggedIn) {
-            logout();
-            localStorage.removeItem("token"); // ✅ 토큰도 정리
+        if (!isHydrated) return;
+        if (token) {
+            axios.defaults.headers.common.Authorization = `Bearer ${token}`;
         } else {
-            // 로그인 페이지로 이동은 헤더 index.tsx에서 처리 중
+            delete axios.defaults.headers.common.Authorization;
         }
-    };
+    }, [isHydrated, token]);
 
-    return { isLoggedIn, toggleAuth };
+    // ✅ 로그인 여부는 token 유무로 파생
+    const isLoggedIn = useMemo(() => !!token, [token]);
+
+    const toggleAuth = useCallback(() => {
+        if (isLoggedIn) {
+            clear();
+            delete axios.defaults.headers.common.Authorization;
+            // localStorage.removeItem("token"); // (만약 어딘가에서 따로 저장했다면 같이 지우기)
+        }
+        // 로그인 버튼 클릭 시 라우팅은 Header 컴포넌트에서 처리
+    }, [isLoggedIn, clear]);
+
+    return { isLoggedIn, toggleAuth, isHydrated };
 };

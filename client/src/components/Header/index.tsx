@@ -5,9 +5,13 @@ import { useAuthToggle } from "./Header.hooks";
 import { useRouter } from "next/navigation";
 
 export default function Header() {
-    const { isLoggedIn, toggleAuth } = useAuthToggle();
+    const { isLoggedIn, toggleAuth, isHydrated } = useAuthToggle();
     const router = useRouter();
-    const handleAdvice = async () => {};
+
+    if (!isHydrated) {
+        // 하이드레이션 완료 전에는 UI 결정 보류(스켈레톤/빈칸)
+        return null;
+    }
 
     return (
         <>
