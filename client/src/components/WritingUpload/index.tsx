@@ -84,6 +84,7 @@ export default function WritingUpload({ post, url }: WritingUploadProps) {
 
     const handleCancel = () => {
         router.push(`/${url}`);
+        console.log(url);
     };
 
     return (
