@@ -10,10 +10,8 @@ export default function Modal({ text, url, onConfirm }: { text: string; url?: st
     const handleYes = () => {
         setIsModalOpen(false);
         if (onConfirm) {
-            // ✅ 전달받은 함수 실행
             onConfirm();
         }
-        // if (url) router.push(url);
     };
     const handleNo = () => {
         setIsModalOpen(false);

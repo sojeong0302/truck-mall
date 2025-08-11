@@ -82,7 +82,9 @@ export default function WritingUpload({ post, url }: WritingUploadProps) {
         };
     }, [clear]);
 
-    const handleCancellation = () => setIsModalOpen(true);
+    const handleCancel = () => {
+        router.push(`/${url}`);
+    };
 
     return (
         <div className="w-[90%] sm:w-[80%] h-[100%] mx-auto flex flex-col justify-center p-0 sm:p-20 gap-7">
@@ -99,11 +101,13 @@ export default function WritingUpload({ post, url }: WritingUploadProps) {
                 <ShortButton onClick={handleSubmit} className="bg-[#2E7D32] text-white">
                     등록하기
                 </ShortButton>
-                <ShortButton onClick={handleCancellation} className="bg-white border-3 border-[#2E7D32]">
+                <ShortButton onClick={() => setIsModalOpen(true)} className="bg-white border-3 border-[#2E7D32]">
                     취소
                 </ShortButton>
             </div>
-            {isModalOpen && <Modal url={url} text={"작성 중인 내용이 모두 삭제됩니다.\n그래도 취소하시겠습니까?"} />}
+            {isModalOpen && (
+                <Modal onConfirm={handleCancel} text={"작성 중인 내용이 모두 삭제됩니다.\n그래도 취소하시겠습니까?"} />
+            )}
         </div>
     );
 }
