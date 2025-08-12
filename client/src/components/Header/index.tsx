@@ -7,9 +7,9 @@ export default function Header() {
     const { isLoggedIn, toggleAuth, isHydrated } = useAuthToggle();
     const router = useRouter();
 
-    if (!isHydrated) {
-        return null;
-    }
+    // if (!isHydrated) {
+    //     return null;
+    // }
 
     return (
         <>
