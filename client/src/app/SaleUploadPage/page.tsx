@@ -72,9 +72,7 @@ export default function WritingUpload() {
         fileInputRef.current?.click();
     };
 
-    const thumbFileRef = useRef<File | null>(null);
     const token = useAuthStore((s) => s.token);
-    const isHydrated = useAuthStore((s) => s.isHydrated);
     const handleSubmit = async () => {
         //formData=서버로 보낼 데이터 묶음
         const formData = new FormData();
@@ -110,15 +108,16 @@ export default function WritingUpload() {
 
         formData.append("content", content);
 
-        if (!isHydrated) {
-            alert("로그인 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
-            return;
-        }
         // ✅ 토큰 없으면 로그인 보내기 (원래 페이지 복귀용 next 포함)
         if (!token) {
             alert("로그인이 필요합니다.");
             const here = window.location.pathname + window.location.search;
-            router.push(`/LoginPage?next=${encodeURIComponent(here)}`);
+
+            // 상태/레이아웃 업데이트 직후 라우팅이 먹히도록 한 틱 미룸
+            requestAnimationFrame(() => {
+                router.replace(`/LoginPage?next=${encodeURIComponent(here)}`);
+                // 최후 수단(희귀 브라우저): window.location.href = `/LoginPage?next=${encodeURIComponent(here)}`;
+            });
             return;
         }
 
@@ -128,14 +127,6 @@ export default function WritingUpload() {
                 body: formData,
                 headers: { Authorization: `Bearer ${token}` },
             });
-
-            // 👇 여기 추가
-            if (!res.ok) {
-                const text = await res.text().catch(() => "");
-                console.error("[upload] FAIL", res.status, text);
-                alert(`업로드 실패 ${res.status}`);
-                return;
-            }
 
             // 성공 처리
             const data = await res.json();
