@@ -14,6 +14,7 @@ import { useSimpleTagStore } from "@/store/simpleTagStore";
 import { useRouter } from "next/navigation";
 import { SaleCrystalPagePropStore } from "../SaleCrystalPage/[id]/SaleCrystalPage.types";
 import { getClientToken } from "@/utils/auth";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function WritingUpload() {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -108,7 +109,7 @@ export default function WritingUpload() {
 
         formData.append("content", content);
 
-        const token = getClientToken();
+        const token = useAuthStore.getState().token;
         console.log("[upload] token ok? ", token ? `${token.slice(0, 12)}...${token.slice(-6)}` : token);
         if (!token) {
             alert("로그인이 필요합니다.");
