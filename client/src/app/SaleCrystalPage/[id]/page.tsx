@@ -15,6 +15,7 @@ import { useImageStore } from "@/store/imageStore";
 import { useSimpleTagStore } from "@/store/simpleTagStore";
 import { useFilterTagStore } from "@/components/Filter/Filter.types";
 import { getClientToken } from "@/utils/auth";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function SaleCrystalPage({ params }: { params: Promise<{ id: string }> }) {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
@@ -60,7 +61,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
     const [selected, setSelected] = useState("");
     const [isOpen, setIsOpen] = useState(false);
     const thumbFileRef = useRef<File | null>(null);
-
+    const token = useAuthStore((s) => s.token);
     //기존 값 가져오기
     useEffect(() => {
         const fetchPost = async () => {
@@ -179,8 +180,17 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
 
         formData.append("content", content);
 
+        // 토큰 없으면 로그인 페이지 이동
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            const here = window.location.pathname + window.location.search;
+            requestAnimationFrame(() => {
+                router.replace(`/LoginPage?next=${encodeURIComponent(here)}`);
+            });
+            return;
+        }
+
         try {
-            const token = getClientToken();
             const res = await fetch(`${BASE_URL}/sale/${id}`, {
                 method: "PUT",
                 body: formData,

@@ -10,6 +10,7 @@ import Modal from "@/components/Modal";
 import { useModalStore } from "@/store/ModalStateStroe";
 import { useSaleDetailStore } from "./saleDetailStore";
 import { getClientToken } from "@/utils/auth";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function ReviewPage({ params }: { params: Promise<{ id: string }> }) {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
@@ -17,7 +18,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
     const router = useRouter();
     const { isLoggedIn, toggleAuth, isHydrated } = useAuthToggle();
     const { isModalOpen, setIsModalOpen, isSaleCompleteModalOpen, setIsSaleCompleteModalOpen } = useModalStore();
-
+    const token = useAuthStore((s) => s.token);
     const { post, loading, error, fetchById, clear } = useSaleDetailStore();
 
     useEffect(() => {
@@ -29,8 +30,16 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
 
     //삭제 api 연동
     const handleDelete = async () => {
+        // 토큰 없으면 로그인 페이지 이동
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            const here = window.location.pathname + window.location.search;
+            requestAnimationFrame(() => {
+                router.replace(`/LoginPage?next=${encodeURIComponent(here)}`);
+            });
+            return;
+        }
         try {
-            const token = getClientToken();
             await fetch(`${BASE_URL}/sale/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
             router.push("/CarSearchPage");
         } catch {}
