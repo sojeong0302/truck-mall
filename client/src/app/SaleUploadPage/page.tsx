@@ -73,7 +73,8 @@ export default function WritingUpload() {
     };
 
     const thumbFileRef = useRef<File | null>(null);
-
+    const token = useAuthStore((s) => s.token);
+    const isHydrated = useAuthStore((s) => s.isHydrated);
     const handleSubmit = async () => {
         //formData=서버로 보낼 데이터 묶음
         const formData = new FormData();
@@ -109,11 +110,15 @@ export default function WritingUpload() {
 
         formData.append("content", content);
 
-        const token = useAuthStore.getState().token;
-        console.log("[upload] token ok? ", token ? `${token.slice(0, 12)}...${token.slice(-6)}` : token);
+        if (!isHydrated) {
+            alert("로그인 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+            return;
+        }
+        // ✅ 토큰 없으면 로그인 보내기 (원래 페이지 복귀용 next 포함)
         if (!token) {
             alert("로그인이 필요합니다.");
-            // router.push("/LoginPage");
+            const here = window.location.pathname + window.location.search;
+            router.push(`/LoginPage?next=${encodeURIComponent(here)}`);
             return;
         }
 
