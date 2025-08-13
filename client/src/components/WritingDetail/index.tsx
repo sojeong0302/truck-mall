@@ -10,6 +10,7 @@ import Modal from "../Modal";
 import { useModalStore } from "@/store/ModalStateStroe";
 import { getClientToken } from "@/utils/auth";
 import { getImageUrl } from "@/utils/getImageUrl";
+import { useAuthStore } from "@/store/useAuthStore";
 
 interface Post {
     id: number;
@@ -36,6 +37,7 @@ export default function WritingDetail({
     const router = useRouter();
     const { isModalOpen, setIsModalOpen } = store;
     const { isLoggedIn, toggleAuth, isHydrated } = useAuthToggle();
+    const token = useAuthStore((s) => s.token);
     // 수정 페이지 이동
     const handleGoCrystal = () => {
         router.push(`/${crystalPath}/${id}`);
@@ -43,7 +45,15 @@ export default function WritingDetail({
 
     // 글 삭제
     const handleDelete = async () => {
-        const token = getClientToken();
+        // 토큰 없으면 로그인 페이지 이동
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            const here = window.location.pathname + window.location.search;
+            requestAnimationFrame(() => {
+                router.replace(`/LoginPage?next=${encodeURIComponent(here)}`);
+            });
+            return;
+        }
         try {
             const res = await fetch(`${BASE_URL}/${deletePath}/${id}`, {
                 method: "DELETE",

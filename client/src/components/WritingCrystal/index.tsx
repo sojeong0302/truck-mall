@@ -9,6 +9,7 @@ import { useEffect, useCallback, useMemo } from "react";
 import { useImageStore } from "@/store/imageStore";
 import { useRouter } from "next/navigation";
 import { getClientToken } from "@/utils/auth";
+import { useAuthStore } from "@/store/useAuthStore";
 
 interface Post {
     id: number;
@@ -22,6 +23,7 @@ export default function WritingCrystal({ post, url }: { post: Post; url?: string
     const store = useModalStore();
     const { isModalOpen, setIsModalOpen } = store;
     const { previews, files, originURLs } = useImageStore();
+    const token = useAuthStore((s) => s.token);
     const {
         title,
         setTitle,
@@ -62,8 +64,16 @@ export default function WritingCrystal({ post, url }: { post: Post; url?: string
 
         const baseURL = url === "ReviewPage" ? `${BASE_URL}/review/${post.id}` : `${BASE_URL}/carTIP/${post.id}`;
 
+        // 토큰 없으면 로그인 페이지 이동
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            const here = window.location.pathname + window.location.search;
+            requestAnimationFrame(() => {
+                router.replace(`/LoginPage?next=${encodeURIComponent(here)}`);
+            });
+            return;
+        }
         try {
-            const token = getClientToken();
             const res = await fetch(baseURL, {
                 method: "PATCH",
                 body: formData,
