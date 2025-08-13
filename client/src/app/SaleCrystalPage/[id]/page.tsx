@@ -60,7 +60,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
     const { tags, setManufacturer, setModel, setSubModel, setGrade } = useFilterTagStore();
     const [isOpen, setIsOpen] = useState(false);
     const thumbFileRef = useRef<File | null>(null);
-    const token = getClientToken();
+    const token = useAuthStore((s) => s.token);
     //기존 값 가져오기
     useEffect(() => {
         const fetchPost = async () => {

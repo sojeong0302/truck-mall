@@ -23,7 +23,7 @@ export default function WritingCrystal({ post, url }: { post: Post; url?: string
     const store = useModalStore();
     const { isModalOpen, setIsModalOpen } = store;
     const { previews, files, originURLs } = useImageStore();
-    const token = getClientToken();
+    const token = useAuthStore((s) => s.token);
     const {
         title,
         setTitle,

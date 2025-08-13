@@ -16,7 +16,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 export default function WritingUpload({ post, url }: WritingUploadProps) {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
     const router = useRouter();
-    const token = getClientToken();
+    const token = useAuthStore((s) => s.token);
 
     // ✅ 업로드는 useImageStore만 단일 소스로 사용
     const { files, previews, originURLs, clear } = useImageStore();
