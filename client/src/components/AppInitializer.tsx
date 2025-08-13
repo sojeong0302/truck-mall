@@ -1,46 +1,55 @@
 "use client";
 import { useEffect } from "react";
-import axios from "axios";
-import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "next/navigation";
+import axios, { AxiosHeaders, isAxiosError } from "axios"; // ✅ AxiosHeaders 임포트
+import { useAuthStore } from "@/store/useAuthStore";
+import { getValidToken, clearToken } from "@/utils/token";
 
 export default function AppInitializer() {
-    const hydrate = useAuthStore((s) => s.hydrate); // ✅ hydrate 사용
-    const token = useAuthStore((s) => s.token); // ✅ 토큰 변경 감지
+    const setToken = useAuthStore((s) => s.setToken);
     const router = useRouter();
 
-    // 1) 첫 마운트 시 스토어 하이드레이트
     useEffect(() => {
-        hydrate();
-    }, [hydrate]);
+        // 최초 동기화 (만료면 null)
+        setToken(getValidToken());
 
-    // 2) 토큰이 바뀔 때 axios 헤더 동기화
-    useEffect(() => {
-        if (token) {
-            axios.defaults.headers.common.Authorization = `Bearer ${token}`;
-        } else {
-            delete axios.defaults.headers.common.Authorization;
-        }
-    }, [token]);
+        // 요청 인터셉터
+        const reqId = axios.interceptors.request.use((config) => {
+            const t = getValidToken();
+            if (!t) {
+                setToken(null);
+                if (typeof window !== "undefined") {
+                    const here = window.location.pathname + window.location.search;
+                    router.replace(`/LoginPage?expired=1&next=${encodeURIComponent(here)}`);
+                }
+                return Promise.reject(new axios.Cancel("No/Expired token"));
+            }
 
-    // 3) 401 공통 처리 (옵션: 사용 중이면 유지)
-    useEffect(() => {
-        const id = axios.interceptors.response.use(
+            // ✅ 헤더 인스턴스를 보장하고 .set()으로 추가
+            const headers = (config.headers ??= new AxiosHeaders());
+            (headers as AxiosHeaders).set("Authorization", `Bearer ${t}`);
+            return config;
+        });
+
+        // 응답 인터셉터
+        const resId = axios.interceptors.response.use(
             (res) => res,
             (err) => {
-                if (err?.response?.status === 401 && typeof window !== "undefined") {
-                    try {
-                        localStorage.removeItem("token");
-                        localStorage.removeItem("access_token");
-                    } catch {}
+                if (isAxiosError(err) && err.response?.status === 401 && typeof window !== "undefined") {
+                    clearToken();
+                    setToken(null);
                     const here = window.location.pathname + window.location.search;
                     router.replace(`/LoginPage?expired=1&next=${encodeURIComponent(here)}`);
                 }
                 return Promise.reject(err);
             }
         );
-        return () => axios.interceptors.response.eject(id);
-    }, [router]);
+
+        return () => {
+            axios.interceptors.request.eject(reqId);
+            axios.interceptors.response.eject(resId);
+        };
+    }, [router, setToken]);
 
     return null;
 }

@@ -77,7 +77,7 @@ export default function WritingUpload() {
     const handleSubmit = async () => {
         // 토큰 없으면 로그인 페이지 이동
         if (!token) {
-            alert("로그인이 필요합니다.");
+            alert("로그인이 만료되었어요. \n다시 로그인해 주세요.");
             const here = window.location.pathname + window.location.search;
             router.replace(`/LoginPage?next=${encodeURIComponent(here)}`);
             return; // ← 여기서 반드시 종료
