@@ -85,10 +85,7 @@ export default function WritingUpload() {
 
         //formData=서버로 보낼 데이터 묶음
         const formData = new FormData();
-
         formData.append("simple_tags", JSON.stringify(simpleTag || null));
-
-        // 서버에서 원하는 계층형 구조로 전송
         formData.append("tags", JSON.stringify(tags));
         formData.append("transmission", transmission);
 
@@ -108,7 +105,6 @@ export default function WritingUpload() {
         formData.append("color", color);
         formData.append("price", price);
 
-        // 새로 추가된 이미지
         files.forEach((file) => {
             if (file instanceof File && file.name) {
                 formData.append("images", file, file.name);
