@@ -44,9 +44,9 @@ export default function WritingUpload() {
     } = useCarFormStore();
 
     const resetForm = SaleCrystalPagePropStore((s) => s.reset);
-    const clearFilter = useFilterTagStore((s) => s.clear); // tags 초기화
-    const resetSimpleTag = useSimpleTagStore((s) => s.resetSimpleTag); // simple_tags 초기화
-    const clearImages = useImageStore((s) => s.clear); // (옵션) 이미지 초기화
+    const clearFilter = useFilterTagStore((s) => s.clear);
+    const resetSimpleTag = useSimpleTagStore((s) => s.resetSimpleTag);
+    const clearImages = useImageStore((s) => s.clear);
 
     useEffect(() => {
         resetForm();
@@ -72,7 +72,8 @@ export default function WritingUpload() {
         fileInputRef.current?.click();
     };
 
-    const token = getClientToken();
+    const token = useAuthStore((s) => s.token);
+
     const handleSubmit = async () => {
         // 토큰 없으면 로그인 페이지 이동
         if (!token) {
