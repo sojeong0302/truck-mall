@@ -18,7 +18,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
     const router = useRouter();
     const { isLoggedIn, toggleAuth, isHydrated } = useAuthToggle();
     const { isModalOpen, setIsModalOpen, isSaleCompleteModalOpen, setIsSaleCompleteModalOpen } = useModalStore();
-    const token = useAuthStore((s) => s.token);
+    const token = getClientToken();
     const { post, loading, error, fetchById, clear } = useSaleDetailStore();
 
     useEffect(() => {

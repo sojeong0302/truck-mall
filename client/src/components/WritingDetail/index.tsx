@@ -37,7 +37,7 @@ export default function WritingDetail({
     const router = useRouter();
     const { isModalOpen, setIsModalOpen } = store;
     const { isLoggedIn, toggleAuth, isHydrated } = useAuthToggle();
-    const token = useAuthStore((s) => s.token);
+    const token = getClientToken();
     // 수정 페이지 이동
     const handleGoCrystal = () => {
         router.push(`/${crystalPath}/${id}`);

@@ -60,7 +60,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
     const { tags, setManufacturer, setModel, setSubModel, setGrade } = useFilterTagStore();
     const [isOpen, setIsOpen] = useState(false);
     const thumbFileRef = useRef<File | null>(null);
-    const token = useAuthStore((s) => s.token);
+    const token = getClientToken();
     //기존 값 가져오기
     useEffect(() => {
         const fetchPost = async () => {
@@ -150,22 +150,18 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         setThumbnail(preview);
     };
 
-    const stripToServerPath = (url: string) => {
-        if (!url) return url;
-        try {
-            const base = BASE_URL?.replace(/\/+$/, "") || "";
-            // BASE_URL로 시작하면 BASE_URL 제거
-            if (base && url.startsWith(base)) return url.slice(base.length) || "/";
-            // 프로토콜/도메인 제거 (/로 시작하는 path만 남김)
-            const m = url.match(/^https?:\/\/[^/]+(\/.*)$/);
-            return m ? m[1] : url;
-        } catch {
-            return url;
-        }
-    };
-
     //수정 api 연동
     const handleSubmit = async () => {
+        // 토큰 없으면 로그인 페이지 이동
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            const here = window.location.pathname + window.location.search;
+            requestAnimationFrame(() => {
+                router.replace(`/LoginPage?next=${encodeURIComponent(here)}`);
+            });
+            return;
+        }
+
         //formData=서버로 보낼 데이터 묶음
         const formData = new FormData();
 
@@ -202,16 +198,6 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         newImages.forEach((file) => formData.append("images", file, file.name));
 
         formData.append("content", content);
-
-        // 토큰 없으면 로그인 페이지 이동
-        if (!token) {
-            alert("로그인이 필요합니다.");
-            const here = window.location.pathname + window.location.search;
-            requestAnimationFrame(() => {
-                router.replace(`/LoginPage?next=${encodeURIComponent(here)}`);
-            });
-            return;
-        }
 
         try {
             const res = await fetch(`${BASE_URL}/sale/${id}`, {

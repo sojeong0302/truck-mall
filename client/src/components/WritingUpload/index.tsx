@@ -16,7 +16,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 export default function WritingUpload({ post, url }: WritingUploadProps) {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
     const router = useRouter();
-    const token = useAuthStore((s) => s.token);
+    const token = getClientToken();
 
     // ✅ 업로드는 useImageStore만 단일 소스로 사용
     const { files, previews, originURLs, clear } = useImageStore();
@@ -28,6 +28,15 @@ export default function WritingUpload({ post, url }: WritingUploadProps) {
     const { isModalOpen, setIsModalOpen } = useModalStore();
 
     const handleSubmit = async () => {
+        // 토큰 없으면 로그인 페이지 이동
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            const here = window.location.pathname + window.location.search;
+            requestAnimationFrame(() => {
+                router.replace(`/LoginPage?next=${encodeURIComponent(here)}`);
+            });
+            return;
+        }
         // 기존 이미지(URL) 중 남겨둘 것만 prevImages로 전송
         const currentPrevImageURLs = previews.filter((p) => originURLs.includes(p));
 
@@ -46,16 +55,6 @@ export default function WritingUpload({ post, url }: WritingUploadProps) {
         });
         console.log("==========================");
         const endpoint = url === "ReviewPage" ? `${BASE_URL}/review/uploadReview` : `${BASE_URL}/carTIP/uploadCarTIP`;
-
-        // 토큰 없으면 로그인 페이지 이동
-        if (!token) {
-            alert("로그인이 필요합니다.");
-            const here = window.location.pathname + window.location.search;
-            requestAnimationFrame(() => {
-                router.replace(`/LoginPage?next=${encodeURIComponent(here)}`);
-            });
-            return;
-        }
 
         try {
             await axios.post(endpoint, formData, {
