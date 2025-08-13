@@ -8,6 +8,7 @@ import uuid
 from werkzeug.utils import secure_filename
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from .utils import to_abs_url
+from datetime import datetime, timezone
 
 carTIP_bp = Blueprint("carTIP", __name__)
 
@@ -106,12 +107,16 @@ def create_carTIP():
         title=title,  # ""이면 그대로 저장 (NOT NULL 충족)
         content=content,  # ""이면 그대로 저장
         images=saved_image_paths,  # JSON 리스트
-        # date는 넣지 않음 → DateTime(server_default=func.now())가 자동 채움
         view=0,
     )
 
-    db.session.add(new_carTIP)
-    db.session.commit()
+    try:
+        db.session.add(new_carTIP)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
     return jsonify({"message": "등록되었습니다.", "id": new_carTIP.id}), 201
 
 
