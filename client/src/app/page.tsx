@@ -137,7 +137,7 @@ export default function MainPage() {
                                     </div> */}
                                     <div
                                         onClick={() => router.push(`/CarTIPDetailPage/${item.id}`)}
-                                        className="hidden sm:block w-[25%] h-[180px] min-w-[150px] rounded-xl shadow-lg flex items-center justify-center bg-gray-100 overflow-hidden"
+                                        className="hidden sm:block w-[200px] h-[150px] rounded-xl shadow-lg flex items-center justify-center bg-gray-100 overflow-hidden"
                                     >
                                         {item.images &&
                                         item.images.length > 0 &&
