@@ -46,6 +46,7 @@ export default function WritingUpload({ post, url }: WritingUploadProps) {
         });
         console.log("==========================");
         const endpoint = url === "ReviewPage" ? `${BASE_URL}/review/uploadReview` : `${BASE_URL}/carTIP/uploadCarTIP`;
+
         // 토큰 없으면 로그인 페이지 이동
         if (!token) {
             alert("로그인이 필요합니다.");
@@ -55,6 +56,7 @@ export default function WritingUpload({ post, url }: WritingUploadProps) {
             });
             return;
         }
+
         try {
             await axios.post(endpoint, formData, {
                 headers: { Authorization: `Bearer ${token}` },

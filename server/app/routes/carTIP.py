@@ -108,7 +108,8 @@ def create_carTIP():
         new_carTIP = CarTIP(
             title=title,
             content=content,
-            images=saved_image_paths,  # []도 OK
+            images=saved_image_paths,
+            date=datetime.now(timezone.utc),
             view=0,
         )
         db.session.add(new_carTIP)
