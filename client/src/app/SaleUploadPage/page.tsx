@@ -112,16 +112,10 @@ export default function WritingUpload() {
         });
 
         formData.append("content", content);
-
         try {
-            const res = await fetch(`${BASE_URL}/sale/uploadSale`, {
-                method: "POST",
-                body: formData,
+            const { data } = await axios.post(`${BASE_URL}/sale/uploadSale`, formData, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-
-            // 성공 처리
-            const data = await res.json();
             router.push(`/SaleDetailPage/${data.car.id}`);
         } catch (error) {}
     };
