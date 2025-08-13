@@ -46,7 +46,7 @@ export default function Bulletin({ posts, basePath, uploadPath }: BulletinCompon
                             {post.content}
                         </div>
                         <div className="p-2 w-[20%] text-center truncate overflow-hidden whitespace-nowrap">
-                            <span className="hidden sm:inline">{post.date}</span>
+                            <span className="hidden sm:inline">{post.date?.split("T")[0].split("-").join("-")}</span>
                             <span className="inline sm:hidden">{post.date?.slice(5)}</span>
                         </div>
 
