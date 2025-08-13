@@ -146,7 +146,7 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                                         className="w-full h-full object-cover"
                                     />
                                 ) : (
-                                    <div className="text-gray-500 flex items-center text-sm text-center">
+                                    <div className="text-gray-500 flex items-center justify-center text-sm text-center">
                                         이미지 준비중 입니다.
                                     </div>
                                 )}
