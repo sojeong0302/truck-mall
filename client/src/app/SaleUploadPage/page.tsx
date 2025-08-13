@@ -72,8 +72,16 @@ export default function WritingUpload() {
         fileInputRef.current?.click();
     };
 
-    const token = useAuthStore((s) => s.token);
+    const token = getClientToken();
     const handleSubmit = async () => {
+        // 토큰 없으면 로그인 페이지 이동
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            const here = window.location.pathname + window.location.search;
+            router.replace(`/LoginPage?next=${encodeURIComponent(here)}`);
+            return; // ← 여기서 반드시 종료
+        }
+
         //formData=서버로 보낼 데이터 묶음
         const formData = new FormData();
 
@@ -107,16 +115,6 @@ export default function WritingUpload() {
         });
 
         formData.append("content", content);
-
-        // 토큰 없으면 로그인 페이지 이동
-        if (!token) {
-            alert("로그인이 필요합니다.");
-            const here = window.location.pathname + window.location.search;
-            requestAnimationFrame(() => {
-                router.replace(`/LoginPage?next=${encodeURIComponent(here)}`);
-            });
-            return;
-        }
 
         try {
             const res = await fetch(`${BASE_URL}/sale/uploadSale`, {
