@@ -58,7 +58,6 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
     const { files, originURLs } = useImageStore();
     const { simpleTag, setSimpleTag } = useSimpleTagStore();
     const { tags, setManufacturer, setModel, setSubModel, setGrade } = useFilterTagStore();
-    const [selected, setSelected] = useState("");
     const [isOpen, setIsOpen] = useState(false);
     const thumbFileRef = useRef<File | null>(null);
     const token = useAuthStore((s) => s.token);
@@ -151,6 +150,20 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         setThumbnail(preview);
     };
 
+    const stripToServerPath = (url: string) => {
+        if (!url) return url;
+        try {
+            const base = BASE_URL?.replace(/\/+$/, "") || "";
+            // BASE_URL로 시작하면 BASE_URL 제거
+            if (base && url.startsWith(base)) return url.slice(base.length) || "/";
+            // 프로토콜/도메인 제거 (/로 시작하는 path만 남김)
+            const m = url.match(/^https?:\/\/[^/]+(\/.*)$/);
+            return m ? m[1] : url;
+        } catch {
+            return url;
+        }
+    };
+
     //수정 api 연동
     const handleSubmit = async () => {
         //formData=서버로 보낼 데이터 묶음
@@ -162,8 +175,18 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         formData.append("tags", JSON.stringify(tags));
         formData.append("transmission", transmission);
 
+        // if (thumbFileRef.current) {
+        //     formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
+        // }
         if (thumbFileRef.current) {
             formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
+        } else if (thumbnail && !thumbnail.startsWith("blob:") && !thumbnail.startsWith("data:")) {
+            try {
+                const blob = await fetch(thumbnail).then((r) => r.blob());
+                formData.append("thumbnail", new File([blob], "thumbnail.jpg", { type: blob.type || "image/jpeg" }));
+            } catch (e) {
+                console.warn("[edit] thumbnail fetch failed, skip", e);
+            }
         }
         formData.append("name", name);
         formData.append("fuel", fuel);
