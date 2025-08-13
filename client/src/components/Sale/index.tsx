@@ -146,8 +146,8 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                                         className="w-full h-full object-cover"
                                     />
                                 ) : (
-                                    <div className="hidden sm:flex items-center justify-center w-[200px] h-[150px] bg-gray-100 text-gray-500 rounded-xl mb-4 sm:mb-0">
-                                        이미지 준비 중입니다.
+                                    <div className="flex w-full h-full items-center justify-center text-sm text-center text-gray-500">
+                                        이미지 준비중 입니다.
                                     </div>
                                 )}
                             </div>
