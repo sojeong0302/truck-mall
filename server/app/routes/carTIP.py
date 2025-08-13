@@ -41,97 +41,97 @@ def car_tip_list():
 
 
 # 등록 api
-# @carTIP_bp.route("/uploadCarTIP", methods=["POST"])
-# @jwt_required()
-# def create_carTIP():
-#     title = request.form.get("title")
-#     content = request.form.get("content")
-#     images = request.files.getlist("images")
-#     date = datetime.now().strftime("%Y-%m-%d")
-#     view = 0
-
-#     saved_image_paths = []
-
-#     for image in images:
-#         ext = os.path.splitext(image.filename)[1]
-#         unique_filename = (
-#             f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex}{ext}"
-#         )
-#         save_path = os.path.join(UPLOAD_DIR, unique_filename)
-#         image.save(save_path)
-
-#         # ✅ 절대 URL 대신 상대 경로로 저장
-#         image_url = f"/carTIP/uploads/{unique_filename}"
-#         # saved_image_paths.append(image_url)
-#         saved_image_paths.append(f"{BASE_URL}/carTIP/uploads/{unique_filename}")
-
-#     new_carTIP = CarTIP(
-#         title=title,
-#         images=saved_image_paths,
-#         content=content,
-#         date=date,
-#         view=view,
-#     )
-#     db.session.add(new_carTIP)
-#     db.session.commit()
-
-#     return jsonify({"message": "리뷰가 등록되었습니다."}), 201
-
-
 @carTIP_bp.route("/uploadCarTIP", methods=["POST"])
 @jwt_required()
 def create_carTIP():
-    try:
-        # 1) 입력 정규화: None -> "" (문자열 컬럼은 "" 허용)
-        title = (request.form.get("title") or "").strip()
-        content = (request.form.get("content") or "").strip()
+    title = request.form.get("title")
+    content = request.form.get("content")
+    images = request.files.getlist("images")
+    date = datetime.now().strftime("%Y-%m-%d")
+    view = 0
 
-        # 2) 업로드 디렉토리 보장
-        os.makedirs(UPLOAD_DIR, exist_ok=True)
+    saved_image_paths = []
 
-        # 3) 파일 저장
-        files = request.files.getlist("images") or []
-        saved_image_paths = []
-        for f in files:
-            if not f or not getattr(f, "filename", ""):
-                continue
-            ext = os.path.splitext(f.filename)[1]
-            unique_filename = (
-                f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex}{ext}"
-            )
-            save_path = os.path.join(UPLOAD_DIR, unique_filename)
-            f.save(save_path)
-            # 상대 경로로 저장(도메인 바뀌어도 안전)
-            saved_image_paths.append(f"/carTIP/uploads/{unique_filename}")
-
-        # 4) date는 넣지 않음(서버 기본값이 채움)
-        new_carTIP = CarTIP(
-            title=title,
-            content=content,
-            images=saved_image_paths,
-            date=datetime.now(timezone.utc),
-            view=0,
+    for image in images:
+        ext = os.path.splitext(image.filename)[1]
+        unique_filename = (
+            f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex}{ext}"
         )
-        db.session.add(new_carTIP)
-        db.session.commit()
+        save_path = os.path.join(UPLOAD_DIR, unique_filename)
+        image.save(save_path)
 
-        return jsonify({"message": "등록되었습니다.", "id": new_carTIP.id}), 201
+        # ✅ 절대 URL 대신 상대 경로로 저장
+        image_url = f"/carTIP/uploads/{unique_filename}"
+        # saved_image_paths.append(image_url)
+        saved_image_paths.append(f"{BASE_URL}/carTIP/uploads/{unique_filename}")
 
-    except Exception as e:
-        db.session.rollback()
-        # 🔎 디버그 정보: 정확한 에러 원인을 응답으로 보기
-        current_app.logger.exception("CarTIP upload failed")
-        return (
-            jsonify(
-                {
-                    "error": str(e),
-                    "trace": traceback.format_exc(),
-                    "form_keys": list(request.form.keys()),
-                    "file_keys": list(request.files.keys()),
-                }
-            ),
-            500,
-        )
+    new_carTIP = CarTIP(
+        title=title,
+        images=saved_image_paths,
+        content=content,
+        date=date,
+        view=view,
+    )
+    db.session.add(new_carTIP)
+    db.session.commit()
+
+    return jsonify({"message": "리뷰가 등록되었습니다."}), 201
+
+
+# @carTIP_bp.route("/uploadCarTIP", methods=["POST"])
+# @jwt_required()
+# def create_carTIP():
+#     try:
+#         # 1) 입력 정규화: None -> "" (문자열 컬럼은 "" 허용)
+#         title = (request.form.get("title") or "").strip()
+#         content = (request.form.get("content") or "").strip()
+
+#         # 2) 업로드 디렉토리 보장
+#         os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+#         # 3) 파일 저장
+#         files = request.files.getlist("images") or []
+#         saved_image_paths = []
+#         for f in files:
+#             if not f or not getattr(f, "filename", ""):
+#                 continue
+#             ext = os.path.splitext(f.filename)[1]
+#             unique_filename = (
+#                 f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex}{ext}"
+#             )
+#             save_path = os.path.join(UPLOAD_DIR, unique_filename)
+#             f.save(save_path)
+#             # 상대 경로로 저장(도메인 바뀌어도 안전)
+#             saved_image_paths.append(f"/carTIP/uploads/{unique_filename}")
+
+#         # 4) date는 넣지 않음(서버 기본값이 채움)
+#         new_carTIP = CarTIP(
+#             title=title,
+#             content=content,
+#             images=saved_image_paths,
+#             date=datetime.now(timezone.utc),
+#             view=0,
+#         )
+#         db.session.add(new_carTIP)
+#         db.session.commit()
+
+#         return jsonify({"message": "등록되었습니다.", "id": new_carTIP.id}), 201
+
+#     except Exception as e:
+#         db.session.rollback()
+#         # 🔎 디버그 정보: 정확한 에러 원인을 응답으로 보기
+#         current_app.logger.exception("CarTIP upload failed")
+#         return (
+#             jsonify(
+#                 {
+#                     "error": str(e),
+#                     "trace": traceback.format_exc(),
+#                     "form_keys": list(request.form.keys()),
+#                     "file_keys": list(request.files.keys()),
+#                 }
+#             ),
+#             500,
+#         )
 
 
 # ✅ 특정 차량 TIP 상세 조회
