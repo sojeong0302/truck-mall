@@ -9,7 +9,6 @@ import { useAuthToggle } from "@/components/Header/Header.hooks";
 import Modal from "@/components/Modal";
 import { useModalStore } from "@/store/ModalStateStroe";
 import { useSaleDetailStore } from "./saleDetailStore";
-import { getClientToken } from "@/utils/auth";
 import { useAuthStore } from "@/store/useAuthStore";
 
 export default function ReviewPage({ params }: { params: Promise<{ id: string }> }) {
@@ -29,7 +28,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
 
     const handleGoCrystal = () => router.push(`/SaleCrystalPage/${id}`);
 
-    //삭제 api 연동
+    //삭제 API 연동
     const handleDelete = async () => {
         // 토큰 없으면 로그인 페이지 이동
         if (!token) {
@@ -41,9 +40,11 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
             return;
         }
         try {
-            await fetch(`${BASE_URL}/sale/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+            await axios.delete(`${BASE_URL}/sale/${id}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
             router.push("/CarSearchPage");
-        } catch {}
+        } catch (err) {}
     };
 
     const getImageUrl = (url: string) => {
@@ -52,22 +53,20 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
         return `${BASE_URL}${url}`;
     };
 
-    //판매완료 시키기
+    //판매완료 API 연동
     const salesCompleted = async () => {
         try {
-            await fetch(`${BASE_URL}/sale/${id}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ status: false }),
-            });
+            await axios.put(
+                `${BASE_URL}/sale/${id}`,
+                { status: false },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
 
             useSaleDetailStore.setState((state) => ({
                 post: state.post ? { ...state.post, status: false } : state.post,
             }));
             setIsSaleCompleteModalOpen(false);
-        } catch (error) {
-            console.error("판매완료 변경 실패:", error);
-        }
+        } catch (error) {}
     };
 
     if (loading) return <div className="p-10">불러오는 중…</div>;

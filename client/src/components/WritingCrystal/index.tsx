@@ -8,7 +8,6 @@ import { useModalStore } from "@/store/ModalStateStroe";
 import { useEffect, useCallback, useMemo } from "react";
 import { useImageStore } from "@/store/imageStore";
 import { useRouter } from "next/navigation";
-import { getClientToken } from "@/utils/auth";
 import { useAuthStore } from "@/store/useAuthStore";
 
 interface Post {

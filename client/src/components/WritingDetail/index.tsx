@@ -8,7 +8,6 @@ import SwiperWithLightbox from "@/components/SwiperWithLightbox";
 import { useAuthToggle } from "../Header/Header.hooks";
 import Modal from "../Modal";
 import { useModalStore } from "@/store/ModalStateStroe";
-import { getClientToken } from "@/utils/auth";
 import { getImageUrl } from "@/utils/getImageUrl";
 import { useAuthStore } from "@/store/useAuthStore";
 

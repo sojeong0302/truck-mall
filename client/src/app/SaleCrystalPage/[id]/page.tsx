@@ -14,7 +14,6 @@ import Filter from "@/components/Filter";
 import { useImageStore } from "@/store/imageStore";
 import { useSimpleTagStore } from "@/store/simpleTagStore";
 import { useFilterTagStore } from "@/components/Filter/Filter.types";
-import { getClientToken } from "@/utils/auth";
 import { useAuthStore } from "@/store/useAuthStore";
 
 export default function SaleCrystalPage({ params }: { params: Promise<{ id: string }> }) {

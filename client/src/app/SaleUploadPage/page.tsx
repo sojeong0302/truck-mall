@@ -13,7 +13,6 @@ import axios from "axios";
 import { useSimpleTagStore } from "@/store/simpleTagStore";
 import { useRouter } from "next/navigation";
 import { SaleCrystalPagePropStore } from "../SaleCrystalPage/[id]/SaleCrystalPage.types";
-import { getClientToken } from "@/utils/auth";
 import { useAuthStore } from "@/store/useAuthStore";
 
 export default function WritingUpload() {

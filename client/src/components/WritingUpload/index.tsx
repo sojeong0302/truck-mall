@@ -10,7 +10,6 @@ import { useImageStore } from "@/store/imageStore";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { WritingUploadProps } from "./WritingUpload.types";
-import { getClientToken } from "@/utils/auth";
 import { useAuthStore } from "@/store/useAuthStore";
 
 export default function WritingUpload({ post, url }: WritingUploadProps) {
