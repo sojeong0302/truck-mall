@@ -61,7 +61,7 @@ export default function MainPage() {
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 bg-[#F5F5F5] z-10 text-[#D4B76A] text-xl sm:text-4xl font-bold">
                         TIP
                     </div>
-                    <Swiper
+                    {/* <Swiper
                         modules={[Navigation, Pagination, Autoplay]}
                         navigation
                         pagination={{ clickable: true }}
@@ -94,7 +94,51 @@ export default function MainPage() {
                                 </div>
                             </SwiperSlide>
                         ))}
-                    </Swiper>
+                    </Swiper> */}
+                    {(carTIPs?.length ?? 0) === 0 ? (
+                        <div className="w-full flex items-center justify-center py-16 text-gray-500">
+                            등록된 글이 없습니다.
+                        </div>
+                    ) : (
+                        <Swiper
+                            modules={[Navigation, Pagination, Autoplay]}
+                            navigation
+                            pagination={{ clickable: true }}
+                            autoplay={{ delay: 10000, disableOnInteraction: false }}
+                            loop={true}
+                            className="w-full"
+                        >
+                            {carTIPs.map((item, i) => (
+                                <SwiperSlide key={i}>
+                                    <div
+                                        onClick={() => router.push(`/CarTIPDetailPage/${item.id}`)}
+                                        className="flex items-center justify-center gap-10 p-14 "
+                                    >
+                                        {item.images &&
+                                        item.images.length > 0 &&
+                                        !item.images[0].startsWith("blob:") ? (
+                                            <img
+                                                src={item.images[0]}
+                                                alt="대표 이미지"
+                                                className="hidden sm:block shadow-lg w-[200px] h-[150px] object-cover rounded-xl mb-4 sm:mb-0"
+                                            />
+                                        ) : (
+                                            <div className="hidden sm:flex items-center justify-center w-[200px] h-[150px] bg-gray-100 text-gray-500 rounded-xl mb-4 sm:mb-0">
+                                                이미지 준비 중입니다.
+                                            </div>
+                                        )}
+
+                                        <div className="flex flex-col gap-5 justify-center">
+                                            <p className="font-semibold text-xl sm:text-2xl">{item.title}</p>
+                                            <p className="text-gray-500 line-clamp-3 text-sm sm:text-xl">
+                                                {item.content}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </SwiperSlide>
+                            ))}
+                        </Swiper>
+                    )}
                 </div>
             </div>
             {/* 매물 게시글 */}
