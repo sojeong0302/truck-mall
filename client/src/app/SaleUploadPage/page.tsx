@@ -332,7 +332,7 @@ export default function WritingUpload() {
                     <ShortButton onClick={handleSubmit} className="bg-[#2E7D32] text-white">
                         등록하기
                     </ShortButton>
-                    <ShortButton onClick={handleSubmit} className="bg-white border-3 border-[#2E7D32]">
+                    <ShortButton onClick={() => setIsModalOpen(true)} className="bg-white border-3 border-[#2E7D32]">
                         취소
                     </ShortButton>
                 </div>
