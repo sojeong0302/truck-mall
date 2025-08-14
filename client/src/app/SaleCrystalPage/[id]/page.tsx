@@ -249,7 +249,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
 
         try {
             const { data } = await authApi.put(`${BASE_URL}/sale/${id}`, formData, {
-                headers: { Authorization: `Bearer ${token}` }, // Content-Type은 지정 X (브라우저가 boundary 포함해 자동 설정)
+                headers: { Authorization: `Bearer ${token}`, "Content-Type": undefined },
             });
             alert("수정 되었습니다.");
             // router.back();
