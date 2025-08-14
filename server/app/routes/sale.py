@@ -357,16 +357,25 @@ def update_sale(sale_id):
                 current_app.logger.warning(f"tags 파싱 실패: {e}")
 
         # 숫자/문자열 필드 (기존 유지)
-        sale.year = to_int_or_none(form.get("year"))
-        sale.price = to_int_or_none(form.get("price"))
-        sale.mileage = to_int_or_none(form.get("mileage"))
-        sale.name = form.get("name") or ""
-        sale.fuel = form.get("fuel") or ""
-        sale.type = form.get("type") or ""
-        sale.trim = form.get("trim") or ""
-        sale.color = form.get("color") or ""
-        sale.content = form.get("content") or ""
-        sale.transmission = form.get("transmission") or ""
+        # 숫자
+        year = to_int_or_none(form.get("year"))
+        price = to_int_or_none(form.get("price"))
+        mileage = to_int_or_none(form.get("mileage"))
+
+        sale.year = sale.year if year is None else year
+        sale.price = sale.price if price is None else price
+        sale.mileage = sale.mileage if mileage is None else mileage
+
+        # 문자열
+        sale.name = apply_if_present(form.get("name"), sale.name)
+        sale.fuel = apply_if_present(form.get("fuel"), sale.fuel)
+        sale.type = apply_if_present(form.get("type"), sale.type)
+        sale.trim = apply_if_present(form.get("trim"), sale.trim)
+        sale.color = apply_if_present(form.get("color"), sale.color)
+        sale.content = apply_if_present(form.get("content"), sale.content)
+        sale.transmission = apply_if_present(
+            form.get("transmission"), sale.transmission
+        )
 
         # --- 썸네일 상태 처리 (핵심) ---
         thumb_state = form.get("thumbnail_state", "keep")
@@ -376,9 +385,15 @@ def update_sale(sale_id):
         )
 
         if thumb_state == "new" and new_thumb:
+            # 이전 파일 제거 후 새로 저장
+            delete_file_if_exists(sale.thumbnail)
             sale.thumbnail = save_uploaded_file(new_thumb)
+
         elif thumb_state == "remove":
-            sale.thumbnail = None  # nullable=True 권장
+            # 이전 파일 제거 + DB NULL
+            delete_file_if_exists(sale.thumbnail)
+            sale.thumbnail = None  # 컬럼 nullable=True 권장
+
         # keep이면 변경 없음
 
         # 기존 이미지 URL (기존 로직)
@@ -447,6 +462,26 @@ def update_sale(sale_id):
     current_app.logger.info(f"[update_sale] after commit thumbnail={sale.thumbnail}")
 
     return jsonify({"message": "success", "sale": sale.to_dict()}), 200
+
+
+def delete_file_if_exists(web_path: str | None):
+    if not web_path:
+        return
+    try:
+        abs_path = os.path.join(current_app.root_path, web_path.lstrip("/"))
+        if os.path.exists(abs_path):
+            os.remove(abs_path)
+    except Exception as e:
+        current_app.logger.warning(f"thumb delete fail: {e}")
+
+
+def apply_if_present(val, current):
+    # None 또는 ""(공백 포함) 이면 기존값 유지
+    if val is None:
+        return current
+    if isinstance(val, str) and val.strip() == "":
+        return current
+    return val
 
 
 # 삭제 api
