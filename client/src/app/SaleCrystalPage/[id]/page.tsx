@@ -22,7 +22,6 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
     const modalStore = useModalStore();
     const { isModalOpen, setIsModalOpen } = modalStore;
     const router = useRouter();
-    // 새로 추가
     const [prevImages, setPrevImages] = useState<string[]>([]);
     const [newImages, setNewImages] = useState<File[]>([]);
 
@@ -165,14 +164,9 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         const formData = new FormData();
 
         formData.append("simple_tags", JSON.stringify(simpleTag || null));
-
-        // 서버에서 원하는 계층형 구조로 전송
         formData.append("tags", JSON.stringify(tags));
         formData.append("transmission", transmission);
 
-        // if (thumbFileRef.current) {
-        //     formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
-        // }
         if (thumbFileRef.current) {
             formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
         } else if (thumbnail && !thumbnail.startsWith("blob:") && !thumbnail.startsWith("data:")) {

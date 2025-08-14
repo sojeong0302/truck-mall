@@ -73,13 +73,14 @@ export default function WritingUpload() {
 
     const token = useAuthStore((s) => s.token);
 
+    // 등록 API 연동
     const handleSubmit = async () => {
         // 토큰 없으면 로그인 페이지 이동
         if (!token) {
             alert("로그인이 만료되었어요. \n다시 로그인해 주세요.");
             const here = window.location.pathname + window.location.search;
             router.replace(`/LoginPage?next=${encodeURIComponent(here)}`);
-            return; // ← 여기서 반드시 종료
+            return;
         }
 
         //formData=서버로 보낼 데이터 묶음
@@ -119,7 +120,7 @@ export default function WritingUpload() {
         } catch (error) {}
     };
 
-    //변속기 선택지
+    // 변속기 선택지
     const handleSelect = (item: string) => {
         setSelected(item);
         setIsOpen(false);
@@ -136,6 +137,18 @@ export default function WritingUpload() {
         tags.models?.[0]?.subModels?.[0]?.name,
         tags.models?.[0]?.subModels?.[0]?.grades?.[0],
     ].filter(Boolean);
+
+    // 썸네일 삭제
+    const handleRemoveThumbnail = () => {
+        try {
+            if (thumbnail && thumbnail.startsWith("blob:")) {
+                URL.revokeObjectURL(thumbnail);
+            }
+        } catch {}
+        setThumbnail("");
+        setThumbnailFile(null as any);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+    };
 
     return (
         <>
@@ -180,7 +193,7 @@ export default function WritingUpload() {
                     </div>
                 </div>
                 <div className="w-full flex flex-col sm:flex-col justify-center gap-15">
-                    <div
+                    {/* <div
                         className="flex justify-center items-center cursor-pointer shadow-lg rounded-xl w-[]sm:w-[50%] aspect-square sm:min-w-[150px] bg-[rgba(179,179,179,0.25)] overflow-hidden"
                         onClick={handleClick}
                     >
@@ -200,7 +213,38 @@ export default function WritingUpload() {
                                 className="w-[60px] h-[60px] opacity-70"
                             />
                         )}
+                    </div> */}
+                    <div
+                        className="flex justify-center items-center cursor-pointer shadow-lg rounded-xl w-[]sm:w-[50%] aspect-square sm:min-w-[150px] bg-[rgba(179,179,179,0.25)] overflow-hidden"
+                        onClick={handleClick}
+                        onDoubleClick={thumbnail ? handleRemoveThumbnail : undefined} // 더블클릭 시 제거
+                        title={thumbnail ? "더블클릭하면 썸네일이 삭제됩니다." : "클릭해서 썸네일을 선택하세요."}
+                    >
+                        <input
+                            type="file"
+                            accept="image/*"
+                            ref={fileInputRef}
+                            onChange={handleImageChange}
+                            className="hidden"
+                        />
+
+                        {thumbnail ? (
+                            <img
+                                src={thumbnail}
+                                alt="선택된 이미지"
+                                className="w-full h-full object-cover select-none"
+                                draggable={false}
+                            />
+                        ) : (
+                            <img
+                                src="/images/addToPhoto.png"
+                                alt="사진 추가"
+                                className="w-[60px] h-[60px] opacity-70 select-none"
+                                draggable={false}
+                            />
+                        )}
                     </div>
+
                     <div className="flex flex-col justify-around">
                         <input
                             className="font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2"

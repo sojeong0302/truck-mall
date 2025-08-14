@@ -79,7 +79,6 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
         } catch (error) {}
     };
 
-    // if (loading) return <div className="p-10">불러오는 중…</div>;
     if (loading) {
         return (
             <div className="flex justify-center items-center p-10">
