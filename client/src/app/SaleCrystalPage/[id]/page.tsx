@@ -296,27 +296,6 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
             <div className="w-full flex justify-center flex-col items-center p-5 sm:p-15">
                 <div className="w-[95%] sm:w-[80%] flex flex-col sm:gap-15 gap-5">
                     <div className="w-full flex-col flex justify-center gap-5 sm:gap-15">
-                        {/* <div
-                            className="flex justify-center items-center cursor-pointer shadow-lg rounded-xl w-[]sm:w-[50%] aspect-square sm:min-w-[150px] bg-[rgba(179,179,179,0.25)] overflow-hidden"
-                            onClick={handleImageClick}
-                        >
-                            <input
-                                type="file"
-                                accept="image/*"
-                                ref={fileInputRef}
-                                onChange={handleImageChange}
-                                className="hidden"
-                            />
-                            {thumbnail ? (
-                                <img src={thumbnail} alt="선택된 이미지" className="w-full h-full object-cover" />
-                            ) : (
-                                <img
-                                    src="/images/addToPhoto.png"
-                                    alt="사진 추가"
-                                    className="w-[60px] h-[60px] opacity-70"
-                                />
-                            )}
-                        </div> */}
                         <div
                             className="flex justify-center items-center cursor-pointer shadow-lg rounded-xl w-[]sm:w-[50%] aspect-square sm:min-w-[150px] bg-[rgba(179,179,179,0.25)] overflow-hidden"
                             onClick={!thumbnail ? handleImageClick : undefined}
@@ -331,12 +310,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                                 className="hidden"
                             />
                             {thumbnail ? (
-                                <img
-                                    src={thumbnail}
-                                    alt="선택된 이미지"
-                                    className="w-full h-full object-cover"
-                                    // ⛔ 이중 바인딩 방지: 여기 onDoubleClick 제거
-                                />
+                                <img src={thumbnail} alt="선택된 이미지" className="w-full h-full object-cover" />
                             ) : (
                                 <img
                                     src="/images/addToPhoto.png"

@@ -5,6 +5,8 @@ import EtcPoto from "@/components/EtcPoto";
 import TextArea from "@/components/TextArea";
 import ShortButton from "@/components/ShortButton";
 import Filter from "@/components/Filter";
+import Modal from "@/components/Modal";
+import { useModalStore } from "@/store/ModalStateStroe";
 import { useFilterTagStore } from "@/components/Filter/Filter.types";
 import SimpleFilter from "@/components/SimpleFilter";
 import { useCarFormStore } from "@/store/carFormStore";
@@ -17,6 +19,8 @@ import { authApi } from "@/lib/api";
 
 export default function WritingUpload() {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+    const modalStore = useModalStore();
+    const { isModalOpen, setIsModalOpen } = modalStore;
     const { simpleTag } = useSimpleTagStore();
     const { tags, setManufacturer, setModel, setSubModel, setGrade } = useFilterTagStore();
     const { files, originURLs } = useImageStore();
@@ -148,6 +152,10 @@ export default function WritingUpload() {
         setThumbnail("");
         setThumbnailFile(null);
         if (fileInputRef.current) fileInputRef.current.value = "";
+    };
+
+    const handleCancel = () => {
+        router.back();
     };
 
     return (
@@ -301,7 +309,6 @@ export default function WritingUpload() {
                                 <div className="font-bold">가격</div>
                                 <input
                                     onKeyDown={(e) => {
-                                        // 허용할 키만 통과 (숫자, 백스페이스, 화살표 등)
                                         const allowedKeys = ["Backspace", "ArrowLeft", "ArrowRight", "Delete", "Tab"];
                                         if (!/[0-9]/.test(e.key) && !allowedKeys.includes(e.key)) {
                                             e.preventDefault();
@@ -321,7 +328,6 @@ export default function WritingUpload() {
                 </div>
                 <EtcPoto />
                 <TextArea value={content} setContent={(v) => setField("content", v)} />
-
                 <div className="flex gap-3 justify-end">
                     <ShortButton onClick={handleSubmit} className="bg-[#2E7D32] text-white">
                         등록하기
@@ -330,6 +336,12 @@ export default function WritingUpload() {
                         취소
                     </ShortButton>
                 </div>
+                {isModalOpen && (
+                    <Modal
+                        onConfirm={handleCancel}
+                        text={"작성 중인 내용이 모두 삭제됩니다.\n그래도 취소하시겠습니까?"}
+                    />
+                )}
             </div>
         </>
     );
