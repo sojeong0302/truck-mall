@@ -139,16 +139,16 @@ export default function WritingUpload() {
     ].filter(Boolean);
 
     // 썸네일 삭제
+    // 1) 썸네일 클리어 핸들러 (메모리 정리 포함)
     const handleClearThumbnail = () => {
-        // blob URL 정리(메모리 누수 방지)
         if (thumbnail?.startsWith("blob:")) {
             try {
                 URL.revokeObjectURL(thumbnail);
             } catch {}
         }
-        setThumbnail(""); // 미리보기 제거
-        setThumbnailFile(null); // 실제 파일 제거
-        if (fileInputRef.current) fileInputRef.current.value = ""; // 같은 파일 재선택 허용
+        setThumbnail("");
+        setThumbnailFile(null);
+        if (fileInputRef.current) fileInputRef.current.value = "";
     };
 
     return (
@@ -215,11 +215,12 @@ export default function WritingUpload() {
                             />
                         )}
                     </div> */}
+                    // 2) 썸네일 영역: 썸네일이 있을 땐 onClick 제거, onDoubleClick만 활성화
                     <div
                         className="flex justify-center items-center cursor-pointer shadow-lg rounded-xl w-[]sm:w-[50%] aspect-square sm:min-w-[150px] bg-[rgba(179,179,179,0.25)] overflow-hidden"
-                        onClick={handleClick}
-                        onDoubleClick={handleClearThumbnail} // ← 이 줄 추가
-                        title="더블클릭하면 썸네일이 제거됩니다"
+                        onClick={!thumbnail ? handleClick : undefined} // ← 썸네일 없을 때만 파일 선택
+                        onDoubleClick={thumbnail ? handleClearThumbnail : undefined} // ← 썸네일 있을 때만 더블클릭 삭제
+                        title={thumbnail ? "더블클릭: 썸네일 삭제" : "클릭: 썸네일 선택"}
                     >
                         <input
                             type="file"
@@ -228,12 +229,17 @@ export default function WritingUpload() {
                             onChange={handleImageChange}
                             className="hidden"
                         />
+
                         {thumbnail ? (
                             <img
                                 src={thumbnail}
                                 alt="선택된 이미지"
                                 className="w-full h-full object-cover"
-                                onDoubleClick={handleClearThumbnail} // ← 여기에도 달아두면 더 정확
+                                onDoubleClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation(); // 부모 onClick으로 버블링 방지
+                                    handleClearThumbnail();
+                                }}
                             />
                         ) : (
                             <img
