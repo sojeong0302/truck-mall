@@ -183,7 +183,6 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         router.back();
     };
     // 삭제 버튼 클릭 시
-    // 삭제 버튼 클릭 시
     const handleDeleteThumbnail = () => {
         setThumbnailState("remove");
         setThumbnail("");
@@ -196,7 +195,6 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
 
     //수정 api 연동
     const handleSubmit = async () => {
-        // 토큰 없으면 로그인 페이지 이동
         if (!token) {
             alert("로그인이 필요합니다.");
             const here = window.location.pathname + window.location.search;
@@ -206,29 +204,16 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
             return;
         }
 
-        //formData=서버로 보낼 데이터 묶음
         const formData = new FormData();
-
         formData.append("simple_tags", JSON.stringify(simpleTag || null));
         formData.append("tags", JSON.stringify(tags));
         formData.append("transmission", transmission);
-
-        // if (thumbFileRef.current) {
-        //     formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
-        // } else if (thumbnail && !thumbnail.startsWith("blob:") && !thumbnail.startsWith("data:")) {
-        //     try {
-        //         const blob = await fetch(thumbnail).then((r) => r.blob());
-        //         formData.append("thumbnail", new File([blob], "thumbnail.jpg", { type: blob.type || "image/jpeg" }));
-        //     } catch (e) {
-        //         console.warn("[edit] thumbnail fetch failed, skip", e);
-        //     }
-        // }
-
         formData.append("thumbnail_state", thumbnailState);
 
         if (thumbnailState === "new" && thumbFileRef.current) {
             formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
         }
+
         formData.append("name", name);
         formData.append("fuel", fuel);
         formData.append("type", type);
@@ -237,11 +222,8 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         formData.append("mileage", mileage);
         formData.append("color", color);
         formData.append("price", price);
-        // 기존 이미지
         prevImages.forEach((url) => formData.append("originImages", url));
-        // 새 이미지
         newImages.forEach((file) => formData.append("images", file, file.name));
-
         formData.append("content", content);
 
         console.log("thumbnail_state =", thumbnailState);
@@ -253,11 +235,27 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
             });
 
             alert("수정 되었습니다.");
-            // router.back();
-            // 바로 확인: 서버가 뭐라고 주는지
-            const { data: after } = await api.get(`${BASE_URL}/sale/${id}?_=${Date.now()}`);
-            console.log("✅ 서버 최신 thumbnail =", after.thumbnail);
-        } catch (error) {}
+
+            // ✅ PUT 성공 후 UI 상태 동기화
+            if (thumbnailState === "remove") {
+                setThumbnail(""); // 썸네일 즉시 제거
+                thumbFileRef.current = null;
+            }
+
+            // ✅ 최신 데이터 재로드
+            const res = await api.get(`${BASE_URL}/sale/${id}?_=${Date.now()}`);
+            const after = res.data;
+
+            // 최신 데이터 반영
+            const t = after.thumbnail;
+            setThumbnail(t && !t.startsWith("blob:") ? `${BASE_URL}${t}` : "");
+            const imgs = (after.images ?? [])
+                .filter((u: string) => typeof u === "string" && !u.startsWith("blob:"))
+                .map((u: string) => (u.startsWith("http") ? u : `${BASE_URL}${u}`));
+            setSanitizedImages(imgs);
+        } catch (error) {
+            console.error("수정 실패", error);
+        }
     };
 
     return (
