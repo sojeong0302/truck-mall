@@ -180,15 +180,14 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
 
         let thumbnailState: "keep" | "new" | "remove" = "keep";
 
-        // 1) 새 파일 선택한 경우
         if (thumbFileRef.current) {
             formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
             thumbnailState = "new";
-        }
-        // 2) 더블클릭 등으로 썸네일 삭제한 경우 (미리보기 비어있음)
-        else if (!thumbnail) {
+        } else if (!thumbnail) {
             thumbnailState = "remove";
         }
+
+        formData.append("thumbnail_state", thumbnailState);
 
         formData.append("name", name);
         formData.append("fuel", fuel);
