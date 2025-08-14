@@ -158,7 +158,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                     {post.content}
                 </div>
                 <div className="flex justify-end">
-                    {Boolean(post.status) && (
+                    {Boolean(post.status) && isLoggedIn && (
                         <ShortButton
                             onClick={() => setIsSaleCompleteModalOpen(true)}
                             className="bg-[#2E7D32] text-white"
