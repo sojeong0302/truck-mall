@@ -215,38 +215,41 @@ export default function WritingUpload() {
                             />
                         )}
                     </div> */}
-                    <div
-                        className="flex justify-center items-center cursor-pointer shadow-lg rounded-xl w-[]sm:w-[50%] aspect-square sm:min-w-[150px] bg-[rgba(179,179,179,0.25)] overflow-hidden"
-                        onClick={!thumbnail ? handleClick : undefined} // ← 썸네일 없을 때만 파일 선택
-                        onDoubleClick={thumbnail ? handleClearThumbnail : undefined} // ← 썸네일 있을 때만 더블클릭 삭제
-                        title={thumbnail ? "더블클릭: 썸네일 삭제" : "클릭: 썸네일 선택"}
-                    >
-                        <input
-                            type="file"
-                            accept="image/*"
-                            ref={fileInputRef}
-                            onChange={handleImageChange}
-                            className="hidden"
-                        />
 
-                        {thumbnail ? (
-                            <img
-                                src={thumbnail}
-                                alt="선택된 이미지"
-                                className="w-full h-full object-cover"
-                                onDoubleClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation(); // 부모 onClick으로 버블링 방지
-                                    handleClearThumbnail();
-                                }}
+                    <div className="flex flex-col sm:flex-col justify-center gap-15">
+                        <div
+                            className="relative flex justify-center items-center shadow-lg rounded-xl sm:w-[50%] aspect-square sm:min-w-[150px] bg-[rgba(179,179,179,0.25)] overflow-hidden"
+                            // 부모 onClick은 제거: label이 파일 선택 담당, 썸네일 있을 땐 더블클릭만 사용
+                            onDoubleClick={thumbnail ? handleClearThumbnail : undefined}
+                            title={thumbnail ? "더블클릭: 썸네일 삭제" : "클릭: 썸네일 선택"}
+                        >
+                            {/* 항상 input은 렌더링 */}
+                            <input
+                                id="thumb-input"
+                                type="file"
+                                accept="image/*"
+                                ref={fileInputRef}
+                                onChange={handleImageChange}
+                                className="hidden"
                             />
-                        ) : (
-                            <img
-                                src="/images/addToPhoto.png"
-                                alt="사진 추가"
-                                className="w-[60px] h-[60px] opacity-70"
-                            />
-                        )}
+
+                            {thumbnail ? (
+                                // 썸네일 있을 때: 이미지만 보여줌(더블클릭으로 삭제)
+                                <img src={thumbnail} alt="선택된 이미지" className="w-full h-full object-cover" />
+                            ) : (
+                                // 썸네일 없을 때: label 클릭 → input 열림 (가장 안정적)
+                                <label
+                                    htmlFor="thumb-input"
+                                    className="cursor-pointer flex items-center justify-center w-full h-full"
+                                >
+                                    <img
+                                        src="/images/addToPhoto.png"
+                                        alt="사진 추가"
+                                        className="w-[60px] h-[60px] opacity-70"
+                                    />
+                                </label>
+                            )}
+                        </div>
                     </div>
                     <div className="flex flex-col justify-around">
                         <input
