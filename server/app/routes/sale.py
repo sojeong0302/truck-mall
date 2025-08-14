@@ -420,12 +420,15 @@ def update_sale(sale_id):
         sale.images = final_urls  # JSON 컬럼 가정
 
         sale.simple_tags = parse_simple_tags(form.get("simple_tags"))
+        current_app.logger.info(
+            f"[update_sale] form.get('thumbnail_state')={form.get('thumbnail_state')!r}"
+        )
 
     else:
         # JSON 요청 (기존 유지)
         data = request.get_json(silent=True) or {}
         current_app.logger.info(f"[update_sale] JSON body keys={list(data.keys())}")
-
+        thumb_state = (form.get("thumbnail_state") or "keep").strip().lower()
         if "status" in data:
             sale.status = bool(data.get("status"))
 
@@ -446,15 +449,15 @@ def update_sale(sale_id):
         sale.color = data.get("color") or ""
         sale.content = data.get("content") or ""
 
-        # ✅ thumbnail_state가 'remove'면 썸네일 삭제로 간주
-        if (data.get("thumbnail_state") or "").lower() == "remove":
+        # multipart 분기 상단: 더 견고하게
+        thumb_state = (form.get("thumbnail_state") or "keep").strip().lower()
+        # 이하 동일 로직
+
+        # JSON 분기 상단 근처에 추가
+        state = (data.get("thumbnail_state") or "keep").strip().lower()
+        if state == "remove":
             delete_file_if_exists(sale.thumbnail)
             sale.thumbnail = None
-
-        # JSON에서 썸네일이 명시되면 빈 문자열/None은 삭제로 간주
-        if "thumbnail" in data:
-            thumb_val = data.get("thumbnail")
-            sale.thumbnail = None if thumb_val in (None, "", "null") else thumb_val
         if data.get("images") is not None:
             if isinstance(data.get("images"), list):
                 sale.images = data.get("images")
@@ -471,6 +474,9 @@ def update_sale(sale_id):
     db.session.commit()
     # 커밋 후에도 한번 더 확인
     current_app.logger.info(f"[update_sale] after commit thumbnail={sale.thumbnail}")
+    current_app.logger.info(
+        f"[update_sale] data.get('thumbnail_state')={data.get('thumbnail_state')!r}"
+    )
 
     return jsonify({"message": "success", "sale": sale.to_dict()}), 200
 

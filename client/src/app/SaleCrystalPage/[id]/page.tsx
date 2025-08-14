@@ -251,6 +251,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
             const { data } = await authApi.put(`${BASE_URL}/sale/${id}`, formData, {
                 headers: { Authorization: `Bearer ${token}`, "Content-Type": undefined },
             });
+
             alert("수정 되었습니다.");
             // router.back();
             // 바로 확인: 서버가 뭐라고 주는지
