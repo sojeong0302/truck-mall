@@ -35,6 +35,9 @@ def create_app():
     handler.setLevel(logging.DEBUG)
     app.logger.addHandler(handler)
     app.logger.setLevel(logging.DEBUG)
+    gunicorn_logger = logging.getLogger("gunicorn.error")
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)
 
     # 환경설정
     # (환경변수 파일을 FLASK_CONFIG로 지정해 두었다면 사용)
