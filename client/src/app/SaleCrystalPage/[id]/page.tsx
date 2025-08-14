@@ -148,7 +148,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         previewUrlRef.current = preview;
         setThumbnail(preview);
     };
-
+    const [thumbnailState, setThumbnailState] = useState<"keep" | "new" | "remove">("keep");
     //수정 api 연동
     const handleSubmit = async () => {
         // 토큰 없으면 로그인 페이지 이동
@@ -179,17 +179,11 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         //     }
         // }
 
-        let thumbnailState: "keep" | "new" | "remove" = "keep";
-
-        if (thumbFileRef.current) {
-            formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
-            thumbnailState = "new";
-        } else if (!thumbnail) {
-            thumbnailState = "remove";
-        }
-
         formData.append("thumbnail_state", thumbnailState);
 
+        if (thumbnailState === "new" && thumbFileRef.current) {
+            formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
+        }
         formData.append("name", name);
         formData.append("fuel", fuel);
         formData.append("type", type);
@@ -212,7 +206,6 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
             alert("수정 되었습니다.");
             // router.back();
 
-            // handleSubmit 마지막에 임시로 추가
             for (const [k, v] of formData.entries()) {
                 console.log(k, v instanceof File ? `File(${v.name}, ${v.size}B)` : v);
             }
@@ -244,24 +237,17 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
     const handleCancel = () => {
         router.back();
     };
-
-    // 썸네일 삭제
-    const handleClearThumbnail = () => {
-        try {
-            if (previewUrlRef.current) {
-                URL.revokeObjectURL(previewUrlRef.current);
-                previewUrlRef.current = null;
-            }
-            if (thumbnail?.startsWith("blob:")) {
-                URL.revokeObjectURL(thumbnail);
-            }
-        } catch {}
-
+    // 삭제 버튼 클릭 시
+    // 삭제 버튼 클릭 시
+    const handleDeleteThumbnail = () => {
+        setThumbnailState("remove");
         setThumbnail("");
+        if (previewUrlRef.current) {
+            URL.revokeObjectURL(previewUrlRef.current);
+            previewUrlRef.current = null;
+        }
         thumbFileRef.current = null;
-        if (fileInputRef.current) fileInputRef.current.value = "";
     };
-
     return (
         <>
             <SimpleFilter />
@@ -320,8 +306,8 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                         </div> */}
                         <div
                             className="flex justify-center items-center cursor-pointer shadow-lg rounded-xl w-[]sm:w-[50%] aspect-square sm:min-w-[150px] bg-[rgba(179,179,179,0.25)] overflow-hidden"
-                            onClick={!thumbnail ? handleImageClick : undefined} // 썸네일 없을 때만 파일 선택
-                            onDoubleClick={thumbnail ? handleClearThumbnail : undefined} // 썸네일 있을 때만 더블클릭 삭제
+                            onClick={!thumbnail ? handleImageClick : undefined}
+                            onDoubleClick={thumbnail ? handleDeleteThumbnail : undefined}
                             title={thumbnail ? "더블클릭: 썸네일 삭제" : "클릭: 썸네일 선택"}
                         >
                             <input
@@ -336,11 +322,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                                     src={thumbnail}
                                     alt="선택된 이미지"
                                     className="w-full h-full object-cover"
-                                    onDoubleClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation(); // 부모 onClick으로 버블링 방지
-                                        handleClearThumbnail();
-                                    }}
+                                    // ⛔ 이중 바인딩 방지: 여기 onDoubleClick 제거
                                 />
                             ) : (
                                 <img
