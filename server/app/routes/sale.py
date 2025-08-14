@@ -331,7 +331,7 @@ def update_sale(sale_id):
     form = request.form if is_multipart else None
     files = request.files if is_multipart else None
 
-    # 1) 어떤 형식이든 thumbnail_state를 '한 번'만 깔끔하게 읽어서 먼저 처리
+    # 1) 어떤 형식이든 thumbnail_state를 한 번만 판정
     thumb_state = (
         (
             (
@@ -345,9 +345,11 @@ def update_sale(sale_id):
         .lower()
     )
 
+    # 2) 삭제 의도는 최우선으로 바로 반영 + flush (나중에 되살아나는 사고 방지)
     if thumb_state == "remove":
         delete_file_if_exists(sale.thumbnail)
         sale.thumbnail = None
+        db.session.flush()  # ← 여기서 바로 더티마킹 + SQL 발생하게 고정
 
     # 2) 공통: status
     if is_multipart:
@@ -424,7 +426,7 @@ def update_sale(sale_id):
             sale.thumbnail = save_uploaded_file(new_thumb)
         # keep이면 아무 것도 안 함 (remove는 위에서 이미 처리)
     else:
-        # JSON에서 'thumbnail' 키가 명시되면 빈 값은 삭제로 간주
+        # JSON에서 'thumbnail' 키를 명시적으로 빈 값으로 보냈다면 삭제 간주
         if "thumbnail" in data:
             tv = data.get("thumbnail")
             if tv in (None, "", "null"):
@@ -466,6 +468,9 @@ def update_sale(sale_id):
         sale.simple_tags = parse_simple_tags(form.get("simple_tags"))
     else:
         sale.simple_tags = parse_simple_tags(data.get("simple_tags"))
+
+    if thumb_state == "remove":
+        sale.thumbnail = None
 
     db.session.commit()
     return jsonify({"message": "success", "sale": sale.to_dict()}), 200
