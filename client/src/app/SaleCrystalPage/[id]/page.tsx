@@ -232,6 +232,23 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         router.back();
     };
 
+    // 썸네일 삭제
+    const handleClearThumbnail = () => {
+        try {
+            if (previewUrlRef.current) {
+                URL.revokeObjectURL(previewUrlRef.current);
+                previewUrlRef.current = null;
+            }
+            if (thumbnail?.startsWith("blob:")) {
+                URL.revokeObjectURL(thumbnail);
+            }
+        } catch {}
+
+        setThumbnail("");
+        thumbFileRef.current = null;
+        if (fileInputRef.current) fileInputRef.current.value = "";
+    };
+
     return (
         <>
             <SimpleFilter />
@@ -267,7 +284,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
             <div className="w-full flex justify-center flex-col items-center p-5 sm:p-15">
                 <div className="w-[95%] sm:w-[80%] flex flex-col sm:gap-15 gap-5">
                     <div className="w-full flex-col flex justify-center gap-5 sm:gap-15">
-                        <div
+                        {/* <div
                             className="flex justify-center items-center cursor-pointer shadow-lg rounded-xl w-[]sm:w-[50%] aspect-square sm:min-w-[150px] bg-[rgba(179,179,179,0.25)] overflow-hidden"
                             onClick={handleImageClick}
                         >
@@ -287,7 +304,40 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                                     className="w-[60px] h-[60px] opacity-70"
                                 />
                             )}
+                        </div> */}
+                        <div
+                            className="flex justify-center items-center cursor-pointer shadow-lg rounded-xl w-[]sm:w-[50%] aspect-square sm:min-w-[150px] bg-[rgba(179,179,179,0.25)] overflow-hidden"
+                            onClick={!thumbnail ? handleImageClick : undefined} // 썸네일 없을 때만 파일 선택
+                            onDoubleClick={thumbnail ? handleClearThumbnail : undefined} // 썸네일 있을 때만 더블클릭 삭제
+                            title={thumbnail ? "더블클릭: 썸네일 삭제" : "클릭: 썸네일 선택"}
+                        >
+                            <input
+                                type="file"
+                                accept="image/*"
+                                ref={fileInputRef}
+                                onChange={handleImageChange}
+                                className="hidden"
+                            />
+                            {thumbnail ? (
+                                <img
+                                    src={thumbnail}
+                                    alt="선택된 이미지"
+                                    className="w-full h-full object-cover"
+                                    onDoubleClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation(); // 부모 onClick으로 버블링 방지
+                                        handleClearThumbnail();
+                                    }}
+                                />
+                            ) : (
+                                <img
+                                    src="/images/addToPhoto.png"
+                                    alt="사진 추가"
+                                    className="w-[60px] h-[60px] opacity-70"
+                                />
+                            )}
                         </div>
+
                         <div className="flex flex-col justify-around">
                             <input
                                 className="font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2"

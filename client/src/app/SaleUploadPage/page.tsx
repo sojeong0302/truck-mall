@@ -139,7 +139,6 @@ export default function WritingUpload() {
     ].filter(Boolean);
 
     // 썸네일 삭제
-    // 1) 썸네일 클리어 핸들러 (메모리 정리 포함)
     const handleClearThumbnail = () => {
         if (thumbnail?.startsWith("blob:")) {
             try {
@@ -194,32 +193,11 @@ export default function WritingUpload() {
                     </div>
                 </div>
                 <div className="w-full flex flex-col sm:flex-col justify-center gap-15">
-                    {/* <div
-                        className="flex justify-center items-center cursor-pointer shadow-lg rounded-xl w-[]sm:w-[50%] aspect-square sm:min-w-[150px] bg-[rgba(179,179,179,0.25)] overflow-hidden"
-                        onClick={handleClick}
-                    >
-                        <input
-                            type="file"
-                            accept="image/*"
-                            ref={fileInputRef}
-                            onChange={handleImageChange}
-                            className="hidden"
-                        />
-                        {thumbnail ? (
-                            <img src={thumbnail} alt="선택된 이미지" className="w-full h-full object-cover" />
-                        ) : (
-                            <img
-                                src="/images/addToPhoto.png"
-                                alt="사진 추가"
-                                className="w-[60px] h-[60px] opacity-70"
-                            />
-                        )}
-                    </div> */}
                     <div
                         className="flex justify-center items-center cursor-pointer shadow-lg rounded-xl w-[]sm:w-[50%] aspect-square sm:min-w-[150px] bg-[rgba(179,179,179,0.25)] overflow-hidden"
-                        onClick={!thumbnail ? handleClick : undefined} // ← 썸네일 없을 때만 파일 선택
-                        onDoubleClick={thumbnail ? handleClearThumbnail : undefined} // ← 썸네일 있을 때만 더블클릭 삭제
-                        title={thumbnail ? "더블클릭: 썸네일 삭제" : "클릭: 썸네일 선택"}
+                        onClick={!thumbnail ? handleClick : undefined}
+                        onDoubleClick={thumbnail ? handleClearThumbnail : undefined}
+                        title={thumbnail ? "더블클릭: 사진 삭제" : "클릭: 사진 선택"}
                     >
                         <input
                             type="file"
@@ -236,7 +214,7 @@ export default function WritingUpload() {
                                 className="w-full h-full object-cover"
                                 onDoubleClick={(e) => {
                                     e.preventDefault();
-                                    e.stopPropagation(); // 부모 onClick으로 버블링 방지
+                                    e.stopPropagation();
                                     handleClearThumbnail();
                                 }}
                             />
