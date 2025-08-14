@@ -4,6 +4,7 @@ from ..extensions import db
 from werkzeug.utils import secure_filename
 import os, json, datetime
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from urllib.parse import urlparse
 
 sale_bp = Blueprint("sale", __name__)
 
@@ -324,6 +325,8 @@ def delete_file_if_exists(web_path: str | None):
     if not web_path:
         return
     try:
+        if web_path.startswith("http://") or web_path.startswith("https://"):
+            web_path = urlparse(web_path).path  # "/static/uploads/xxx.png" 로 변환
         abs_path = os.path.join(current_app.root_path, web_path.lstrip("/"))
         if os.path.exists(abs_path):
             os.remove(abs_path)
