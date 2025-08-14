@@ -18,14 +18,14 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
     const { isLoggedIn, toggleAuth, isHydrated } = useAuthToggle();
     const { isModalOpen, setIsModalOpen, isSaleCompleteModalOpen, setIsSaleCompleteModalOpen } = useModalStore();
     const token = useAuthStore((s) => s.token);
-
     const { post, loading, error, fetchById, clear } = useSaleDetailStore();
 
-    useEffect(() => {
-        fetchById(BASE_URL, id);
-        return () => clear();
-    }, [BASE_URL, id, fetchById, clear]);
+    // useEffect(() => {
+    //     fetchById(BASE_URL, id);
+    //     return () => clear();
+    // }, [BASE_URL, id, fetchById, clear]);
 
+    //수정 페이지 이동 URL
     const handleGoCrystal = () => router.push(`/SaleCrystalPage/${id}`);
 
     //삭제 API 연동
@@ -47,6 +47,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
         } catch (err) {}
     };
 
+    //이미지 URL 생성->절대 삭제X
     const getImageUrl = (url: string) => {
         if (!url) return "";
         if (url.startsWith("http")) return url;
@@ -55,13 +56,22 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
 
     //판매완료 API 연동
     const salesCompleted = async () => {
+        // 토큰 없으면 로그인 페이지 이동
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            const here = window.location.pathname + window.location.search;
+            requestAnimationFrame(() => {
+                router.replace(`/LoginPage?next=${encodeURIComponent(here)}`);
+            });
+            return;
+        }
+
         try {
             await axios.put(
                 `${BASE_URL}/sale/${id}`,
                 { status: false },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-
             useSaleDetailStore.setState((state) => ({
                 post: state.post ? { ...state.post, status: false } : state.post,
             }));
@@ -69,10 +79,17 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
         } catch (error) {}
     };
 
-    if (loading) return <div className="p-10">불러오는 중…</div>;
-    if (error) return <div className="p-10 text-red-500">오류: {error}</div>;
+    // if (loading) return <div className="p-10">불러오는 중…</div>;
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center p-10">
+                <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+            </div>
+        );
+    }
+
     if (!post) return <div className="p-10 text-red-500">해당 게시물을 찾을 수 없습니다.</div>;
-    console.log(post.status);
+
     return (
         <div className="w-full flex justify-center flex-col items-center p-5 sm:p-15">
             {isLoggedIn && (
