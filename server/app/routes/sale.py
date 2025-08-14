@@ -432,6 +432,9 @@ def update_sale(sale_id):
         delete_file_if_exists(sale.thumbnail)
         sale.thumbnail = None
         db.session.flush()
+        # ★ 여기서 바로 return 하면 이후 코드 실행 안 함
+        db.session.commit()
+        return jsonify({"message": "success", "sale": sale.to_dict()}), 200
 
     elif is_multipart:
         if thumb_state == "new" and files and files.get("thumbnail"):

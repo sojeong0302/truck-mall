@@ -212,9 +212,17 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         formData.append("transmission", transmission || "");
         formData.append("thumbnail_state", thumbnailState); // keep | new | remove
 
-        // 썸네일 새 업로드만 전송
         if (thumbnailState === "new" && thumbFileRef.current) {
             formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
+        }
+
+        if (thumbnailState === "remove") {
+            // ✅ 삭제 시: 재조회로 되살리지 않도록 로컬 상태만 정리하고 끝
+            setThumbnail(""); // 화면에서 즉시 제거
+            thumbFileRef.current = null; // 파일 참조 초기화
+            setThumbnailState("keep"); // 다음 수정 때 기본값
+            // 이미지 리스트(EtcPoto)는 기존 prevImages/newImages 로 이미 반영되어 있어 유지
+            return; // ★ 재조회 스킵이 핵심
         }
 
         // 기본 필드
@@ -247,16 +255,6 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
             });
 
             alert("수정 되었습니다.");
-
-            // 4) UI 동기화
-            if (thumbnailState === "remove") {
-                // ✅ 삭제 시: 재조회로 되살리지 않도록 로컬 상태만 정리하고 끝
-                setThumbnail(""); // 화면에서 즉시 제거
-                thumbFileRef.current = null; // 파일 참조 초기화
-                setThumbnailState("keep"); // 다음 수정 때 기본값
-                // 이미지 리스트(EtcPoto)는 기존 prevImages/newImages 로 이미 반영되어 있어 유지
-                return; // ★ 재조회 스킵이 핵심
-            }
 
             // ✅ 삭제가 아닌 경우(keep/new): 최신 데이터 재조회해서 동기화
             const res = await api.get(`${BASE_URL}/sale/${id}?_=${Date.now()}`);
