@@ -236,23 +236,25 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
 
             alert("수정 되었습니다.");
 
-            // ✅ PUT 성공 후 UI 상태 동기화
             if (thumbnailState === "remove") {
-                setThumbnail(""); // 썸네일 즉시 제거
+                // ✅ 삭제 의도 유지: 재조회로 덮어쓰지 않음
+                setThumbnail("");
                 thumbFileRef.current = null;
+                // 다음 수정 때는 기본 'keep' 상태로
+                // (선택) setThumbnailState("keep");
+            } else {
+                // ✅ 삭제가 아니면 그때만 재조회
+                const res = await api.get(`${BASE_URL}/sale/${id}?_=${Date.now()}`);
+                const after = res.data;
+
+                const t = after.thumbnail;
+                setThumbnail(t && !t.startsWith("blob:") ? `${BASE_URL}${t}` : "");
+
+                const imgs = (after.images ?? [])
+                    .filter((u: string) => typeof u === "string" && !u.startsWith("blob:"))
+                    .map((u: string) => (u.startsWith("http") ? u : `${BASE_URL}${u}`));
+                setSanitizedImages(imgs);
             }
-
-            // ✅ 최신 데이터 재로드
-            const res = await api.get(`${BASE_URL}/sale/${id}?_=${Date.now()}`);
-            const after = res.data;
-
-            // 최신 데이터 반영
-            const t = after.thumbnail;
-            setThumbnail(t && !t.startsWith("blob:") ? `${BASE_URL}${t}` : "");
-            const imgs = (after.images ?? [])
-                .filter((u: string) => typeof u === "string" && !u.startsWith("blob:"))
-                .map((u: string) => (u.startsWith("http") ? u : `${BASE_URL}${u}`));
-            setSanitizedImages(imgs);
         } catch (error) {
             console.error("수정 실패", error);
         }
