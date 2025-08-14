@@ -377,24 +377,24 @@ def update_sale(sale_id):
             form.get("transmission"), sale.transmission
         )
 
-        # --- 썸네일 상태 처리 (핵심) ---
         thumb_state = form.get("thumbnail_state", "keep")
         new_thumb = files.get("thumbnail")
         current_app.logger.info(
-            f"[update_sale] thumb_state={thumb_state}, has_file={bool(new_thumb)}"
+            "[update_sale] thumb_state=%s, has_file=%s", thumb_state, bool(new_thumb)
         )
 
         if thumb_state == "new" and new_thumb:
-            # 이전 파일 제거 후 새로 저장
             delete_file_if_exists(sale.thumbnail)
             sale.thumbnail = save_uploaded_file(new_thumb)
 
         elif thumb_state == "remove":
-            # 이전 파일 제거 + DB NULL
             delete_file_if_exists(sale.thumbnail)
-            sale.thumbnail = None  # 컬럼 nullable=True 권장
-
-        # keep이면 변경 없음
+            sale.thumbnail = None  # ✅ "" 말고 None 권장
+            db.session.flush()  # ✅ 즉시 반영 확인용
+            current_app.logger.info(
+                "[update_sale] cleared thumbnail -> %r", sale.thumbnail
+            )
+        # keep 이면 아무것도 안 함
 
         # 기존 이미지 URL (기존 로직)
         existing_urls = []
