@@ -434,15 +434,13 @@ def update_sale(sale_id):
     if thumb_state == "remove":
         delete_file_if_exists(sale.thumbnail)
         sale.thumbnail = None
-        # 이미지/태그/문자열 등 다른 필드 업데이트는 위에서 이미 끝났다고 가정
-        db.session.commit()
-        return jsonify({"message": "success", "sale": sale.to_dict()}), 200
+        # (여기서 바로 return 해도 OK. 다만 아래의 통일된 커밋 경로를 쓰려면 남겨둔다.)
 
     elif is_multipart:
         if thumb_state == "new" and files and files.get("thumbnail"):
             delete_file_if_exists(sale.thumbnail)
             sale.thumbnail = save_uploaded_file(files.get("thumbnail"))
-    # else(JSON) 분기 그대로 유지
+        # keep이면 아무 것도 안 함
 
     else:
         if "thumbnail" in data:
@@ -483,6 +481,9 @@ def update_sale(sale_id):
     sale.simple_tags = parse_simple_tags(
         form.get("simple_tags") if is_multipart else data.get("simple_tags")
     )
+
+    if thumb_state == "remove":
+        sale.thumbnail = None
 
     db.session.commit()
     return jsonify({"message": "success", "sale": sale.to_dict()}), 200
