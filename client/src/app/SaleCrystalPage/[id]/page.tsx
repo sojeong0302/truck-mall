@@ -138,68 +138,6 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
     const previewUrlRef = useRef<string | null>(null);
 
     const [thumbnailState, setThumbnailState] = useState<"keep" | "new" | "remove">("keep");
-    //수정 api 연동
-    const handleSubmit = async () => {
-        // 토큰 없으면 로그인 페이지 이동
-        if (!token) {
-            alert("로그인이 필요합니다.");
-            const here = window.location.pathname + window.location.search;
-            requestAnimationFrame(() => {
-                router.replace(`/LoginPage?next=${encodeURIComponent(here)}`);
-            });
-            return;
-        }
-
-        //formData=서버로 보낼 데이터 묶음
-        const formData = new FormData();
-
-        formData.append("simple_tags", JSON.stringify(simpleTag || null));
-        formData.append("tags", JSON.stringify(tags));
-        formData.append("transmission", transmission);
-
-        // if (thumbFileRef.current) {
-        //     formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
-        // } else if (thumbnail && !thumbnail.startsWith("blob:") && !thumbnail.startsWith("data:")) {
-        //     try {
-        //         const blob = await fetch(thumbnail).then((r) => r.blob());
-        //         formData.append("thumbnail", new File([blob], "thumbnail.jpg", { type: blob.type || "image/jpeg" }));
-        //     } catch (e) {
-        //         console.warn("[edit] thumbnail fetch failed, skip", e);
-        //     }
-        // }
-
-        formData.append("thumbnail_state", thumbnailState);
-
-        if (thumbnailState === "new" && thumbFileRef.current) {
-            formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
-        }
-        formData.append("name", name);
-        formData.append("fuel", fuel);
-        formData.append("type", type);
-        formData.append("trim", trim);
-        formData.append("year", year);
-        formData.append("mileage", mileage);
-        formData.append("color", color);
-        formData.append("price", price);
-        // 기존 이미지
-        prevImages.forEach((url) => formData.append("originImages", url));
-        // 새 이미지
-        newImages.forEach((file) => formData.append("images", file, file.name));
-
-        formData.append("content", content);
-
-        try {
-            const { data } = await authApi.put(`${BASE_URL}/sale/${id}`, formData, {
-                headers: { Authorization: `Bearer ${token}` }, // Content-Type은 지정 X (브라우저가 boundary 포함해 자동 설정)
-            });
-            alert("수정 되었습니다.");
-            // router.back();
-
-            for (const [k, v] of formData.entries()) {
-                console.log(k, v instanceof File ? `File(${v.name}, ${v.size}B)` : v);
-            }
-        } catch (error) {}
-    };
 
     //변속기 선택지
     const handleSelect = (item: string) => {
@@ -255,6 +193,69 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         }
         thumbFileRef.current = null;
     };
+
+    //수정 api 연동
+    const handleSubmit = async () => {
+        // 토큰 없으면 로그인 페이지 이동
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            const here = window.location.pathname + window.location.search;
+            requestAnimationFrame(() => {
+                router.replace(`/LoginPage?next=${encodeURIComponent(here)}`);
+            });
+            return;
+        }
+
+        //formData=서버로 보낼 데이터 묶음
+        const formData = new FormData();
+
+        formData.append("simple_tags", JSON.stringify(simpleTag || null));
+        formData.append("tags", JSON.stringify(tags));
+        formData.append("transmission", transmission);
+
+        // if (thumbFileRef.current) {
+        //     formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
+        // } else if (thumbnail && !thumbnail.startsWith("blob:") && !thumbnail.startsWith("data:")) {
+        //     try {
+        //         const blob = await fetch(thumbnail).then((r) => r.blob());
+        //         formData.append("thumbnail", new File([blob], "thumbnail.jpg", { type: blob.type || "image/jpeg" }));
+        //     } catch (e) {
+        //         console.warn("[edit] thumbnail fetch failed, skip", e);
+        //     }
+        // }
+
+        formData.append("thumbnail_state", thumbnailState);
+
+        if (thumbnailState === "new" && thumbFileRef.current) {
+            formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
+        }
+        formData.append("name", name);
+        formData.append("fuel", fuel);
+        formData.append("type", type);
+        formData.append("trim", trim);
+        formData.append("year", year);
+        formData.append("mileage", mileage);
+        formData.append("color", color);
+        formData.append("price", price);
+        // 기존 이미지
+        prevImages.forEach((url) => formData.append("originImages", url));
+        // 새 이미지
+        newImages.forEach((file) => formData.append("images", file, file.name));
+
+        formData.append("content", content);
+
+        console.log("thumbnail_state =", thumbnailState);
+        for (const [k, v] of formData.entries()) console.log(k, v instanceof File ? `File(${v.name})` : v);
+
+        try {
+            const { data } = await authApi.put(`${BASE_URL}/sale/${id}`, formData, {
+                headers: { Authorization: `Bearer ${token}` }, // Content-Type은 지정 X (브라우저가 boundary 포함해 자동 설정)
+            });
+            alert("수정 되었습니다.");
+            // router.back();
+        } catch (error) {}
+    };
+
     return (
         <>
             <SimpleFilter />
