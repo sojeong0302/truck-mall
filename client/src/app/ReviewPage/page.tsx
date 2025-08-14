@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Pagination from "@/components/Pagination";
 import Bulletin from "@/components/Bulletin";
 import { usePaginationStore } from "@/store/paginationStore";
-import axios from "axios";
+import { api } from "@/lib/api";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -17,12 +17,9 @@ export default function ReviewPage() {
     useEffect(() => {
         const fetchReviews = async () => {
             try {
-                const res = await axios.get(`${BASE_URL}/review/list`);
+                const res = await api.get(`${BASE_URL}/review/list`);
                 setReviews(res.data);
-                console.log(res.data);
-            } catch (err) {
-                console.error("리뷰 불러오기 실패:", err);
-            }
+            } catch (err) {}
         };
 
         fetchReviews();

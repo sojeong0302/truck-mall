@@ -3,8 +3,8 @@
 import Pagination from "@/components/Pagination";
 import Bulletin from "@/components/Bulletin";
 import { usePaginationStore } from "@/store/paginationStore";
-import axios from "axios";
 import { useEffect, useState } from "react";
+import { api } from "@/lib/api";
 
 export default function CarTIPPage() {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -15,7 +15,7 @@ export default function CarTIPPage() {
     useEffect(() => {
         const fetchReviews = async () => {
             try {
-                const res = await axios.get(`${BASE_URL}/carTIP/list`);
+                const res = await api.get(`${BASE_URL}/carTIP/list`);
                 setCarTIPs(res.data);
                 console.log(res.data);
             } catch (err) {

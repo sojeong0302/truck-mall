@@ -9,11 +9,11 @@ import { useFilterTagStore } from "@/components/Filter/Filter.types";
 import SimpleFilter from "@/components/SimpleFilter";
 import { useCarFormStore } from "@/store/carFormStore";
 import { useImageStore } from "@/store/imageStore";
-import axios from "axios";
 import { useSimpleTagStore } from "@/store/simpleTagStore";
 import { useRouter } from "next/navigation";
 import { SaleCrystalPagePropStore } from "../SaleCrystalPage/[id]/SaleCrystalPage.types";
 import { useAuthStore } from "@/store/useAuthStore";
+import { authApi } from "@/lib/api";
 
 export default function WritingUpload() {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -113,7 +113,7 @@ export default function WritingUpload() {
 
         formData.append("content", content);
         try {
-            const { data } = await axios.post(`${BASE_URL}/sale/uploadSale`, formData, {
+            const { data } = await authApi.post(`${BASE_URL}/sale/uploadSale`, formData, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             router.push(`/SaleDetailPage/${data.car.id}`);

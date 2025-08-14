@@ -10,6 +10,7 @@ import Modal from "../Modal";
 import { useModalStore } from "@/store/ModalStateStroe";
 import { getImageUrl } from "@/utils/getImageUrl";
 import { useAuthStore } from "@/store/useAuthStore";
+import { api, authApi } from "@/lib/api";
 
 interface Post {
     id: number;
@@ -54,10 +55,7 @@ export default function WritingDetail({
             return;
         }
         try {
-            const res = await fetch(`${BASE_URL}/${deletePath}/${id}`, {
-                method: "DELETE",
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            await authApi.delete(`${BASE_URL}/${deletePath}/${id}`);
             router.back();
         } catch (error) {
             console.log(error);

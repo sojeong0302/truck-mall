@@ -3,6 +3,7 @@
 import { use } from "react";
 import WritingDetail from "@/components/WritingDetail";
 import { useEffect, useRef, useState } from "react";
+import { api } from "@/lib/api";
 
 export default function CarTIPDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -15,9 +16,8 @@ export default function CarTIPDetailPage({ params }: { params: Promise<{ id: str
 
         const fetchPost = async () => {
             try {
-                const res = await fetch(`${BASE_URL}/carTIP/${id}`);
-                const data = await res.json();
-                setPost(data);
+                const res = await api.get(`${BASE_URL}/carTIP/${id}`);
+                setPost(res.data);
                 hasFetchedRef.current = true;
 
                 await fetch(`${BASE_URL}/carTIP/${id}/view`, {

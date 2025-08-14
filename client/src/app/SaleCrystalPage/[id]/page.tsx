@@ -1,7 +1,6 @@
 "use client";
 
 import { use, useEffect, useRef, useState, useMemo, useCallback } from "react";
-import axios from "axios";
 import ShortButton from "@/components/ShortButton";
 import EtcPoto from "@/components/EtcPoto";
 import TextArea from "@/components/TextArea";
@@ -15,6 +14,7 @@ import { useImageStore } from "@/store/imageStore";
 import { useSimpleTagStore } from "@/store/simpleTagStore";
 import { useFilterTagStore } from "@/components/Filter/Filter.types";
 import { useAuthStore } from "@/store/useAuthStore";
+import { api, authApi } from "@/lib/api";
 
 export default function SaleCrystalPage({ params }: { params: Promise<{ id: string }> }) {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
@@ -59,11 +59,12 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
     const [isOpen, setIsOpen] = useState(false);
     const thumbFileRef = useRef<File | null>(null);
     const token = useAuthStore((s) => s.token);
+
     //기존 값 가져오기
     useEffect(() => {
         const fetchPost = async () => {
             try {
-                const res = await axios.get(`${BASE_URL}/sale/${id}`);
+                const res = await api.get(`${BASE_URL}/sale/${id}`);
                 const data = res.data;
 
                 // 썸네일 처리
@@ -205,7 +206,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         formData.append("content", content);
 
         try {
-            const { data } = await axios.put(`${BASE_URL}/sale/${id}`, formData, {
+            const { data } = await authApi.put(`${BASE_URL}/sale/${id}`, formData, {
                 headers: { Authorization: `Bearer ${token}` }, // Content-Type은 지정 X (브라우저가 boundary 포함해 자동 설정)
             });
             alert("수정 되었습니다.");

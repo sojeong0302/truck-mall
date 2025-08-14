@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { LoginPagePropStore } from "./LoginPage.types";
 import { useAuthStore } from "@/store/useAuthStore";
+import { api } from "@/lib/api";
 
 function LoginContent() {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -17,7 +18,7 @@ function LoginContent() {
     const handleLogin = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
         try {
-            const { data } = await axios.post(
+            const { data } = await api.post(
                 `${BASE_URL}/auth/login`,
                 { username, password },
                 { headers: { "Content-Type": "application/json" } }

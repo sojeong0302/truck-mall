@@ -4,12 +4,12 @@ import { use, useEffect } from "react";
 import SwiperWithLightbox from "@/components/SwiperWithLightbox";
 import ShortButton from "@/components/ShortButton";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import { useAuthToggle } from "@/components/Header/Header.hooks";
 import Modal from "@/components/Modal";
 import { useModalStore } from "@/store/ModalStateStroe";
 import { useSaleDetailStore } from "./saleDetailStore";
 import { useAuthStore } from "@/store/useAuthStore";
+import { api, authApi } from "@/lib/api";
 
 export default function ReviewPage({ params }: { params: Promise<{ id: string }> }) {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
@@ -40,7 +40,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
             return;
         }
         try {
-            await axios.delete(`${BASE_URL}/sale/${id}`, {
+            await api.delete(`${BASE_URL}/sale/${id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             router.push("/CarSearchPage");
@@ -67,7 +67,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
         }
 
         try {
-            await axios.put(
+            await authApi.put(
                 `${BASE_URL}/sale/${id}`,
                 { status: false },
                 { headers: { Authorization: `Bearer ${token}` } }

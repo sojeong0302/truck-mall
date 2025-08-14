@@ -9,6 +9,7 @@ import { useEffect, useCallback, useMemo } from "react";
 import { useImageStore } from "@/store/imageStore";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
+import { authApi } from "@/lib/api";
 
 interface Post {
     id: number;
@@ -23,17 +24,8 @@ export default function WritingCrystal({ post, url }: { post: Post; url?: string
     const { isModalOpen, setIsModalOpen } = store;
     const { previews, files, originURLs } = useImageStore();
     const token = useAuthStore((s) => s.token);
-    const {
-        title,
-        setTitle,
-        content,
-        setContent,
-        prevImages,
-        setPrevImages, // ✅ 남길 기존 이미지 URL 목록
-        newImages,
-        setNewImages, // ✅ 새로 추가한 파일 목록
-        clearAll,
-    } = useWritingCrystalPropsStore();
+    const { title, setTitle, content, setContent, prevImages, setPrevImages, newImages, setNewImages, clearAll } =
+        useWritingCrystalPropsStore();
     const router = useRouter();
 
     useEffect(() => {
@@ -42,13 +34,15 @@ export default function WritingCrystal({ post, url }: { post: Post; url?: string
         // 폼 기본값 세팅
         setTitle(post.title);
         setContent(post.content);
-        setPrevImages(post.images || []); // ✅ 초기엔 서버 이미지 전부 유지
+        setPrevImages(post.images || []);
     }, [post, clearAll, setTitle, setContent, setPrevImages]);
+
     const getImageUrl = (url: string) => {
         if (!url) return "";
         if (url.startsWith("http")) return url;
         return `${BASE_URL}${url}`;
     };
+
     const initialImageUrls = useMemo(() => (post.images || []).map((img) => getImageUrl(img)), [post.images, BASE_URL]);
 
     const handleSubmit = async () => {
@@ -73,19 +67,10 @@ export default function WritingCrystal({ post, url }: { post: Post; url?: string
         const baseURL = url === "ReviewPage" ? `${BASE_URL}/review/${post.id}` : `${BASE_URL}/carTIP/${post.id}`;
 
         try {
-            const res = await fetch(baseURL, {
-                method: "PATCH",
-                body: formData,
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            if (res.ok) {
-                alert("수정 되었습니다.");
-                clearAll();
-                router.back();
-            } else {
-                const err = await res.json();
-                alert(`수정 실패: ${err.error || "알 수 없는 오류"}`);
-            }
+            await authApi.patch(baseURL, formData);
+            alert("수정 되었습니다.");
+            clearAll();
+            router.back();
         } catch (e) {
             console.error("수정 실패", e);
             alert("서버 오류");

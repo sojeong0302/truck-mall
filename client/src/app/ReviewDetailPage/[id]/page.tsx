@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import WritingDetail from "@/components/WritingDetail";
+import { api } from "@/lib/api";
 
 export default function ReviewDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -12,7 +13,6 @@ export default function ReviewDetailPage({ params }: { params: Promise<{ id: str
     const hasFetchedRef = useRef(false);
     const router = useRouter();
 
-    // ✅ params 언래핑
     useEffect(() => {
         const unwrapParams = async () => {
             const { id } = await params;
@@ -21,21 +21,16 @@ export default function ReviewDetailPage({ params }: { params: Promise<{ id: str
         unwrapParams();
     }, [params]);
 
-    // ✅ 글 가져오기
     useEffect(() => {
         if (!id || hasFetchedRef.current) return;
 
         const fetchPost = async () => {
             try {
-                const res = await fetch(`${BASE_URL}/review/${id}`);
-                const data = await res.json();
-                setPost(data);
+                const res = await api.get(`${BASE_URL}/review/${id}`);
+                setPost(res.data);
                 hasFetchedRef.current = true;
 
-                // ✅ 조회수 증가
-                await fetch(`${BASE_URL}/review/${id}/view`, {
-                    method: "POST",
-                });
+                await api.post(`${BASE_URL}/review/${id}/view`);
             } catch (error) {
                 console.error("리뷰 조회 실패", error);
             } finally {

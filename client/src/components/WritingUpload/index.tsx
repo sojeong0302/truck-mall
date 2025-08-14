@@ -4,13 +4,13 @@ import ShortButton from "../ShortButton";
 import TextArea from "../TextArea";
 import Modal from "../Modal";
 import { useModalStore } from "@/store/ModalStateStroe";
-import axios from "axios";
 import { useReviewUploadStore } from "@/app/ReviewUploadPage/ReviewUploadPage.types";
 import { useImageStore } from "@/store/imageStore";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { WritingUploadProps } from "./WritingUpload.types";
 import { useAuthStore } from "@/store/useAuthStore";
+import { authApi } from "@/lib/api";
 
 export default function WritingUpload({ post, url }: WritingUploadProps) {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
@@ -44,26 +44,17 @@ export default function WritingUpload({ post, url }: WritingUploadProps) {
         formData.append("content", content);
         currentPrevImageURLs.forEach((u) => formData.append("prevImages", u));
         files.forEach((f) => formData.append("images", f)); // 새로 추가된 파일만 업로드
-        console.log("=== 업로드할 데이터 목록 ===");
-        formData.forEach((value, key) => {
-            if (key === "images" && value instanceof File) {
-                console.log(`${key}: ${value.name}, size: ${value.size} bytes`);
-            } else {
-                console.log(`${key}:`, value);
-            }
-        });
-        console.log("==========================");
+
         const endpoint = url === "ReviewPage" ? `${BASE_URL}/review/uploadReview` : `${BASE_URL}/carTIP/uploadCarTIP`;
 
         try {
-            await axios.post(endpoint, formData, {
+            await authApi.post(endpoint, formData, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             alert("등록되었습니다.");
             setTitle("");
             setContent("");
             clear(); // 이미지 스토어 정리
-
             router.push(`/${url}`);
         } catch (err) {
             console.error("요청 실패", err);
