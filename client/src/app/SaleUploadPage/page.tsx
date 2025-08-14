@@ -142,12 +142,12 @@ export default function WritingUpload() {
     const handleRemoveThumbnail = () => {
         try {
             if (thumbnail && thumbnail.startsWith("blob:")) {
-                URL.revokeObjectURL(thumbnail);
+                URL.revokeObjectURL(thumbnail); // blob URL 정리
             }
         } catch {}
         setThumbnail("");
-        setThumbnailFile(null as any);
-        if (fileInputRef.current) fileInputRef.current.value = "";
+        setThumbnailFile(null as any); // 타입이 File | null 이면 그대로 null
+        if (fileInputRef.current) fileInputRef.current.value = ""; // input 리셋
     };
 
     return (
@@ -216,8 +216,8 @@ export default function WritingUpload() {
                     </div> */}
                     <div
                         className="flex justify-center items-center cursor-pointer shadow-lg rounded-xl w-[]sm:w-[50%] aspect-square sm:min-w-[150px] bg-[rgba(179,179,179,0.25)] overflow-hidden"
-                        onClick={handleClick}
-                        onDoubleClick={thumbnail ? handleRemoveThumbnail : undefined} // 더블클릭 시 제거
+                        onClick={!thumbnail ? handleClick : undefined} // ✅ 썸네일 있을 땐 파일선택 막기
+                        onDoubleClick={thumbnail ? handleRemoveThumbnail : undefined} // ✅ 더블클릭으로 삭제
                         title={thumbnail ? "더블클릭하면 썸네일이 삭제됩니다." : "클릭해서 썸네일을 선택하세요."}
                     >
                         <input
@@ -244,7 +244,6 @@ export default function WritingUpload() {
                             />
                         )}
                     </div>
-
                     <div className="flex flex-col justify-around">
                         <input
                             className="font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2"
