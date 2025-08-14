@@ -195,6 +195,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
 
     //수정 api 연동
     const handleSubmit = async () => {
+        // 1) 인증 체크
         if (!token) {
             alert("로그인이 필요합니다.");
             const here = window.location.pathname + window.location.search;
@@ -204,16 +205,19 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
             return;
         }
 
+        // 2) FormData 구성
         const formData = new FormData();
         formData.append("simple_tags", JSON.stringify(simpleTag || null));
-        formData.append("tags", JSON.stringify(tags));
-        formData.append("transmission", transmission);
-        formData.append("thumbnail_state", thumbnailState);
+        formData.append("tags", JSON.stringify(tags || {}));
+        formData.append("transmission", transmission || "");
+        formData.append("thumbnail_state", thumbnailState); // keep | new | remove
 
+        // 썸네일 새 업로드만 전송
         if (thumbnailState === "new" && thumbFileRef.current) {
             formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
         }
 
+        // 기본 필드
         formData.append("name", name);
         formData.append("fuel", fuel);
         formData.append("type", type);
@@ -222,41 +226,60 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         formData.append("mileage", mileage);
         formData.append("color", color);
         formData.append("price", price);
+
+        // 기존 이미지(유지)
         prevImages.forEach((url) => formData.append("originImages", url));
+        // 새 이미지(추가)
         newImages.forEach((file) => formData.append("images", file, file.name));
+
         formData.append("content", content);
 
+        // 디버그 로그
         console.log("thumbnail_state =", thumbnailState);
-        for (const [k, v] of formData.entries()) console.log(k, v instanceof File ? `File(${v.name})` : v);
+        for (const [k, v] of formData.entries()) {
+            console.log(k, v instanceof File ? `File(${v.name})` : v);
+        }
 
+        // 3) 요청
         try {
             const { data } = await authApi.put(`${BASE_URL}/sale/${id}`, formData, {
-                headers: { Authorization: `Bearer ${token}`, "Content-Type": undefined },
+                headers: { Authorization: `Bearer ${token}` }, // Content-Type은 브라우저가 자동 설정
             });
 
             alert("수정 되었습니다.");
 
+            // 4) UI 동기화
             if (thumbnailState === "remove") {
-                // ✅ 삭제 의도 유지: 재조회로 덮어쓰지 않음
-                setThumbnail("");
-                thumbFileRef.current = null;
-                // 다음 수정 때는 기본 'keep' 상태로
-                // (선택) setThumbnailState("keep");
-            } else {
-                // ✅ 삭제가 아니면 그때만 재조회
-                const res = await api.get(`${BASE_URL}/sale/${id}?_=${Date.now()}`);
-                const after = res.data;
-
-                const t = after.thumbnail;
-                setThumbnail(t && !t.startsWith("blob:") ? `${BASE_URL}${t}` : "");
-
-                const imgs = (after.images ?? [])
-                    .filter((u: string) => typeof u === "string" && !u.startsWith("blob:"))
-                    .map((u: string) => (u.startsWith("http") ? u : `${BASE_URL}${u}`));
-                setSanitizedImages(imgs);
+                // ✅ 삭제 시: 재조회로 되살리지 않도록 로컬 상태만 정리하고 끝
+                setThumbnail(""); // 화면에서 즉시 제거
+                thumbFileRef.current = null; // 파일 참조 초기화
+                setThumbnailState("keep"); // 다음 수정 때 기본값
+                // 이미지 리스트(EtcPoto)는 기존 prevImages/newImages 로 이미 반영되어 있어 유지
+                return; // ★ 재조회 스킵이 핵심
             }
+
+            // ✅ 삭제가 아닌 경우(keep/new): 최신 데이터 재조회해서 동기화
+            const res = await api.get(`${BASE_URL}/sale/${id}?_=${Date.now()}`);
+            const after = res.data;
+
+            // 썸네일
+            const t = after.thumbnail;
+            setThumbnail(t && !t.startsWith("blob:") ? `${BASE_URL}${t}` : "");
+
+            // 이미지들
+            const imgs = (after.images ?? [])
+                .filter((u: string) => typeof u === "string" && !u.startsWith("blob:"))
+                .map((u: string) => (u.startsWith("http") ? u : `${BASE_URL}${u}`));
+            setSanitizedImages(imgs);
+
+            // 상태 리셋(선택)
+            setThumbnailState("keep");
+            setNewImages([]);
+            // prevImages는 서버 기준으로 다시 세팅하고 싶다면 아래처럼:
+            // setPrevImages(imgs);
         } catch (error) {
             console.error("수정 실패", error);
+            alert("수정 중 오류가 발생했습니다.");
         }
     };
 
