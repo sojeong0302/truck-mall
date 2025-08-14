@@ -325,7 +325,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                             onChange={(e) => setName(e.target.value)}
                             placeholder="차량명을 입력해 주세요."
                         />
-                        <div className="flex flex-col text-xl sm:text-2xl p-2 gap-5">
+                        <div className="flex flex-col text-xl sm:text-2xl p-2 gap-10">
                             {[
                                 { label: "연료", value: fuel, setter: setFuel },
                                 { label: "차체 타입", value: type, setter: setType },
