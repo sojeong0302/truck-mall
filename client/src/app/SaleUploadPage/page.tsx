@@ -214,7 +214,6 @@ export default function WritingUpload() {
                             onChange={handleImageChange}
                             className="hidden"
                         />
-
                         {thumbnail ? (
                             <img
                                 src={thumbnail}

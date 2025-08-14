@@ -255,7 +255,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
     return (
         <>
             <SimpleFilter />
-            <div className="flex sm:flex-row w-full gap-0 sm:gap-10 w-[100%] sm:w-[80%] h-[100%] mx-auto">
+            <div className="w-[100%] sm:w-[80%] h-[100%] mx-auto flex flex-col justify-center p-5 sm:p-20 gap-7">
                 <Filter skipReset={true} />
                 {selectedTags.length > 0 && (
                     <div className="flex flex-wrap gap-3 text-lg font-semibold text-[#2E7D32] px-1">
@@ -266,35 +266,35 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                         ))}
                     </div>
                 )}
-                <div className="flex items-center gap-3">
-                    <div className="text-sm sm:text-lg text-[#2E7D32]">▶</div>
-                    <div className="text-lg sm:text-2xl font-medium">변속기</div>
-                </div>
-                <div className="relative w-48">
-                    <button
-                        className="transition transform duration-200 active:scale-95 cursor-pointer w-full text-left border border-[#2E7D32] rounded-md px-3 py-2 text-xl"
-                        onClick={() => setIsOpen((prev) => !prev)}
-                    >
-                        {transmission || "전체"}
-                    </button>
+                <div className="flex flex-col sm:flex-row w-full gap-0 sm:gap-10">
+                    <div className="flex items-center gap-3">
+                        <div className="text-sm sm:text-lg text-[#2E7D32]">▶</div>
+                        <div className="text-lg sm:text-2xl font-medium">변속기</div>
+                    </div>
+                    <div className="relative w-48">
+                        <button
+                            className="transition transform duration-200 active:scale-95 cursor-pointer w-full text-left border border-[#2E7D32] rounded-md px-3 py-2 text-xl"
+                            onClick={() => setIsOpen((prev) => !prev)}
+                        >
+                            {transmission || "전체"}
+                        </button>
 
-                    {isOpen && (
-                        <ul className="absolute z-10 bg-white border border-[#2E7D32] rounded-md w-full mt-1">
-                            {["전체", "오토", "수동", "세미오토", "무단변속기"].map((item) => (
-                                <li
-                                    key={item}
-                                    className="px-3 py-2 hover:bg-[#2E7D32]/10 cursor-pointer"
-                                    onClick={() => handleSelect(item)}
-                                >
-                                    {item}
-                                </li>
-                            ))}
-                        </ul>
-                    )}
+                        {isOpen && (
+                            <ul className="absolute z-10 bg-white border border-[#2E7D32] rounded-md w-full mt-1">
+                                {["전체", "오토", "수동", "세미오토", "무단변속기"].map((item) => (
+                                    <li
+                                        key={item}
+                                        className="px-3 py-2 hover:bg-[#2E7D32]/10 cursor-pointer"
+                                        onClick={() => handleSelect(item)}
+                                    >
+                                        {item}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
                 </div>
-            </div>
-            <div className="w-full flex justify-center flex-col items-center p-5 sm:p-15">
-                <div className="w-full flex-col flex justify-center gap-5 sm:gap-15">
+                <div className="w-full flex flex-col sm:flex-col justify-center gap-15">
                     <div
                         className="flex justify-center items-center cursor-pointer shadow-lg rounded-xl w-[]sm:w-[50%] aspect-square sm:min-w-[150px] bg-[rgba(179,179,179,0.25)] overflow-hidden"
                         onClick={!thumbnail ? handleImageClick : undefined}
