@@ -44,7 +44,7 @@ class Sale(db.Model):
             "sub_model": self.sub_model,
             "grade": self.grade,
             "transmission": self.transmission,
-            "thumbnail": self.thumbnail,
+            "thumbnail": self.thumbnail if self.thumbnail else None,
             "content": self.content,
             "status": self.status,
             "images": self.images if isinstance(self.images, list) else [],
