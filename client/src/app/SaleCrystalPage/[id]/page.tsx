@@ -209,7 +209,12 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                 headers: { Authorization: `Bearer ${token}` }, // Content-Type은 지정 X (브라우저가 boundary 포함해 자동 설정)
             });
             alert("수정 되었습니다.");
-            router.back();
+            // router.back();
+
+            // handleSubmit 마지막에 임시로 추가
+            for (const [k, v] of formData.entries()) {
+                console.log(k, v instanceof File ? `File(${v.name}, ${v.size}B)` : v);
+            }
         } catch (error) {}
     };
 
