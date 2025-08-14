@@ -215,7 +215,6 @@ export default function WritingUpload() {
                             />
                         )}
                     </div> */}
-                    // 2) 썸네일 영역: 썸네일이 있을 땐 onClick 제거, onDoubleClick만 활성화
                     <div
                         className="flex justify-center items-center cursor-pointer shadow-lg rounded-xl w-[]sm:w-[50%] aspect-square sm:min-w-[150px] bg-[rgba(179,179,179,0.25)] overflow-hidden"
                         onClick={!thumbnail ? handleClick : undefined} // ← 썸네일 없을 때만 파일 선택
