@@ -294,7 +294,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                         )}
                     </div>
                 </div>
-                <div className="w-full flex flex-col sm:flex-col justify-center gap-15">
+                <div className="w-full flex flex-col sm:flex-col justify-center gap-15 mx-auto">
                     <div
                         className="flex justify-center items-center cursor-pointer shadow-lg rounded-xl w-[70%] sm:w-[50%] aspect-square sm:min-w-[150px] bg-[rgba(179,179,179,0.25)] overflow-hidden"
                         onClick={!thumbnail ? handleImageClick : undefined}
