@@ -326,47 +326,76 @@ def update_sale(sale_id):
     sale = Sale.query.get_or_404(sale_id)
 
     ct = (request.content_type or "").lower()
-    current_app.logger.info(f"[update_sale] CT={ct}")
+    is_multipart = ct.startswith("multipart/form-data")
+    data = None if is_multipart else (request.get_json(silent=True) or {})
+    form = request.form if is_multipart else None
+    files = request.files if is_multipart else None
 
-    if ct.startswith("multipart/form-data"):
-        form, files = request.form, request.files
-
-        # --- DEBUG 로그 ---
-        current_app.logger.info(
-            "[update_sale] form=%s, files=%s",
-            {k: form.get(k) for k in form.keys()},
-            list(files.keys()),
+    # 1) 어떤 형식이든 thumbnail_state를 '한 번'만 깔끔하게 읽어서 먼저 처리
+    thumb_state = (
+        (
+            (
+                form.get("thumbnail_state")
+                if is_multipart
+                else data.get("thumbnail_state")
+            )
+            or "keep"
         )
+        .strip()
+        .lower()
+    )
 
-        # status (기존 유지)
+    if thumb_state == "remove":
+        delete_file_if_exists(sale.thumbnail)
+        sale.thumbnail = None
+
+    # 2) 공통: status
+    if is_multipart:
         if "status" in form:
             status_val = (form.get("status") or "").lower()
             sale.status = status_val in ["true", "1", "yes"]
+    else:
+        if "status" in data:
+            sale.status = bool(data.get("status"))
 
-        # tags (기존 유지)
+    # 3) tags (제조사/모델 계층)
+    if is_multipart:
         tags_raw = form.get("tags")
         if tags_raw:
             try:
                 tags = json.loads(tags_raw) if isinstance(tags_raw, str) else tags_raw
-                sale.tags = tags
-                sale.manufacturer = tags.get("manufacturer", "")
-                sale.model = tags.get("model", "")
-                sale.sub_model = tags.get("subModel", "")
-                sale.grade = tags.get("grade", "")
-            except Exception as e:
-                current_app.logger.warning(f"tags 파싱 실패: {e}")
+            except Exception:
+                tags = {}
+            sale.tags = tags
+            sale.manufacturer = tags.get("manufacturer", "")
+            sale.model = tags.get("model", "")
+            sale.sub_model = tags.get("subModel", "")
+            sale.grade = tags.get("grade", "")
+    else:
+        # 'tags' 또는 'tag' 어느 키로 와도 처리
+        tags = parse_tag(data.get("tags") or data.get("tag"))
+        if isinstance(tags, dict) and tags:
+            sale.tags = tags
+            sale.manufacturer = tags.get("manufacturer", "")
+            sale.model = tags.get("model", "")
+            sale.sub_model = tags.get("subModel", "")
+            sale.grade = tags.get("grade", "")
 
-        # 숫자/문자열 필드 (기존 유지)
-        # 숫자
+    # 4) 숫자 필드 (값이 주어졌을 때만 갱신)
+    if is_multipart:
         year = to_int_or_none(form.get("year"))
         price = to_int_or_none(form.get("price"))
         mileage = to_int_or_none(form.get("mileage"))
+    else:
+        year = to_int_or_none(data.get("year"))
+        price = to_int_or_none(data.get("price"))
+        mileage = to_int_or_none(data.get("mileage"))
+    sale.year = sale.year if year is None else year
+    sale.price = sale.price if price is None else price
+    sale.mileage = sale.mileage if mileage is None else mileage
 
-        sale.year = sale.year if year is None else year
-        sale.price = sale.price if price is None else price
-        sale.mileage = sale.mileage if mileage is None else mileage
-
-        # 문자열
+    # 5) 문자열 필드 (빈 문자열이면 무시하고 기존값 유지)
+    if is_multipart:
         sale.name = apply_if_present(form.get("name"), sale.name)
         sale.fuel = apply_if_present(form.get("fuel"), sale.fuel)
         sale.type = apply_if_present(form.get("type"), sale.type)
@@ -376,89 +405,54 @@ def update_sale(sale_id):
         sale.transmission = apply_if_present(
             form.get("transmission"), sale.transmission
         )
-
-        thumb_state = form.get("thumbnail_state", "keep")
-        new_thumb = files.get("thumbnail")
-        current_app.logger.info(
-            "[update_sale] thumb_state=%s, has_file=%s", thumb_state, bool(new_thumb)
+    else:
+        sale.name = apply_if_present(data.get("name"), sale.name)
+        sale.fuel = apply_if_present(data.get("fuel"), sale.fuel)
+        sale.type = apply_if_present(data.get("type"), sale.type)
+        sale.trim = apply_if_present(data.get("trim"), sale.trim)
+        sale.color = apply_if_present(data.get("color"), sale.color)
+        sale.content = apply_if_present(data.get("content"), sale.content)
+        sale.transmission = apply_if_present(
+            data.get("transmission"), sale.transmission
         )
 
+    # 6) 썸네일 업로드/유지 처리
+    if is_multipart:
+        new_thumb = files.get("thumbnail") if files else None
         if thumb_state == "new" and new_thumb:
             delete_file_if_exists(sale.thumbnail)
             sale.thumbnail = save_uploaded_file(new_thumb)
+        # keep이면 아무 것도 안 함 (remove는 위에서 이미 처리)
+    else:
+        # JSON에서 'thumbnail' 키가 명시되면 빈 값은 삭제로 간주
+        if "thumbnail" in data:
+            tv = data.get("thumbnail")
+            if tv in (None, "", "null"):
+                delete_file_if_exists(sale.thumbnail)
+                sale.thumbnail = None
+            else:
+                sale.thumbnail = tv
 
-        elif thumb_state == "remove":
-            delete_file_if_exists(sale.thumbnail)
-            sale.thumbnail = None  # ✅ "" 말고 None 권장
-            db.session.flush()  # ✅ 즉시 반영 확인용
-            current_app.logger.info(
-                "[update_sale] cleared thumbnail -> %r", sale.thumbnail
-            )
-        # keep 이면 아무것도 안 함
-
-        # 기존 이미지 URL (기존 로직)
-        existing_urls = []
+    # 7) 이미지 배열 처리
+    if is_multipart:
+        # 기존 유지할 URL들
         existing_urls = form.getlist("originImages") or form.getlist("originURLs")
-
-        # 2) 만약 문자열(JSON)로 오는 경우도 대비
         if not existing_urls:
             raw = form.get("originImages") or form.get("originURLs")
             if raw:
                 try:
                     existing_urls = json.loads(raw)
-                except Exception as e:
-                    current_app.logger.warning(
-                        f"originImages/originURLs parse fail: {e}"
-                    )
-
-        # 새 파일 (기존 로직)
-        incoming_files = files.getlist("images") or files.getlist("images[]")
+                except Exception:
+                    existing_urls = []
+        # 새 파일들
+        incoming_files = (
+            (files.getlist("images") or files.getlist("images[]")) if files else []
+        )
         valid_files = [f for f in incoming_files if getattr(f, "filename", None)]
         new_urls = [save_uploaded_file(f) for f in valid_files]
-
-        final_urls = (existing_urls or []) + new_urls
-        sale.images = final_urls  # JSON 컬럼 가정
-
-        sale.simple_tags = parse_simple_tags(form.get("simple_tags"))
-        current_app.logger.info(
-            f"[update_sale] form.get('thumbnail_state')={form.get('thumbnail_state')!r}"
-        )
-
+        sale.images = (existing_urls or []) + new_urls
     else:
-        # JSON 요청 (기존 유지)
-        data = request.get_json(silent=True) or {}
-        current_app.logger.info(f"[update_sale] JSON body keys={list(data.keys())}")
-        thumb_state = (form.get("thumbnail_state") or "keep").strip().lower()
-        if "status" in data:
-            sale.status = bool(data.get("status"))
-
-        tag = parse_tag(data.get("tag")) if data.get("tag") else {}
-        if isinstance(tag, dict):
-            sale.manufacturer = tag.get("manufacturer", "")
-            sale.model = tag.get("model", "")
-            sale.sub_model = tag.get("subModel", "")
-            sale.grade = tag.get("grade", "")
-
-        sale.year = to_int_or_none(data.get("year"))
-        sale.price = to_int_or_none(data.get("price"))
-        sale.mileage = to_int_or_none(data.get("mileage"))
-        sale.name = data.get("name") or ""
-        sale.fuel = data.get("fuel") or ""
-        sale.type = data.get("type") or ""
-        sale.trim = data.get("trim") or ""
-        sale.color = data.get("color") or ""
-        sale.content = data.get("content") or ""
-
-        # multipart 분기 상단: 더 견고하게
-        thumb_state = (form.get("thumbnail_state") or "keep").strip().lower()
-        # 이하 동일 로직
-
-        # JSON 분기 상단 근처에 추가
-        state = (data.get("thumbnail_state") or "keep").strip().lower()
-        if state == "remove":
-            delete_file_if_exists(sale.thumbnail)
-            sale.thumbnail = None
-        if data.get("images") is not None:
+        if "images" in data:
             if isinstance(data.get("images"), list):
                 sale.images = data.get("images")
             else:
@@ -467,17 +461,13 @@ def update_sale(sale_id):
                 except Exception:
                     sale.images = sale.images or []
 
+    # 8) simple_tags
+    if is_multipart:
+        sale.simple_tags = parse_simple_tags(form.get("simple_tags"))
+    else:
         sale.simple_tags = parse_simple_tags(data.get("simple_tags"))
 
-    # 커밋 전에 현재 thumbnail 로그 확인
-    current_app.logger.info(f"[update_sale] before commit thumbnail={sale.thumbnail}")
     db.session.commit()
-    # 커밋 후에도 한번 더 확인
-    current_app.logger.info(f"[update_sale] after commit thumbnail={sale.thumbnail}")
-    current_app.logger.info(
-        f"[update_sale] data.get('thumbnail_state')={data.get('thumbnail_state')!r}"
-    )
-
     return jsonify({"message": "success", "sale": sale.to_dict()}), 200
 
 
