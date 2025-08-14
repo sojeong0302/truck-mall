@@ -196,10 +196,9 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
             const { data } = await axios.put(`${BASE_URL}/sale/${id}`, formData, {
                 headers: { Authorization: `Bearer ${token}` }, // Content-Type은 지정 X (브라우저가 boundary 포함해 자동 설정)
             });
-            router.push("/CarSearchPage");
-        } catch (error) {
-            console.error("요청 실패:", error);
-        }
+            alert("수정 되었습니다.");
+            router.back();
+        } catch (error) {}
     };
 
     //변속기 선택지
