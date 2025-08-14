@@ -331,7 +331,7 @@ def update_sale(sale_id):
     form = request.form if is_multipart else None
     files = request.files if is_multipart else None
 
-    # 1) 어떤 형식이든 thumbnail_state를 한 번만 판정
+    # 1) thumbnail_state를 '한 번만' 통일해서 읽고, 삭제 의도면 최우선 적용
     thumb_state = (
         (
             (
@@ -345,22 +345,20 @@ def update_sale(sale_id):
         .lower()
     )
 
-    # 2) 삭제 의도는 최우선으로 바로 반영 + flush (나중에 되살아나는 사고 방지)
     if thumb_state == "remove":
         delete_file_if_exists(sale.thumbnail)
         sale.thumbnail = None
-        db.session.flush()  # ← 여기서 바로 더티마킹 + SQL 발생하게 고정
+        db.session.flush()  # ← 바로 더티마킹
 
-    # 2) 공통: status
+    # 2) status
     if is_multipart:
         if "status" in form:
-            status_val = (form.get("status") or "").lower()
-            sale.status = status_val in ["true", "1", "yes"]
+            sale.status = (form.get("status") or "").lower() in ["true", "1", "yes"]
     else:
         if "status" in data:
             sale.status = bool(data.get("status"))
 
-    # 3) tags (제조사/모델 계층)
+    # 3) tags
     if is_multipart:
         tags_raw = form.get("tags")
         if tags_raw:
@@ -374,7 +372,6 @@ def update_sale(sale_id):
             sale.sub_model = tags.get("subModel", "")
             sale.grade = tags.get("grade", "")
     else:
-        # 'tags' 또는 'tag' 어느 키로 와도 처리
         tags = parse_tag(data.get("tags") or data.get("tag"))
         if isinstance(tags, dict) and tags:
             sale.tags = tags
@@ -383,7 +380,7 @@ def update_sale(sale_id):
             sale.sub_model = tags.get("subModel", "")
             sale.grade = tags.get("grade", "")
 
-    # 4) 숫자 필드 (값이 주어졌을 때만 갱신)
+    # 4) 숫자
     if is_multipart:
         year = to_int_or_none(form.get("year"))
         price = to_int_or_none(form.get("price"))
@@ -396,7 +393,7 @@ def update_sale(sale_id):
     sale.price = sale.price if price is None else price
     sale.mileage = sale.mileage if mileage is None else mileage
 
-    # 5) 문자열 필드 (빈 문자열이면 무시하고 기존값 유지)
+    # 5) 문자열
     if is_multipart:
         sale.name = apply_if_present(form.get("name"), sale.name)
         sale.fuel = apply_if_present(form.get("fuel"), sale.fuel)
@@ -418,16 +415,15 @@ def update_sale(sale_id):
             data.get("transmission"), sale.transmission
         )
 
-    # 6) 썸네일 업로드/유지 처리
+    # 6) 썸네일 업로드/유지
     if is_multipart:
         new_thumb = files.get("thumbnail") if files else None
         if thumb_state == "new" and new_thumb:
             delete_file_if_exists(sale.thumbnail)
             sale.thumbnail = save_uploaded_file(new_thumb)
-        # keep이면 아무 것도 안 함 (remove는 위에서 이미 처리)
+        # keep이면 아무 것도 안 함 (remove는 위에서 처리 완료)
     else:
-        # JSON에서 'thumbnail' 키를 명시적으로 빈 값으로 보냈다면 삭제 간주
-        if "thumbnail" in data:
+        if "thumbnail" in data:  # JSON일 때 명시되면 처리
             tv = data.get("thumbnail")
             if tv in (None, "", "null"):
                 delete_file_if_exists(sale.thumbnail)
@@ -435,9 +431,8 @@ def update_sale(sale_id):
             else:
                 sale.thumbnail = tv
 
-    # 7) 이미지 배열 처리
+    # 7) 이미지들
     if is_multipart:
-        # 기존 유지할 URL들
         existing_urls = form.getlist("originImages") or form.getlist("originURLs")
         if not existing_urls:
             raw = form.get("originImages") or form.get("originURLs")
@@ -446,7 +441,6 @@ def update_sale(sale_id):
                     existing_urls = json.loads(raw)
                 except Exception:
                     existing_urls = []
-        # 새 파일들
         incoming_files = (
             (files.getlist("images") or files.getlist("images[]")) if files else []
         )
@@ -464,13 +458,9 @@ def update_sale(sale_id):
                     sale.images = sale.images or []
 
     # 8) simple_tags
-    if is_multipart:
-        sale.simple_tags = parse_simple_tags(form.get("simple_tags"))
-    else:
-        sale.simple_tags = parse_simple_tags(data.get("simple_tags"))
-
-    if thumb_state == "remove":
-        sale.thumbnail = None
+    sale.simple_tags = parse_simple_tags(
+        form.get("simple_tags") if is_multipart else data.get("simple_tags")
+    )
 
     db.session.commit()
     return jsonify({"message": "success", "sale": sale.to_dict()}), 200
