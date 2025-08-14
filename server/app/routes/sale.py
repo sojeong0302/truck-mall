@@ -320,6 +320,26 @@ def get_sale_by_id(sale_id):
 #     return jsonify({"message": "success", "sale": sale.to_dict()})
 
 
+def delete_file_if_exists(web_path: str | None):
+    if not web_path:
+        return
+    try:
+        abs_path = os.path.join(current_app.root_path, web_path.lstrip("/"))
+        if os.path.exists(abs_path):
+            os.remove(abs_path)
+    except Exception as e:
+        current_app.logger.warning(f"thumb delete fail: {e}")
+
+
+def apply_if_present(val, current):
+    # None 또는 ""(공백 포함) 이면 기존값 유지
+    if val is None:
+        return current
+    if isinstance(val, str) and val.strip() == "":
+        return current
+    return val
+
+
 @sale_bp.route("/<int:sale_id>", methods=["PUT"])
 @jwt_required()
 def update_sale(sale_id):
@@ -331,7 +351,7 @@ def update_sale(sale_id):
     form = request.form if is_multipart else None
     files = request.files if is_multipart else None
 
-    # 1) thumbnail_state를 '한 번만' 통일해서 읽고, 삭제 의도면 최우선 적용
+    # === 1) thumbnail_state 읽기 ===
     thumb_state = (
         (
             (
@@ -345,12 +365,7 @@ def update_sale(sale_id):
         .lower()
     )
 
-    if thumb_state == "remove":
-        delete_file_if_exists(sale.thumbnail)
-        sale.thumbnail = None
-        db.session.flush()  # ← 바로 더티마킹
-
-    # 2) status
+    # === 2) status ===
     if is_multipart:
         if "status" in form:
             sale.status = (form.get("status") or "").lower() in ["true", "1", "yes"]
@@ -358,7 +373,7 @@ def update_sale(sale_id):
         if "status" in data:
             sale.status = bool(data.get("status"))
 
-    # 3) tags
+    # === 3) tags ===
     if is_multipart:
         tags_raw = form.get("tags")
         if tags_raw:
@@ -380,20 +395,17 @@ def update_sale(sale_id):
             sale.sub_model = tags.get("subModel", "")
             sale.grade = tags.get("grade", "")
 
-    # 4) 숫자
-    if is_multipart:
-        year = to_int_or_none(form.get("year"))
-        price = to_int_or_none(form.get("price"))
-        mileage = to_int_or_none(form.get("mileage"))
-    else:
-        year = to_int_or_none(data.get("year"))
-        price = to_int_or_none(data.get("price"))
-        mileage = to_int_or_none(data.get("mileage"))
+    # === 4) 숫자 필드 ===
+    year = to_int_or_none(form.get("year") if is_multipart else data.get("year"))
+    price = to_int_or_none(form.get("price") if is_multipart else data.get("price"))
+    mileage = to_int_or_none(
+        form.get("mileage") if is_multipart else data.get("mileage")
+    )
     sale.year = sale.year if year is None else year
     sale.price = sale.price if price is None else price
     sale.mileage = sale.mileage if mileage is None else mileage
 
-    # 5) 문자열
+    # === 5) 문자열 필드 ===
     if is_multipart:
         sale.name = apply_if_present(form.get("name"), sale.name)
         sale.fuel = apply_if_present(form.get("fuel"), sale.fuel)
@@ -415,15 +427,20 @@ def update_sale(sale_id):
             data.get("transmission"), sale.transmission
         )
 
-    # 6) 썸네일 업로드/유지
-    if is_multipart:
-        new_thumb = files.get("thumbnail") if files else None
-        if thumb_state == "new" and new_thumb:
+    # === 6) 썸네일 처리 ===
+    if thumb_state == "remove":
+        delete_file_if_exists(sale.thumbnail)
+        sale.thumbnail = None
+        db.session.flush()
+
+    elif is_multipart:
+        if thumb_state == "new" and files and files.get("thumbnail"):
             delete_file_if_exists(sale.thumbnail)
-            sale.thumbnail = save_uploaded_file(new_thumb)
-        # keep이면 아무 것도 안 함 (remove는 위에서 처리 완료)
+            sale.thumbnail = save_uploaded_file(files.get("thumbnail"))
+        # keep이면 아무 것도 안 함
+
     else:
-        if "thumbnail" in data:  # JSON일 때 명시되면 처리
+        if "thumbnail" in data:
             tv = data.get("thumbnail")
             if tv in (None, "", "null"):
                 delete_file_if_exists(sale.thumbnail)
@@ -431,7 +448,7 @@ def update_sale(sale_id):
             else:
                 sale.thumbnail = tv
 
-    # 7) 이미지들
+    # === 7) 이미지들 ===
     if is_multipart:
         existing_urls = form.getlist("originImages") or form.getlist("originURLs")
         if not existing_urls:
@@ -457,33 +474,13 @@ def update_sale(sale_id):
                 except Exception:
                     sale.images = sale.images or []
 
-    # 8) simple_tags
+    # === 8) simple_tags ===
     sale.simple_tags = parse_simple_tags(
         form.get("simple_tags") if is_multipart else data.get("simple_tags")
     )
 
     db.session.commit()
     return jsonify({"message": "success", "sale": sale.to_dict()}), 200
-
-
-def delete_file_if_exists(web_path: str | None):
-    if not web_path:
-        return
-    try:
-        abs_path = os.path.join(current_app.root_path, web_path.lstrip("/"))
-        if os.path.exists(abs_path):
-            os.remove(abs_path)
-    except Exception as e:
-        current_app.logger.warning(f"thumb delete fail: {e}")
-
-
-def apply_if_present(val, current):
-    # None 또는 ""(공백 포함) 이면 기존값 유지
-    if val is None:
-        return current
-    if isinstance(val, str) and val.strip() == "":
-        return current
-    return val
 
 
 # 삭제 api
