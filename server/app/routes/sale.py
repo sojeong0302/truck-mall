@@ -326,21 +326,29 @@ def update_sale(sale_id):
     sale = Sale.query.get_or_404(sale_id)
 
     ct = (request.content_type or "").lower()
+    current_app.logger.info(f"[update_sale] CT={ct}")
 
     if ct.startswith("multipart/form-data"):
         form, files = request.form, request.files
 
-        # status
+        # --- DEBUG 로그 ---
+        current_app.logger.info(
+            "[update_sale] form=%s, files=%s",
+            {k: form.get(k) for k in form.keys()},
+            list(files.keys()),
+        )
+
+        # status (기존 유지)
         if "status" in form:
             status_val = (form.get("status") or "").lower()
             sale.status = status_val in ["true", "1", "yes"]
 
-        # tags 처리 (기존 로직 유지)
+        # tags (기존 유지)
         tags_raw = form.get("tags")
         if tags_raw:
             try:
                 tags = json.loads(tags_raw) if isinstance(tags_raw, str) else tags_raw
-                sale.tags = tags  # 전체 계층 구조 저장
+                sale.tags = tags
                 sale.manufacturer = tags.get("manufacturer", "")
                 sale.model = tags.get("model", "")
                 sale.sub_model = tags.get("subModel", "")
@@ -348,7 +356,7 @@ def update_sale(sale_id):
             except Exception as e:
                 current_app.logger.warning(f"tags 파싱 실패: {e}")
 
-        # 숫자/문자열 필드 (기존 로직 유지)
+        # 숫자/문자열 필드 (기존 유지)
         sale.year = to_int_or_none(form.get("year"))
         sale.price = to_int_or_none(form.get("price"))
         sale.mileage = to_int_or_none(form.get("mileage"))
@@ -360,15 +368,20 @@ def update_sale(sale_id):
         sale.content = form.get("content") or ""
         sale.transmission = form.get("transmission") or ""
 
-        # 🔻 썸네일 처리만 변경: thumbnail_state(new/remove/keep)
+        # --- 썸네일 상태 처리 (핵심) ---
         thumb_state = form.get("thumbnail_state", "keep")
-        if thumb_state == "new" and files.get("thumbnail"):
-            sale.thumbnail = save_uploaded_file(files.get("thumbnail"))
+        new_thumb = files.get("thumbnail")
+        current_app.logger.info(
+            f"[update_sale] thumb_state={thumb_state}, has_file={bool(new_thumb)}"
+        )
+
+        if thumb_state == "new" and new_thumb:
+            sale.thumbnail = save_uploaded_file(new_thumb)
         elif thumb_state == "remove":
-            sale.thumbnail = None
+            sale.thumbnail = None  # nullable=True 권장
         # keep이면 변경 없음
 
-        # 기존 이미지 URL (기존 로직 유지: originURLs(JSON 문자열)만 처리)
+        # 기존 이미지 URL (기존 로직)
         existing_urls = []
         if form.get("originURLs"):
             try:
@@ -376,23 +389,20 @@ def update_sale(sale_id):
             except Exception as e:
                 current_app.logger.warning(f"originURLs 파싱 실패: {e}")
 
-        # 새 파일 처리 (기존 로직 유지)
+        # 새 파일 (기존 로직)
         incoming_files = files.getlist("images") or files.getlist("images[]")
         valid_files = [f for f in incoming_files if getattr(f, "filename", None)]
         new_urls = [save_uploaded_file(f) for f in valid_files]
 
-        # 합치기 (기존 로직 유지)
-        final_urls = existing_urls + new_urls
-
-        # DB 저장 (기존 로직 유지)
-        sale.images = final_urls  # JSON 컬럼
-        # sale.images = json.dumps(final_urls, ensure_ascii=False)  # TEXT 컬럼이면
+        final_urls = (existing_urls or []) + new_urls
+        sale.images = final_urls  # JSON 컬럼 가정
 
         sale.simple_tags = parse_simple_tags(form.get("simple_tags"))
 
     else:
-        # JSON 요청일 경우 (기존 로직 유지)
+        # JSON 요청 (기존 유지)
         data = request.get_json(silent=True) or {}
+        current_app.logger.info(f"[update_sale] JSON body keys={list(data.keys())}")
 
         if "status" in data:
             sale.status = bool(data.get("status"))
@@ -414,19 +424,29 @@ def update_sale(sale_id):
         sale.color = data.get("color") or ""
         sale.content = data.get("content") or ""
 
-        if data.get("thumbnail") is not None:
-            sale.thumbnail = data.get("thumbnail") or ""
+        # JSON에서 썸네일이 명시되면 빈 문자열/None은 삭제로 간주
+        if "thumbnail" in data:
+            thumb_val = data.get("thumbnail")
+            sale.thumbnail = None if thumb_val in (None, "", "null") else thumb_val
 
         if data.get("images") is not None:
             if isinstance(data.get("images"), list):
-                sale.images = json.dumps(data.get("images"), ensure_ascii=False)
+                sale.images = data.get("images")
             else:
-                sale.images = data.get("images") or "[]"
+                try:
+                    sale.images = json.loads(data.get("images"))
+                except Exception:
+                    sale.images = sale.images or []
 
         sale.simple_tags = parse_simple_tags(data.get("simple_tags"))
 
+    # 커밋 전에 현재 thumbnail 로그 확인
+    current_app.logger.info(f"[update_sale] before commit thumbnail={sale.thumbnail}")
     db.session.commit()
-    return jsonify({"message": "success", "sale": sale.to_dict()})
+    # 커밋 후에도 한번 더 확인
+    current_app.logger.info(f"[update_sale] after commit thumbnail={sale.thumbnail}")
+
+    return jsonify({"message": "success", "sale": sale.to_dict()}), 200
 
 
 # 삭제 api
