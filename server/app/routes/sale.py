@@ -398,11 +398,18 @@ def update_sale(sale_id):
 
         # 기존 이미지 URL (기존 로직)
         existing_urls = []
-        if form.get("originURLs"):
-            try:
-                existing_urls = json.loads(form.get("originURLs"))
-            except Exception as e:
-                current_app.logger.warning(f"originURLs 파싱 실패: {e}")
+        existing_urls = form.getlist("originImages") or form.getlist("originURLs")
+
+        # 2) 만약 문자열(JSON)로 오는 경우도 대비
+        if not existing_urls:
+            raw = form.get("originImages") or form.get("originURLs")
+            if raw:
+                try:
+                    existing_urls = json.loads(raw)
+                except Exception as e:
+                    current_app.logger.warning(
+                        f"originImages/originURLs parse fail: {e}"
+                    )
 
         # 새 파일 (기존 로직)
         incoming_files = files.getlist("images") or files.getlist("images[]")
