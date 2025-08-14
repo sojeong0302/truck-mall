@@ -167,30 +167,16 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         formData.append("tags", JSON.stringify(tags));
         formData.append("transmission", transmission);
 
-        // if (thumbFileRef.current) {
-        //     formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
-        // } else if (thumbnail && !thumbnail.startsWith("blob:") && !thumbnail.startsWith("data:")) {
-        //     try {
-        //         const blob = await fetch(thumbnail).then((r) => r.blob());
-        //         formData.append("thumbnail", new File([blob], "thumbnail.jpg", { type: blob.type || "image/jpeg" }));
-        //     } catch (e) {
-        //         console.warn("[edit] thumbnail fetch failed, skip", e);
-        //     }
-        // }
-        let thumbnailState: "keep" | "new" | "remove" = "keep";
-
-        // 1) 새 파일을 골랐으면 파일 첨부 + 상태=new
         if (thumbFileRef.current) {
             formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
-            thumbnailState = "new";
+        } else if (thumbnail && !thumbnail.startsWith("blob:") && !thumbnail.startsWith("data:")) {
+            try {
+                const blob = await fetch(thumbnail).then((r) => r.blob());
+                formData.append("thumbnail", new File([blob], "thumbnail.jpg", { type: blob.type || "image/jpeg" }));
+            } catch (e) {
+                console.warn("[edit] thumbnail fetch failed, skip", e);
+            }
         }
-        // 2) 파일은 안 골랐는데, 썸네일 미리보기도 비어있다면 (=삭제 의도)
-        else if (!thumbnail) {
-            thumbnailState = "remove";
-        }
-        // 3) 그 외(미리보기는 URL이고 파일도 없음) → 기존 유지
-
-        formData.append("thumbnail_state", thumbnailState);
         formData.append("name", name);
         formData.append("fuel", fuel);
         formData.append("type", type);
