@@ -137,17 +137,6 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
 
     const previewUrlRef = useRef<string | null>(null);
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const f = e.target.files?.[0];
-        if (!f) return;
-
-        if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
-
-        thumbFileRef.current = f;
-        const preview = URL.createObjectURL(f);
-        previewUrlRef.current = preview;
-        setThumbnail(preview);
-    };
     const [thumbnailState, setThumbnailState] = useState<"keep" | "new" | "remove">("keep");
     //수정 api 연동
     const handleSubmit = async () => {
@@ -228,6 +217,24 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
     const initialImageUrls = useMemo(() => {
         return sanitizedImages.map((img) => getImageUrl(img));
     }, [sanitizedImages, BASE_URL]);
+
+    // const handleImagesChange = useCallback((files: File[], keepImages: string[]) => {
+    //     setNewImages(files);
+    //     setPrevImages(keepImages);
+    // }, []);
+
+    const handleThumbChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const f = e.target.files?.[0];
+        if (!f) return;
+
+        if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+
+        thumbFileRef.current = f;
+        const preview = URL.createObjectURL(f);
+        previewUrlRef.current = preview;
+        setThumbnail(preview);
+        setThumbnailState("new"); // 새 파일 선택 의도
+    };
 
     const handleImagesChange = useCallback((files: File[], keepImages: string[]) => {
         setNewImages(files);
@@ -314,7 +321,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                                 type="file"
                                 accept="image/*"
                                 ref={fileInputRef}
-                                onChange={handleImageChange}
+                                onChange={handleThumbChange}
                                 className="hidden"
                             />
                             {thumbnail ? (
