@@ -13,6 +13,8 @@ from dotenv import load_dotenv
 from .routes.ping import ping_bp
 from flask_jwt_extended import JWTManager
 import os
+import logging
+import sys
 
 load_dotenv()
 
@@ -29,6 +31,10 @@ ALLOWED_ORIGINS = [
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.DEBUG)
+    app.logger.addHandler(handler)
+    app.logger.setLevel(logging.DEBUG)
 
     # 환경설정
     # (환경변수 파일을 FLASK_CONFIG로 지정해 두었다면 사용)
