@@ -446,11 +446,15 @@ def update_sale(sale_id):
         sale.color = data.get("color") or ""
         sale.content = data.get("content") or ""
 
+        # ✅ thumbnail_state가 'remove'면 썸네일 삭제로 간주
+        if (data.get("thumbnail_state") or "").lower() == "remove":
+            delete_file_if_exists(sale.thumbnail)
+            sale.thumbnail = None
+
         # JSON에서 썸네일이 명시되면 빈 문자열/None은 삭제로 간주
         if "thumbnail" in data:
             thumb_val = data.get("thumbnail")
             sale.thumbnail = None if thumb_val in (None, "", "null") else thumb_val
-
         if data.get("images") is not None:
             if isinstance(data.get("images"), list):
                 sale.images = data.get("images")
