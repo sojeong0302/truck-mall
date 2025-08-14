@@ -150,6 +150,31 @@ export default function WritingUpload() {
         if (fileInputRef.current) fileInputRef.current.value = ""; // input 리셋
     };
 
+    // 더블클릭 판별용 타이머 ref
+    const clickTimerRef = useRef<number | null>(null);
+
+    const handleContainerClick = () => {
+        // 썸네일 없으면 그냥 바로 파일 선택 열기
+        if (!thumbnail) {
+            handleClick();
+            return;
+        }
+
+        // 썸네일이 있을 때만 단/복 클릭 구분
+        if (clickTimerRef.current) {
+            // 두 번째 클릭: 더블클릭으로 간주 → 단일클릭 취소 + 삭제
+            window.clearTimeout(clickTimerRef.current);
+            clickTimerRef.current = null;
+            handleRemoveThumbnail();
+        } else {
+            // 첫 번째 클릭: 잠깐 기다렸다가(예: 250ms) 두 번째 클릭이 없으면 파일 선택
+            clickTimerRef.current = window.setTimeout(() => {
+                handleClick(); // 단일 클릭 동작
+                clickTimerRef.current = null;
+            }, 250);
+        }
+    };
+
     return (
         <>
             <SimpleFilter skipReset={true} />
@@ -216,9 +241,8 @@ export default function WritingUpload() {
                     </div> */}
                     <div
                         className="flex justify-center items-center cursor-pointer shadow-lg rounded-xl w-[]sm:w-[50%] aspect-square sm:min-w-[150px] bg-[rgba(179,179,179,0.25)] overflow-hidden"
-                        onClick={!thumbnail ? handleClick : undefined} // ✅ 썸네일 있을 땐 파일선택 막기
-                        onDoubleClick={thumbnail ? handleRemoveThumbnail : undefined} // ✅ 더블클릭으로 삭제
-                        title={thumbnail ? "더블클릭하면 썸네일이 삭제됩니다." : "클릭해서 썸네일을 선택하세요."}
+                        onClick={handleContainerClick} // ✅ 단/복 클릭 구분
+                        title={thumbnail ? "클릭: 파일 선택 / 더블클릭: 썸네일 삭제" : "클릭해서 썸네일을 선택하세요."}
                     >
                         <input
                             type="file"
@@ -244,6 +268,7 @@ export default function WritingUpload() {
                             />
                         )}
                     </div>
+
                     <div className="flex flex-col justify-around">
                         <input
                             className="font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2"
