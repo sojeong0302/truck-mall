@@ -189,6 +189,13 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         thumbFileRef.current = null;
     };
 
+    const selectedTags = [
+        tags.manufacturer,
+        tags.models?.[0]?.name,
+        tags.models?.[0]?.subModels?.[0]?.name,
+        tags.models?.[0]?.subModels?.[0]?.grades?.[0],
+    ].filter(Boolean);
+
     const handleSubmit = async () => {
         if (!token) {
             alert("로그인이 필요합니다.");
@@ -248,8 +255,17 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
     return (
         <>
             <SimpleFilter />
-            <Filter skipReset={true} />
-            <div className="flex flex-col sm:flex-row w-full gap-0 sm:gap-10">
+            <div className="flex flex-col sm:flex-row w-full gap-0 sm:gap-10 w-[100%] sm:w-[80%] h-[100%] mx-auto">
+                <Filter skipReset={true} />
+                {selectedTags.length > 0 && (
+                    <div className="flex flex-wrap gap-3 text-lg font-semibold text-[#2E7D32] px-1">
+                        {selectedTags.map((tag, idx) => (
+                            <span key={idx} className="bg-[#2E7D32]/10 px-3 py-1 rounded-full">
+                                #{tag}
+                            </span>
+                        ))}
+                    </div>
+                )}
                 <div className="flex items-center gap-3">
                     <div className="text-sm sm:text-lg text-[#2E7D32]">▶</div>
                     <div className="text-lg sm:text-2xl font-medium">변속기</div>
