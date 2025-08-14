@@ -434,8 +434,7 @@ def update_sale(sale_id):
     if thumb_state == "remove":
         delete_file_if_exists(sale.thumbnail)
         sale.thumbnail = None
-        db.session.flush()
-        # ★ 여기서 바로 return 하면 이후 코드 실행 안 함
+        # 이미지/태그/문자열 등 다른 필드 업데이트는 위에서 이미 끝났다고 가정
         db.session.commit()
         return jsonify({"message": "success", "sale": sale.to_dict()}), 200
 
@@ -443,7 +442,7 @@ def update_sale(sale_id):
         if thumb_state == "new" and files and files.get("thumbnail"):
             delete_file_if_exists(sale.thumbnail)
             sale.thumbnail = save_uploaded_file(files.get("thumbnail"))
-        # keep이면 아무 것도 안 함
+    # else(JSON) 분기 그대로 유지
 
     else:
         if "thumbnail" in data:

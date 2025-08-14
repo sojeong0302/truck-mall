@@ -254,12 +254,15 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
 
             alert("수정 되었습니다.");
 
-            // 5) UI 동기화
+            console.log("[PUT] server sale.thumbnail =", data?.sale?.thumbnail);
             if (thumbStateToSend === "remove") {
-                // 삭제 시: 재조회로 되살리지 않도록 로컬 상태만 정리하고 끝
+                // 반드시 null이어야 함
+                if (data?.sale?.thumbnail != null && data?.sale?.thumbnail !== "") {
+                    console.warn("⚠️ 서버 응답 썸네일이 비어있지 않음:", data?.sale?.thumbnail);
+                }
                 setThumbnail("");
                 thumbFileRef.current = null;
-                setThumbnailState("keep"); // 다음 수정 때 기본값
+                setThumbnailState("keep");
                 return; // 재조회 스킵
             }
 
