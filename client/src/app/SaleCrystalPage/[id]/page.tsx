@@ -253,6 +253,9 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
             });
             alert("수정 되었습니다.");
             // router.back();
+            // 바로 확인: 서버가 뭐라고 주는지
+            const { data: after } = await api.get(`${BASE_URL}/sale/${id}?_=${Date.now()}`);
+            console.log("✅ 서버 최신 thumbnail =", after.thumbnail);
         } catch (error) {}
     };
 
