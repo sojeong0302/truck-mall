@@ -20,10 +20,10 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
     const token = useAuthStore((s) => s.token);
     const { post, loading, error, fetchById, clear } = useSaleDetailStore();
 
-    // useEffect(() => {
-    //     fetchById(BASE_URL, id);
-    //     return () => clear();
-    // }, [BASE_URL, id, fetchById, clear]);
+    useEffect(() => {
+        fetchById(BASE_URL, id);
+        return () => clear();
+    }, [BASE_URL, id, fetchById, clear]);
 
     //수정 페이지 이동 URL
     const handleGoCrystal = () => router.push(`/SaleCrystalPage/${id}`);
