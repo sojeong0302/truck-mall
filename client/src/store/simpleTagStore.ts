@@ -14,11 +14,17 @@ interface SimpleTagState {
 
 export const useSimpleTagStore = create<SimpleTagState>((set) => ({
     simpleTag: null,
+
     setSimpleTag: (type, grade, skipReset = false) => {
+        // ✅ skipReset이 false일 때만 Filter 초기화
         if (!skipReset) {
-            useFilterTagStore.getState().clear(); // 조건부 초기화
+            const filterStore = useFilterTagStore.getState();
+            if (typeof filterStore.clear === "function") {
+                filterStore.clear();
+            }
         }
         set({ simpleTag: { type, grade } });
     },
+
     resetSimpleTag: () => set({ simpleTag: null }),
 }));
