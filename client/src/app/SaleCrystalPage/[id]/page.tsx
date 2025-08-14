@@ -254,7 +254,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
 
     return (
         <>
-            <SimpleFilter />
+            <SimpleFilter skipReset={true} />
             <div className="w-[100%] sm:w-[80%] h-[100%] mx-auto flex flex-col justify-center p-5 sm:p-20 gap-7">
                 <Filter skipReset={true} />
                 {selectedTags.length > 0 && (
