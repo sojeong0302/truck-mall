@@ -167,16 +167,29 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         formData.append("tags", JSON.stringify(tags));
         formData.append("transmission", transmission);
 
+        // if (thumbFileRef.current) {
+        //     formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
+        // } else if (thumbnail && !thumbnail.startsWith("blob:") && !thumbnail.startsWith("data:")) {
+        //     try {
+        //         const blob = await fetch(thumbnail).then((r) => r.blob());
+        //         formData.append("thumbnail", new File([blob], "thumbnail.jpg", { type: blob.type || "image/jpeg" }));
+        //     } catch (e) {
+        //         console.warn("[edit] thumbnail fetch failed, skip", e);
+        //     }
+        // }
+
+        let thumbnailState: "keep" | "new" | "remove" = "keep";
+
+        // 1) 새 파일 선택한 경우
         if (thumbFileRef.current) {
             formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
-        } else if (thumbnail && !thumbnail.startsWith("blob:") && !thumbnail.startsWith("data:")) {
-            try {
-                const blob = await fetch(thumbnail).then((r) => r.blob());
-                formData.append("thumbnail", new File([blob], "thumbnail.jpg", { type: blob.type || "image/jpeg" }));
-            } catch (e) {
-                console.warn("[edit] thumbnail fetch failed, skip", e);
-            }
+            thumbnailState = "new";
         }
+        // 2) 더블클릭 등으로 썸네일 삭제한 경우 (미리보기 비어있음)
+        else if (!thumbnail) {
+            thumbnailState = "remove";
+        }
+
         formData.append("name", name);
         formData.append("fuel", fuel);
         formData.append("type", type);
