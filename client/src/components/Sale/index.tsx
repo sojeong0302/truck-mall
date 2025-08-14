@@ -50,7 +50,7 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
             }
         };
         fetchAll();
-    }, [BASE_URL, setSales, clearSales]);
+    }, []);
 
     // 검색(trigger) 시 필터 조회
     useEffect(() => {
