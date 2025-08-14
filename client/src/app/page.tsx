@@ -8,9 +8,9 @@ import Sns from "@/components/Sns";
 import { useEffect } from "react";
 import "swiper/css/navigation";
 import Sale from "@/components/Sale";
-import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useCarTipStore } from "@/store/carTipStore";
+import { api } from "@/lib/api";
 
 //메인 이미지
 const images = ["/images/mainPoto/poto1.jpg", "/images/mainPoto/poto2.jpg", "/images/mainPoto/poto3.jpg"];
@@ -24,7 +24,7 @@ export default function MainPage() {
     useEffect(() => {
         const fetchCarTips = async () => {
             try {
-                const res = await axios.get(`${BASE_URL}/carTIP/list`);
+                const res = await api.get(`/carTIP/list`);
                 setCarTIPs(res.data);
             } catch (err) {}
         };

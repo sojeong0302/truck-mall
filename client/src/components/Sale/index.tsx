@@ -12,6 +12,7 @@ import { useSimpleTagStore } from "@/store/simpleTagStore";
 import { useSearchTriggerStore } from "@/store/searchTriggerStore";
 import { useSaleStore } from "@/store/saleStore";
 import { getImageUrl } from "@/utils/getImageUrl";
+import { api } from "@/lib/api";
 
 const YearMIN = 2000;
 const YearMAX = new Date().getFullYear();
@@ -41,7 +42,7 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
     useEffect(() => {
         const fetchAll = async () => {
             try {
-                const res = await axios.get(`${BASE_URL}/sale/list`);
+                const res = await api.get(`${BASE_URL}/sale/list`);
                 const data = Array.isArray(res.data) ? res.data : [];
                 setSales(data);
             } catch (e) {
@@ -78,7 +79,7 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
 
                 const url = qs.toString() ? `${BASE_URL}/sale/list?${qs.toString()}` : `${BASE_URL}/sale/list`;
 
-                const res = await axios.get(url);
+                const res = await api.get(url);
                 const data = Array.isArray(res.data) ? res.data : [];
                 setSales(data);
             } catch (err) {
