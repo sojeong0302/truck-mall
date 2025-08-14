@@ -156,11 +156,6 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         return sanitizedImages.map((img) => getImageUrl(img));
     }, [sanitizedImages, BASE_URL]);
 
-    // const handleImagesChange = useCallback((files: File[], keepImages: string[]) => {
-    //     setNewImages(files);
-    //     setPrevImages(keepImages);
-    // }, []);
-
     const handleThumbChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const f = e.target.files?.[0];
         if (!f) return;
@@ -171,7 +166,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         const preview = URL.createObjectURL(f);
         previewUrlRef.current = preview;
         setThumbnail(preview);
-        setThumbnailState("new"); // 새 파일 선택 의도
+        setThumbnailState("new");
     };
 
     const handleImagesChange = useCallback((files: File[], keepImages: string[]) => {
@@ -182,7 +177,8 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
     const handleCancel = () => {
         router.back();
     };
-    // 삭제 버튼 클릭 시
+
+    // 썸네일 삭제
     const handleDeleteThumbnail = () => {
         setThumbnailState("remove");
         setThumbnail("");
@@ -194,7 +190,6 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
     };
 
     const handleSubmit = async () => {
-        // 1) 인증 체크
         if (!token) {
             alert("로그인이 필요합니다.");
             const here = window.location.pathname + window.location.search;
@@ -204,21 +199,19 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
             return;
         }
 
-        // 2) thumbnail_state 결정 (비동기 setState 보완)
-        let thumbStateToSend = thumbnailState;
+        // 썸네일 상태 결정
+        let thumbStateToSend: "keep" | "new" | "remove" = thumbnailState;
         if (!thumbnail && thumbnailState !== "new") {
-            // 화면에 썸네일이 없고 새 업로드도 아닌 경우 → remove
             thumbStateToSend = "remove";
         }
 
-        // 3) FormData 구성
         const formData = new FormData();
         formData.append("simple_tags", JSON.stringify(simpleTag || null));
         formData.append("tags", JSON.stringify(tags || {}));
         formData.append("transmission", transmission || "");
-        formData.append("thumbnail_state", thumbStateToSend); // keep | new | remove
+        formData.append("thumbnail_state", thumbStateToSend);
 
-        // 썸네일 새 업로드만 전송
+        // 새 썸네일 업로드 시
         if (thumbStateToSend === "new" && thumbFileRef.current) {
             formData.append("thumbnail", thumbFileRef.current, thumbFileRef.current.name);
         }
@@ -232,54 +225,20 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         formData.append("mileage", mileage);
         formData.append("color", color);
         formData.append("price", price);
+        formData.append("content", content);
 
         // 기존 이미지(유지)
         prevImages.forEach((url) => formData.append("originImages", url));
         // 새 이미지(추가)
         newImages.forEach((file) => formData.append("images", file, file.name));
 
-        formData.append("content", content);
-
-        // 디버그 로그
-        console.log("thumbnail_state =", thumbStateToSend);
-        for (const [k, v] of formData.entries()) {
-            console.log(k, v instanceof File ? `File(${v.name})` : v);
-        }
-
-        // 4) 요청
         try {
-            const { data } = await authApi.put(`${BASE_URL}/sale/${id}`, formData, {
-                headers: { Authorization: `Bearer ${token}` }, // Content-Type은 브라우저가 자동 설정
+            await authApi.put(`${BASE_URL}/sale/${id}`, formData, {
+                headers: { Authorization: `Bearer ${token}` },
             });
 
-            alert("수정 되었습니다.");
-
-            console.log("[PUT] server sale.thumbnail =", data?.sale?.thumbnail);
-            if (thumbStateToSend === "remove") {
-                // 반드시 null이어야 함
-                if (data?.sale?.thumbnail != null && data?.sale?.thumbnail !== "") {
-                    console.warn("⚠️ 서버 응답 썸네일이 비어있지 않음:", data?.sale?.thumbnail);
-                }
-                setThumbnail("");
-                thumbFileRef.current = null;
-                setThumbnailState("keep");
-                return; // 재조회 스킵
-            }
-
-            // 삭제가 아닌 경우(keep/new): 최신 데이터 재조회
-            const res = await api.get(`${BASE_URL}/sale/${id}?_=${Date.now()}`);
-            const after = res.data;
-
-            const t = after.thumbnail;
-            setThumbnail(t && !t.startsWith("blob:") ? `${BASE_URL}${t}` : "");
-
-            const imgs = (after.images ?? [])
-                .filter((u: string) => typeof u === "string" && !u.startsWith("blob:"))
-                .map((u: string) => (u.startsWith("http") ? u : `${BASE_URL}${u}`));
-            setSanitizedImages(imgs);
-
-            setThumbnailState("keep");
-            setNewImages([]);
+            alert("수정되었습니다.");
+            router.push(`/SaleDetailPage/${id}`); // 수정 후 상세페이지로 이동 (원하면 변경 가능)
         } catch (error) {
             console.error("수정 실패", error);
             alert("수정 중 오류가 발생했습니다.");

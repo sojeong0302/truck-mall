@@ -335,7 +335,6 @@ def delete_file_if_exists(web_path: str | None):
 
 
 def apply_if_present(val, current):
-    # None 또는 ""(공백 포함) 이면 기존값 유지
     if val is None:
         return current
     if isinstance(val, str) and val.strip() == "":
@@ -350,11 +349,10 @@ def update_sale(sale_id):
 
     ct = (request.content_type or "").lower()
     is_multipart = ct.startswith("multipart/form-data")
-    data = None if is_multipart else (request.get_json(silent=True) or {})
     form = request.form if is_multipart else None
     files = request.files if is_multipart else None
+    data = None if is_multipart else (request.get_json(silent=True) or {})
 
-    # === 1) thumbnail_state 읽기 ===
     thumb_state = (
         (
             (
@@ -368,122 +366,63 @@ def update_sale(sale_id):
         .lower()
     )
 
-    # === 2) status ===
-    if is_multipart:
-        if "status" in form:
-            sale.status = (form.get("status") or "").lower() in ["true", "1", "yes"]
-    else:
-        if "status" in data:
-            sale.status = bool(data.get("status"))
+    def get_val(key, default=""):
+        return (form.get(key) if is_multipart else data.get(key)) or default
 
-    # === 3) tags ===
-    if is_multipart:
-        tags_raw = form.get("tags")
-        if tags_raw:
-            try:
-                tags = json.loads(tags_raw) if isinstance(tags_raw, str) else tags_raw
-            except Exception:
-                tags = {}
-            sale.tags = tags
-            sale.manufacturer = tags.get("manufacturer", "")
-            sale.model = tags.get("model", "")
-            sale.sub_model = tags.get("subModel", "")
-            sale.grade = tags.get("grade", "")
-    else:
-        tags = parse_tag(data.get("tags") or data.get("tag"))
-        if isinstance(tags, dict) and tags:
-            sale.tags = tags
-            sale.manufacturer = tags.get("manufacturer", "")
-            sale.model = tags.get("model", "")
-            sale.sub_model = tags.get("subModel", "")
-            sale.grade = tags.get("grade", "")
+    sale.name = get_val("name", sale.name)
+    sale.fuel = get_val("fuel", sale.fuel)
+    sale.type = get_val("type", sale.type)
+    sale.trim = get_val("trim", sale.trim)
+    sale.year = to_int_or_none(get_val("year", sale.year))
+    sale.mileage = to_int_or_none(get_val("mileage", sale.mileage))
+    sale.color = get_val("color", sale.color)
+    sale.price = to_int_or_none(get_val("price", sale.price))
+    sale.content = get_val("content", sale.content)
+    sale.transmission = get_val("transmission", sale.transmission)
 
-    # === 4) 숫자 필드 ===
-    year = to_int_or_none(form.get("year") if is_multipart else data.get("year"))
-    price = to_int_or_none(form.get("price") if is_multipart else data.get("price"))
-    mileage = to_int_or_none(
-        form.get("mileage") if is_multipart else data.get("mileage")
+    raw_tags = form.get("tags") if is_multipart else data.get("tags")
+    tags = parse_tag(raw_tags)
+    if tags:
+        sale.tags = tags
+        sale.manufacturer = tags.get("manufacturer", "")
+        sale.model = tags.get("model", "")
+        sale.sub_model = tags.get("subModel", "")
+        sale.grade = tags.get("grade", "")
+
+    raw_simple_tags = (
+        form.get("simple_tags") if is_multipart else data.get("simple_tags")
     )
-    sale.year = sale.year if year is None else year
-    sale.price = sale.price if price is None else price
-    sale.mileage = sale.mileage if mileage is None else mileage
+    sale.simple_tags = parse_simple_tags(raw_simple_tags)
 
-    # === 5) 문자열 필드 ===
-    if is_multipart:
-        sale.name = apply_if_present(form.get("name"), sale.name)
-        sale.fuel = apply_if_present(form.get("fuel"), sale.fuel)
-        sale.type = apply_if_present(form.get("type"), sale.type)
-        sale.trim = apply_if_present(form.get("trim"), sale.trim)
-        sale.color = apply_if_present(form.get("color"), sale.color)
-        sale.content = apply_if_present(form.get("content"), sale.content)
-        sale.transmission = apply_if_present(
-            form.get("transmission"), sale.transmission
-        )
-    else:
-        sale.name = apply_if_present(data.get("name"), sale.name)
-        sale.fuel = apply_if_present(data.get("fuel"), sale.fuel)
-        sale.type = apply_if_present(data.get("type"), sale.type)
-        sale.trim = apply_if_present(data.get("trim"), sale.trim)
-        sale.color = apply_if_present(data.get("color"), sale.color)
-        sale.content = apply_if_present(data.get("content"), sale.content)
-        sale.transmission = apply_if_present(
-            data.get("transmission"), sale.transmission
-        )
-
-    # === 6) 썸네일 처리 ===
     if thumb_state == "remove":
         delete_file_if_exists(sale.thumbnail)
         sale.thumbnail = None
-        # (여기서 바로 return 해도 OK. 다만 아래의 통일된 커밋 경로를 쓰려면 남겨둔다.)
-
-    elif is_multipart:
-        if thumb_state == "new" and files and files.get("thumbnail"):
+    elif is_multipart and thumb_state == "new" and files and files.get("thumbnail"):
+        delete_file_if_exists(sale.thumbnail)
+        sale.thumbnail = save_uploaded_file(files.get("thumbnail"))
+    elif not is_multipart and "thumbnail" in data:
+        tv = data.get("thumbnail")
+        if tv in (None, "", "null"):
             delete_file_if_exists(sale.thumbnail)
-            sale.thumbnail = save_uploaded_file(files.get("thumbnail"))
-        # keep이면 아무 것도 안 함
+            sale.thumbnail = None
+        else:
+            sale.thumbnail = tv
 
-    else:
-        if "thumbnail" in data:
-            tv = data.get("thumbnail")
-            if tv in (None, "", "null"):
-                delete_file_if_exists(sale.thumbnail)
-                sale.thumbnail = None
-            else:
-                sale.thumbnail = tv
-
-    # === 7) 이미지들 ===
     if is_multipart:
-        existing_urls = form.getlist("originImages") or form.getlist("originURLs")
-        if not existing_urls:
-            raw = form.get("originImages") or form.get("originURLs")
-            if raw:
-                try:
-                    existing_urls = json.loads(raw)
-                except Exception:
-                    existing_urls = []
-        incoming_files = (
-            (files.getlist("images") or files.getlist("images[]")) if files else []
-        )
+        existing_urls = form.getlist("originImages") or []
+        incoming_files = files.getlist("images") or []
         valid_files = [f for f in incoming_files if getattr(f, "filename", None)]
         new_urls = [save_uploaded_file(f) for f in valid_files]
-        sale.images = (existing_urls or []) + new_urls
+        sale.images = existing_urls + new_urls
     else:
         if "images" in data:
-            if isinstance(data.get("images"), list):
-                sale.images = data.get("images")
+            if isinstance(data["images"], list):
+                sale.images = data["images"]
             else:
                 try:
-                    sale.images = json.loads(data.get("images"))
+                    sale.images = json.loads(data["images"])
                 except Exception:
-                    sale.images = sale.images or []
-
-    # === 8) simple_tags ===
-    sale.simple_tags = parse_simple_tags(
-        form.get("simple_tags") if is_multipart else data.get("simple_tags")
-    )
-
-    if thumb_state == "remove":
-        sale.thumbnail = None
+                    pass
 
     db.session.commit()
     return jsonify({"message": "success", "sale": sale.to_dict()}), 200
