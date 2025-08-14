@@ -139,40 +139,16 @@ export default function WritingUpload() {
     ].filter(Boolean);
 
     // 썸네일 삭제
-    const handleRemoveThumbnail = () => {
-        try {
-            if (thumbnail && thumbnail.startsWith("blob:")) {
-                URL.revokeObjectURL(thumbnail); // blob URL 정리
-            }
-        } catch {}
-        setThumbnail("");
-        setThumbnailFile(null as any); // 타입이 File | null 이면 그대로 null
-        if (fileInputRef.current) fileInputRef.current.value = ""; // input 리셋
-    };
-
-    // 더블클릭 판별용 타이머 ref
-    const clickTimerRef = useRef<number | null>(null);
-
-    const handleContainerClick = () => {
-        // 썸네일 없으면 그냥 바로 파일 선택 열기
-        if (!thumbnail) {
-            handleClick();
-            return;
+    const handleClearThumbnail = () => {
+        // blob URL 정리(메모리 누수 방지)
+        if (thumbnail?.startsWith("blob:")) {
+            try {
+                URL.revokeObjectURL(thumbnail);
+            } catch {}
         }
-
-        // 썸네일이 있을 때만 단/복 클릭 구분
-        if (clickTimerRef.current) {
-            // 두 번째 클릭: 더블클릭으로 간주 → 단일클릭 취소 + 삭제
-            window.clearTimeout(clickTimerRef.current);
-            clickTimerRef.current = null;
-            handleRemoveThumbnail();
-        } else {
-            // 첫 번째 클릭: 잠깐 기다렸다가(예: 250ms) 두 번째 클릭이 없으면 파일 선택
-            clickTimerRef.current = window.setTimeout(() => {
-                handleClick(); // 단일 클릭 동작
-                clickTimerRef.current = null;
-            }, 250);
-        }
+        setThumbnail(""); // 미리보기 제거
+        setThumbnailFile(null); // 실제 파일 제거
+        if (fileInputRef.current) fileInputRef.current.value = ""; // 같은 파일 재선택 허용
     };
 
     return (
@@ -241,8 +217,9 @@ export default function WritingUpload() {
                     </div> */}
                     <div
                         className="flex justify-center items-center cursor-pointer shadow-lg rounded-xl w-[]sm:w-[50%] aspect-square sm:min-w-[150px] bg-[rgba(179,179,179,0.25)] overflow-hidden"
-                        onClick={handleContainerClick} // ✅ 단/복 클릭 구분
-                        title={thumbnail ? "클릭: 파일 선택 / 더블클릭: 썸네일 삭제" : "클릭해서 썸네일을 선택하세요."}
+                        onClick={handleClick}
+                        onDoubleClick={handleClearThumbnail} // ← 이 줄 추가
+                        title="더블클릭하면 썸네일이 제거됩니다"
                     >
                         <input
                             type="file"
@@ -251,24 +228,21 @@ export default function WritingUpload() {
                             onChange={handleImageChange}
                             className="hidden"
                         />
-
                         {thumbnail ? (
                             <img
                                 src={thumbnail}
                                 alt="선택된 이미지"
-                                className="w-full h-full object-cover select-none"
-                                draggable={false}
+                                className="w-full h-full object-cover"
+                                onDoubleClick={handleClearThumbnail} // ← 여기에도 달아두면 더 정확
                             />
                         ) : (
                             <img
                                 src="/images/addToPhoto.png"
                                 alt="사진 추가"
-                                className="w-[60px] h-[60px] opacity-70 select-none"
-                                draggable={false}
+                                className="w-[60px] h-[60px] opacity-70"
                             />
                         )}
                     </div>
-
                     <div className="flex flex-col justify-around">
                         <input
                             className="font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2"
