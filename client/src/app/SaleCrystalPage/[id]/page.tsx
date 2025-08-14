@@ -320,7 +320,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                     </div>
                     <div className="flex flex-col justify-around">
                         <input
-                            className="font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2"
+                            className="focus:outline-none font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="차량명을 입력해 주세요."

@@ -235,12 +235,12 @@ export default function WritingUpload() {
                     </div>
                     <div className="flex flex-col justify-around">
                         <input
-                            className="font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2"
+                            className="focus:outline-none font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2"
                             value={name}
                             onChange={(e) => setField("name", e.target.value)}
                             placeholder="차량명을 입력해 주세요."
                         />
-                        <div className="flex flex-col text-xl sm:text-2xl p-2 gap-5">
+                        <div className="flex flex-col text-xl sm:text-2xl p-2 gap-10">
                             {[
                                 { label: "연료", value: fuel, setter: (v: string) => setField("fuel", v) },
                                 { label: "차체 타입", value: type, setter: (v: string) => setField("type", v) },
@@ -264,7 +264,7 @@ export default function WritingUpload() {
                                     <div className="font-bold">{field.label}</div>
                                     <input
                                         type={field.type || "text"}
-                                        className="flex-1 shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-2"
+                                        className="flex-1 shadow-md text-2xl border-2 border-[#2E7D32] rounded-xl p-3"
                                         value={field.value}
                                         onChange={(e) => field.setter(e.target.value)}
                                         placeholder={`${field.label}을 입력해 주세요.`}
