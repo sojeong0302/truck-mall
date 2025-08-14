@@ -255,7 +255,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
     return (
         <>
             <SimpleFilter />
-            <div className="flex flex-col sm:flex-row w-full gap-0 sm:gap-10 w-[100%] sm:w-[80%] h-[100%] mx-auto">
+            <div className="flex sm:flex-row w-full gap-0 sm:gap-10 w-[100%] sm:w-[80%] h-[100%] mx-auto">
                 <Filter skipReset={true} />
                 {selectedTags.length > 0 && (
                     <div className="flex flex-wrap gap-3 text-lg font-semibold text-[#2E7D32] px-1">
