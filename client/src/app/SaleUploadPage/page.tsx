@@ -242,87 +242,36 @@ export default function WritingUpload() {
                             placeholder="차량명을 입력해 주세요."
                         />
                         <div className="flex flex-col text-xl sm:text-2xl p-2 gap-5">
-                            <div className="flex gap-1 sm:gap-3 sm:items-center flex-col sm:flex-row">
-                                <div className="font-bold">연료</div>
-                                <input
-                                    className="flex-1 shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-2"
-                                    value={fuel}
-                                    onChange={(e) => setField("fuel", e.target.value)}
-                                    placeholder="연료를 입력해 주세요."
-                                />
-                            </div>
-                            <div className="flex gap-1 sm:gap-3 sm:items-center flex-col sm:flex-row">
-                                <div className="font-bold">차체 타입</div>
-                                <input
-                                    className="flex-1 shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-2"
-                                    value={type}
-                                    onChange={(e) => setField("type", e.target.value)}
-                                    placeholder="차체 타입을 입력해 주세요."
-                                />
-                            </div>
-                            <div className="flex gap-1 sm:gap-3 sm:items-center flex-col sm:flex-row">
-                                <div className="font-bold">트림</div>
-                                <input
-                                    value={trim}
-                                    onChange={(e) => setField("trim", e.target.value)}
-                                    placeholder="트림을 입력해 주세요."
-                                    className="flex-1 shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-2"
-                                />
-                            </div>
-                            <div className="flex gap-1 sm:gap-3 sm:items-center flex-col sm:flex-row">
-                                <div className="font-bold">연식</div>
-                                <input
-                                    inputMode="numeric"
-                                    pattern="[0-9]*"
-                                    onKeyDown={(e) => {
-                                        const allowedKeys = ["Backspace", "ArrowLeft", "ArrowRight", "Delete", "Tab"];
-                                        if (!/[0-9]/.test(e.key) && !allowedKeys.includes(e.key)) {
-                                            e.preventDefault();
-                                        }
-                                    }}
-                                    className="flex-1 shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-2"
-                                    value={year}
-                                    type="number"
-                                    onChange={(e) => setField("year", e.target.value)}
-                                    placeholder="연식을 입력해 주세요."
-                                />
-                            </div>
-                            <div className="flex gap-1 sm:gap-3 sm:items-center flex-col sm:flex-row">
-                                <div className="font-bold">주행거리</div>
-                                <input
-                                    className="flex-1 shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-2"
-                                    value={mileage}
-                                    onChange={(e) => setField("mileage", e.target.value)}
-                                    placeholder="주행거리를 입력해 주세요."
-                                />
-                            </div>
-                            <div className="flex gap-1 sm:gap-3 sm:items-center flex-col sm:flex-row">
-                                <div className="font-bold">색상</div>
-                                <input
-                                    className="flex-1 shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-2"
-                                    value={color}
-                                    onChange={(e) => setField("color", e.target.value)}
-                                    placeholder="색상을 입력해 주세요."
-                                />
-                            </div>
-                            <div className="flex gap-1 sm:gap-3 sm:items-center flex-col sm:flex-row">
-                                <div className="font-bold">가격</div>
-                                <input
-                                    onKeyDown={(e) => {
-                                        const allowedKeys = ["Backspace", "ArrowLeft", "ArrowRight", "Delete", "Tab"];
-                                        if (!/[0-9]/.test(e.key) && !allowedKeys.includes(e.key)) {
-                                            e.preventDefault();
-                                        }
-                                    }}
-                                    inputMode="numeric"
-                                    pattern="[0-9]*"
-                                    className="flex-1 shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-2"
-                                    value={price}
-                                    type="number"
-                                    onChange={(e) => setField("price", e.target.value)}
-                                    placeholder="가격을 입력해 주세요."
-                                />
-                            </div>
+                            {[
+                                { label: "연료", value: fuel, setter: (v: string) => setField("fuel", v) },
+                                { label: "차체 타입", value: type, setter: (v: string) => setField("type", v) },
+                                { label: "트림", value: trim, setter: (v: string) => setField("trim", v) },
+                                {
+                                    label: "연식",
+                                    value: year,
+                                    setter: (v: string) => setField("year", v),
+                                    type: "number",
+                                },
+                                { label: "주행거리", value: mileage, setter: (v: string) => setField("mileage", v) },
+                                { label: "색상", value: color, setter: (v: string) => setField("color", v) },
+                                {
+                                    label: "가격",
+                                    value: price,
+                                    setter: (v: string) => setField("price", v),
+                                    type: "number",
+                                },
+                            ].map((field, idx) => (
+                                <div className="flex gap-1 sm:gap-3 sm:items-center flex-col sm:flex-row" key={idx}>
+                                    <div className="font-bold">{field.label}</div>
+                                    <input
+                                        type={field.type || "text"}
+                                        className="flex-1 shadow-md text-xl border-2 border-[#2E7D32] rounded-xl p-2"
+                                        value={field.value}
+                                        onChange={(e) => field.setter(e.target.value)}
+                                        placeholder={`${field.label}을 입력해 주세요.`}
+                                    />
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
