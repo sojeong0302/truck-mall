@@ -339,7 +339,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                                     <div className="font-bold">{field.label}</div>
                                     <input
                                         type={field.type || "text"}
-                                        className="flex-1 shadow-md text-lg sm:text-xl border-2 border-[#2E7D32] rounded-xl p-2"
+                                        className="flex-1 shadow-md text-lg sm:text-2xl border-2 border-[#2E7D32] rounded-xl p-3"
                                         value={field.value}
                                         onChange={(e) => field.setter(e.target.value)}
                                         placeholder={`${field.label}을 입력해 주세요.`}
