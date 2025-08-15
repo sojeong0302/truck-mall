@@ -114,8 +114,8 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                             alt="썸네일"
                         />
                     ) : (
-                        <div className="flex w-[500px] sm:h-[500px] border-1 shadow-lg  rounded-xl h-[300px] items-center justify-center text-sm text-center text-gray-500">
-                            이미지 준비중 입니다.
+                        <div className="flex w-[250px] sm:h-[500px] border-1 shadow-lg  rounded-xl h-[300px] items-center justify-center text-sm text-center text-gray-500">
+                            이미지 준비중
                         </div>
                     )}
                     <div className="flex flex-col justify-around">
