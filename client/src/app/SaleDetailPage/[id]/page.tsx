@@ -158,7 +158,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                     <SwiperWithLightbox images={post.images.map((img) => getImageUrl(img))} />
                 )}
 
-                <div className="text-xl sm:text-2xl w-full bg-white border-4 border-[#2E7D32] p-4 rounded-md">
+                <div className="text-xl h-[80px] sm:text-2xl w-full bg-white border-4 border-[#2E7D32] p-4 rounded-md">
                     {post.content}
                 </div>
                 <div className="flex justify-end gap-3">
