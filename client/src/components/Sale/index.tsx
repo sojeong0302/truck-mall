@@ -147,7 +147,7 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                                     />
                                 ) : (
                                     <div className="flex w-full h-full items-center justify-center text-xs sm:text-sm text-center text-gray-500">
-                                        이미지 준비중 입니다.
+                                        이미지 준비중
                                     </div>
                                 )}
                             </div>
