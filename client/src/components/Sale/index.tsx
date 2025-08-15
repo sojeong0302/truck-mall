@@ -138,7 +138,7 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                             key={idx}
                             className="flex w-full p-3 justify-between items-center cursor-pointer"
                         >
-                            <div className="hidden sm:block w-[25%] h-[180px] min-w-[150px] rounded-xl shadow-lg flex items-center justify-center bg-gray-100 overflow-hidden">
+                            <div className=" w-[25%] h-[180px] min-w-[150px] rounded-xl shadow-lg flex items-center justify-center bg-gray-100 overflow-hidden">
                                 {post.thumbnail && !post.thumbnail.startsWith("blob:") ? (
                                     <img
                                         src={getImageUrl(post.thumbnail)}
@@ -152,7 +152,7 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                                 )}
                             </div>
 
-                            <div className="text-sm sm:text-xl font-semibold flex flex-col gap-3">
+                            <div className="hidden sm:block text-sm sm:text-xl font-semibold flex flex-col gap-3">
                                 <div className="truncate max-w-[100px] sm:max-w-[200px]">모델: {post.name}</div>
                                 <div className="truncate max-w-[100px]">연료: {post.fuel}</div>
                                 <div className="truncate max-w-[100px]">연식: {post.year}</div>
