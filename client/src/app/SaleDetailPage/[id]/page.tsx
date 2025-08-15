@@ -110,11 +110,11 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                     {post.thumbnail ? (
                         <img
                             src={getImageUrl(post.thumbnail)}
-                            className="border-1 shadow-lg rounded-xl w-[25%] sm:h-[500px] h-[300px]"
+                            className="border-1 shadow-lg rounded-xl w-[50%] sm:w-full sm:h-[500px] h-[300px]"
                             alt="썸네일"
                         />
                     ) : (
-                        <div className="flex w-full sm:h-[500px] border-1 shadow-lg  rounded-xl h-[300px] items-center justify-center text-sm text-center text-gray-500">
+                        <div className="flex w-[50%] sm:w-full  sm:h-[500px] border-1 shadow-lg  rounded-xl h-[300px] items-center justify-center text-sm text-center text-gray-500">
                             이미지 준비중
                         </div>
                     )}
