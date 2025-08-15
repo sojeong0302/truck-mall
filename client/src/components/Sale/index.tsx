@@ -118,7 +118,7 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
             <div className="w-[90%] sm:w-[70%] p-3 flex items-center justify-between border-b-2 border-[#575757]">
                 <div className="flex items-center gap-3">
                     <div className="text-[#D7263D] text-sm sm:text-xl font-medium">등록 매물</div>
-                    <div className="hidden sm:block text-base">허위 없은 100% 실매물만 등록됩니다.</div>
+                    <div className="hidden sm:block text-base">허위 없는 100% 실매물만 등록됩니다.</div>
                 </div>
                 {isLoggedIn && (
                     <div className="text-sm">
