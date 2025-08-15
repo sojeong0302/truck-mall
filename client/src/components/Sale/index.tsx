@@ -128,6 +128,7 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                     </div>
                 )}
             </div>
+
             <div className="w-[90%] sm:w-[70%] flex flex-col gap-5 p-1 sm:p-10 ">
                 {pagedData.length === 0 ? (
                     <div className="text-center text-gray-500 text-lg py-10">등록된 매물이 없습니다.</div>
@@ -158,7 +159,10 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                                 <div className="truncate max-w-[100px]">연식: {post.year}</div>
                                 <div className="truncate max-w-[100px]">주행: {post.mileage}</div>
                             </div>
-                            <div className="text-sm sm:text-xl font-semibold">{post.price?.toLocaleString()}만원</div>
+                            <div className="text-sm sm:text-xl font-semibold">
+                                <div className="sm:hidden">모델: {post.name}</div>
+                                <div>{post.price?.toLocaleString()}만원</div>
+                            </div>
                             <div className="hidden sm:block text-xl font-semibold">상담문의: 010-8191-8244</div>
                             <div>
                                 <div
