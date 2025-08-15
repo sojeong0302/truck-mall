@@ -110,7 +110,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                     {post.thumbnail ? (
                         <img
                             src={getImageUrl(post.thumbnail)}
-                            className="border-1 shadow-lg rounded-xl w-[500px] sm:h-[500px] h-[300px]"
+                            className="border-1 shadow-lg rounded-xl w-full sm:h-[500px] h-[300px]"
                             alt="썸네일"
                         />
                     ) : (
