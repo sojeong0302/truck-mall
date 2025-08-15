@@ -161,12 +161,14 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                             </div>
                             <div className="text-sm sm:text-xl font-semibold">
                                 <div className="sm:hidden">모델: {post.name}</div>
+                                <div className="sm:hidden">연식: {post.year}</div>
+                                <div className="sm:hidden">주행: {post.mileage}</div>
                                 <div>{post.price?.toLocaleString()}만원</div>
                             </div>
                             <div className="hidden sm:block text-xl font-semibold">상담문의: 010-8191-8244</div>
                             <div>
                                 <div
-                                    className={`flex justify-center shadow-lg text-sm sm:text-2xl  w-[80px] sm:w-[120px]  p-2.5 rounded-md font-medium text-white ${
+                                    className={`flex justify-center shadow-lg text-xs sm:text-2xl w-[80px] sm:w-[120px] p-1.5 sm:p-2.5 rounded-md font-medium text-white ${
                                         post.status ? "bg-[#2E7D32]" : "bg-[#C62828]"
                                     }`}
                                 >
