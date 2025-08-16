@@ -148,7 +148,7 @@ export default function AdvicePage() {
                     </div>
                 </div>
                 <div className="w-[100%] flex flex-col bg-white p-5 sm:p-15 gap-10 rounded-b-4xl shadow-lg">
-                    <div className="w-[100%] flex flex-col gap-10">
+                    <div className="w-[100%] flex flex-col gap-5 sm:gap-10">
                         <div className="w-[100%] flex flex-col gap-1">
                             <div className="flex gap-1">
                                 <div className="text-lg sm:text-xl font-semibold">성함</div>
