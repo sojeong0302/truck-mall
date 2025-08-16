@@ -165,7 +165,7 @@ export default function AdvicePage() {
                                 pattern="[0-9]*"
                                 inputMode="numeric"
                                 ref={numberInputRef}
-                                placeholder="전화번호를 입력해 주세요. (숫자만 입력)"
+                                placeholder="전화번호를 입력해 주세요."
                                 onInput={(e) => {
                                     const input = e.target as HTMLInputElement;
                                     input.value = input.value.replace(/[^0-9]/g, "");
