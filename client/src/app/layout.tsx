@@ -11,12 +11,11 @@ export const metadata = {
     },
     description: "새마일 트럭 — 중고 화물차/버스 매물 플랫폼",
     icons: {
-        icon: "/icon.png",
+        icon: "favicon.ico",
     },
     openGraph: {
         title: "새마일 트럭",
         description: "중고 화물차/버스 매물 플랫폼",
-        url: "/", // ← metadataBase 기준으로 절대주소가 됩니다
         siteName: "새마일 트럭",
         images: [{ url: "/og.png", width: 1200, height: 630 }],
         locale: "ko_KR",
