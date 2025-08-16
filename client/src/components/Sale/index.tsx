@@ -152,10 +152,10 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                                 )}
                             </div>
                             <div className="fade-truncate hidden sm:block text-sm sm:text-xl font-semibold flex flex-col gap-3">
-                                <div className="max-w-[100px] sm:max-w-[200px]">{post.name}</div>
-                                <div className="max-w-[100px]">연료: {post.fuel}</div>
-                                <div className="max-w-[100px]">연식: {post.year}</div>
-                                <div className="max-w-[100px]">주행: {post.mileage}</div>
+                                <div className="max-w-[110px] sm:max-w-[200px]">{post.name}</div>
+                                <div className="max-w-[110px]">연료: {post.fuel}</div>
+                                <div className="max-w-[110px]">연식: {post.year}</div>
+                                <div className="max-w-[110px]">주행: {post.mileage}</div>
                             </div>
                             <div className="text-sm sm:text-xl font-semibold flex flex-col gap-1">
                                 <div className="fade-truncate sm:hidden">{post.name}</div>
