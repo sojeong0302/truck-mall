@@ -16,7 +16,7 @@ export default function Sns() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="네이버 블로그"
-                className={`${btn} ${size} bg-[#5F9A62]`}
+                className={`${btn} ${size} bg-[#33A936]`}
             >
                 <img src="/images/naver.png" alt="네이버 블로그" className="w-3/4 h-3/4 object-contain" />
             </a>
