@@ -138,7 +138,7 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                             key={idx}
                             className="flex w-full justify-between items-center cursor-pointer"
                         >
-                            <div className="sm:w-[20%] sm:h-[180px] w-[15%] h-[120px] min-w-[100px] sm:min-w-[120px] rounded-xl shadow-lg flex items-center justify-center bg-gray-100 overflow-hidden">
+                            <div className="sm:w-[20%] sm:h-[180px] w-[15%] h-[100px] min-w-[100px] sm:min-w-[120px] rounded-xl shadow-lg flex items-center justify-center bg-gray-100 overflow-hidden">
                                 {post.thumbnail && !post.thumbnail.startsWith("blob:") ? (
                                     <img
                                         src={getImageUrl(post.thumbnail)}

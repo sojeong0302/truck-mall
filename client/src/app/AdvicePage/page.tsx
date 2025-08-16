@@ -1,9 +1,8 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import ShortButton from "@/components/ShortButton";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { motion } from "framer-motion";
 
 const categories = ["트럭팔기", "트럭할부", "트럭구매", "기타"];
@@ -11,6 +10,7 @@ const categories = ["트럭팔기", "트럭할부", "트럭구매", "기타"];
 export default function AdvicePage() {
     const router = useRouter();
     const [selected, setSelected] = useState<string[]>([]);
+    const [dateChars, setDateChars] = useState<string[]>([]);
 
     const handleSelect = (category: string) => {
         setSelected([...selected, category]);
@@ -23,6 +23,25 @@ export default function AdvicePage() {
     const checkboxRef = useRef<HTMLInputElement>(null);
     const nameInputRef = useRef<HTMLInputElement>(null);
     const numberInputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, "0");
+        const dd = String(now.getDate()).padStart(2, "0");
+        setDateChars(`${yyyy}/${mm}/${dd}`.split(""));
+    }, []);
+
+    const parts = new Intl.DateTimeFormat("ko-KR", {
+        timeZone: "Asia/Seoul",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+    }).formatToParts(new Date());
+    const yyyy = parts.find((p) => p.type === "year")?.value ?? "";
+    const mm = parts.find((p) => p.type === "month")?.value ?? "";
+    const dd = parts.find((p) => p.type === "day")?.value ?? "";
+    setDateChars(`${yyyy}/${mm}/${dd}`.split(""));
 
     const handleSubmit = async () => {
         // const isAgreed = checkboxRef.current?.checked;
@@ -126,7 +145,7 @@ export default function AdvicePage() {
                                 <div>짜</div>
                             </div>
                             <div className="w-[70%] flex justify-between bg-white p-1 rounded-md p-2 text-[#6B6B6B] text-sm">
-                                {["2", "0", "2", "5", "/", "0", "7", "/", "2", "4"].map((char, idx) => (
+                                {dateChars.map((char, idx) => (
                                     <span key={idx}>{char}</span>
                                 ))}
                             </div>
