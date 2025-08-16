@@ -128,7 +128,7 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                 )}
             </div>
 
-            <div className="w-[90%] sm:w-[70%] flex flex-col gap-5 p-1 sm:p-0 ">
+            <div className="w-[90%] sm:w-[70%] flex flex-col gap-5 p-1 sm:p-5 ">
                 {pagedData.length === 0 ? (
                     <div className="text-center text-gray-500 text-lg py-10">등록된 매물이 없습니다.</div>
                 ) : (
@@ -136,7 +136,7 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                         <div
                             onClick={() => router.push(`/SaleDetailPage/${post.id}`)}
                             key={idx}
-                            className="flex w-full p-3 justify-between items-center cursor-pointer"
+                            className="flex w-full justify-between items-center cursor-pointer"
                         >
                             <div className="sm:w-[20%] sm:h-[180px] w-[15%] h-[120px] min-w-[100px] sm:min-w-[120px] rounded-xl shadow-lg flex items-center justify-center bg-gray-100 overflow-hidden">
                                 {post.thumbnail && !post.thumbnail.startsWith("blob:") ? (
