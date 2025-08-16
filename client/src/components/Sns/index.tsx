@@ -5,7 +5,7 @@ import { ChatBubbleLeftEllipsisIcon } from "@heroicons/react/24/solid";
 export default function Sns({ className = "" }: { className?: string }) {
     const btn =
         "flex items-center justify-center rounded-2xl shadow-lg transition transform duration-200 hover:scale-110 active:scale-95";
-    const size = "w-12 h-12 sm:w-16 sm:h-16";
+    const size = "w-15 h-15 sm:w-20 sm:h-20";
 
     return (
         <div
