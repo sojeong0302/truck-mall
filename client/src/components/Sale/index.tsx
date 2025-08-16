@@ -128,7 +128,7 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                 )}
             </div>
 
-            <div className="w-[90%] sm:w-[70%] flex flex-col gap-5 p-1 sm:p-10 ">
+            <div className="w-[90%] sm:w-[70%] flex flex-col gap-5 p-1 sm:p-0 ">
                 {pagedData.length === 0 ? (
                     <div className="text-center text-gray-500 text-lg py-10">등록된 매물이 없습니다.</div>
                 ) : (
