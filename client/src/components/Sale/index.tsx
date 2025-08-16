@@ -163,7 +163,7 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                                 <div className="fade-truncate sm:hidden">주행: {post.mileage}</div>
                                 <div>{post.price?.toLocaleString()}만원</div>
                             </div>
-                            <div className="hidden sm:block text-xl font-semibold">상담문의: 010-8191-8244</div>
+                            <div className="hidden sm:block text-xl font-semibold">문의: 010-8191-8244</div>
                             <div>
                                 <div
                                     className={`flex justify-center shadow-lg text-xs sm:text-2xl w-[60px] sm:w-[120px] p-1.5 sm:p-2.5 rounded-md font-medium text-white ${
