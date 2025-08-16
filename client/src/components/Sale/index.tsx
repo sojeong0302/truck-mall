@@ -136,7 +136,7 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                         <div
                             onClick={() => router.push(`/SaleDetailPage/${post.id}`)}
                             key={idx}
-                            className="flex w-full p-3 justify-around items-center cursor-pointer"
+                            className="flex w-full p-3 justify-between items-center cursor-pointer"
                         >
                             <div className="sm:w-[20%] sm:h-[180px] w-[15%] h-[120px] min-w-[100px] sm:min-w-[120px] rounded-xl shadow-lg flex items-center justify-center bg-gray-100 overflow-hidden">
                                 {post.thumbnail && !post.thumbnail.startsWith("blob:") ? (
