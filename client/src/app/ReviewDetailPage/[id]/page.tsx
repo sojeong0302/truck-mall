@@ -1,14 +1,14 @@
 "use client";
 
+import { use } from "react";
 import { useEffect, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
 import WritingDetail from "@/components/WritingDetail";
 import { api } from "@/lib/api";
 
 export default function ReviewDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
     const [post, setPost] = useState<any>(null);
-    const [id, setId] = useState<string | null>(null);
+    const { id } = use(params);
     const hasFetchedRef = useRef(false);
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -44,5 +44,5 @@ export default function ReviewDetailPage({ params }: { params: Promise<{ id: str
 
     if (!post) return <div className="p-10 text-red-500">해당 글을 찾을 수 없습니다.</div>;
 
-    return <WritingDetail deletePath="review" url="/ReviewPage" id={id!} crystalPath="ReviewCrystalPage" post={post} />;
+    return <WritingDetail deletePath="review" url="/ReviewPage" id={id} crystalPath="ReviewCrystalPage" post={post} />;
 }
