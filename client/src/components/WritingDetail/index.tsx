@@ -90,7 +90,7 @@ export default function WritingDetail({
                         {post.images && post.images.length > 0 && (
                             <SwiperWithLightbox images={post.images.map((img) => getImageUrl(img))} />
                         )}
-                        <div className="text-2xl w-full bg-white border-4 border-[#2E7D32] p-4 rounded-md">
+                        <div className="whitespace-pre-line text-2xl w-full bg-white border-4 border-[#2E7D32] p-4 rounded-md">
                             {post.content}
                         </div>
                     </div>
