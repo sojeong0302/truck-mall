@@ -39,3 +39,11 @@ body {
 .swiper-button-next {
     color: #2e7d32 !important; /* 화살표 색상 */
 }
+
+/* 일정 길이 넘으면 ... 대신 연해지게 */
+.fade-truncate {
+    overflow: hidden;
+    white-space: nowrap;
+    mask-image: linear-gradient(to right, black 85%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
+}
