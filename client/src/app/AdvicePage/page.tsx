@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState, useMemo, useEffect } from "react";
 import ShortButton from "@/components/ShortButton";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -10,6 +10,7 @@ const categories = ["트럭팔기", "트럭할부", "트럭구매", "기타"];
 export default function AdvicePage() {
     const router = useRouter();
     const [selected, setSelected] = useState<string[]>([]);
+    const [dateChars, setDateChars] = useState<string[] | null>(null);
 
     const handleSelect = (category: string) => {
         setSelected([...selected, category]);
@@ -23,20 +24,14 @@ export default function AdvicePage() {
     const nameInputRef = useRef<HTMLInputElement>(null);
     const numberInputRef = useRef<HTMLInputElement>(null);
 
-    const dateChars = useMemo(() => {
+    useEffect(() => {
+        // ✅ 클라이언트 마운트 후에만 날짜 생성
         const now = new Date();
         const yyyy = now.getFullYear();
         const mm = String(now.getMonth() + 1).padStart(2, "0");
         const dd = String(now.getDate()).padStart(2, "0");
-        return `${yyyy}/${mm}/${dd}`.split("");
+        setDateChars(`${yyyy}/${mm}/${dd}`.split(""));
     }, []);
-
-    const parts = new Intl.DateTimeFormat("ko-KR", {
-        timeZone: "Asia/Seoul",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-    }).formatToParts(new Date());
 
     const handleSubmit = async () => {
         // const isAgreed = checkboxRef.current?.checked;
@@ -140,7 +135,7 @@ export default function AdvicePage() {
                                 <div>짜</div>
                             </div>
                             <div className="w-[70%] flex justify-between bg-white p-1 rounded-md p-2 text-[#6B6B6B] text-sm">
-                                {dateChars.map((char, idx) => (
+                                {dateChars?.map((char, idx) => (
                                     <span key={idx}>{char}</span>
                                 ))}
                             </div>
@@ -199,7 +194,7 @@ export default function AdvicePage() {
                                 className="shadow-md text-lg sm:text-xl border-2 border-[#2E7D32] rounded-xl p-2 sm:p-5 h-[150px] sm:h-[200px]"
                             />
                         </div>
-                        <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-2 sm:gap-4">
                             <div className="text-lg sm:text-xl font-semibold">카테고리</div>
 
                             {/* 선택된 항목 */}
