@@ -27,8 +27,8 @@ export default function CarSearchPage() {
     } = useSearchFilterStore();
 
     const handleSubmit = () => {
-        applyFilters(); // ✨ draft → applied 반영
-        fire(); // 목록 갱신 트리거
+        applyFilters();
+        fire();
     };
     const handleReset = () => {
         resetAll();
