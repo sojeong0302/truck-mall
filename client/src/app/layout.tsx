@@ -11,8 +11,7 @@ export const metadata = {
     },
     description: "새마일 트럭 — 중고 화물차/버스 매물 플랫폼",
     icons: {
-        icon: "/favicon.ico",
-        apple: "/apple-icon.png",
+        icon: "/icon.png",
     },
     openGraph: {
         title: "새마일 트럭",
