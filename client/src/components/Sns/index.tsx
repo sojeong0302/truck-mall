@@ -1,14 +1,17 @@
+// components/Sns.tsx
 "use client";
 import { ChatBubbleLeftEllipsisIcon } from "@heroicons/react/24/solid";
 
-export default function Sns() {
+export default function Sns({ className = "" }: { className?: string }) {
     const btn =
         "flex items-center justify-center rounded-2xl shadow-lg transition transform duration-200 hover:scale-110 active:scale-95";
-    const size = "w-12 h-12 sm:w-20 sm:h-20";
+    const size = "w-12 h-12 sm:w-16 sm:h-16";
 
     return (
-        <div className="shadow-lg bg-[rgba(46,125,50,0.75)] flex sm:flex-col gap-5 sm:p-6 p-4 sm:items-start items-center rounded-4xl">
-            {/* 네이버 블로그 */}
+        <div
+            className={`shadow-lg bg-[rgba(46,125,50,0.75)] flex sm:flex-col gap-5 sm:p-6 p-4 sm:items-start items-center rounded-4xl ${className}`}
+        >
+            {/* 네이버 */}
             <a
                 href="https://m.blog.naver.com/PostList.naver?blogId=newtown_truck-&tab=1"
                 target="_blank"
@@ -19,7 +22,7 @@ export default function Sns() {
                 <img src="/images/naver.png" alt="네이버 블로그" className="w-3/4 h-3/4 object-contain" />
             </a>
 
-            {/* 카카오 오픈채팅 */}
+            {/* 카카오 */}
             <a
                 href="https://open.kakao.com/o/sy2XQ9Eh"
                 target="_blank"
@@ -30,7 +33,7 @@ export default function Sns() {
                 <ChatBubbleLeftEllipsisIcon className="w-3/4 h-3/4" />
             </a>
 
-            {/* 자리만 차지하는 placeholder (보이지 않고, 클릭 불가) */}
+            {/* 자리만 차지 */}
             <div aria-hidden="true" className={`${btn} ${size} opacity-0 pointer-events-none`} />
         </div>
     );
