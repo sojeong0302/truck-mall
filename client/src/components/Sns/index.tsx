@@ -19,7 +19,7 @@ export default function Sns() {
 
             {/* 카카오 오픈채팅 아이콘 */}
             <a href="https://open.kakao.com/o/sy2XQ9Eh" target="_blank" rel="noopener noreferrer">
-                <ChatBubbleLeftEllipsisIcon className="min-w-[40px] sm:min-w-[40px] min-h-[40px] sm:min-h-[40px] transition transform duration-200 hover:scale-110 active:scale-95 shadow-lg w-auto h-16 sm:h-20 bg-yellow-400 p-3 rounded-[16px]" />
+                <ChatBubbleLeftEllipsisIcon className="min-w-[45px] sm:min-w-[45px] min-h-[45px] sm:min-h-[45px] transition transform duration-200 hover:scale-110 active:scale-95 shadow-lg w-auto h-16 sm:h-20 bg-yellow-400 p-3 rounded-[16px]" />
             </a>
 
             {/* 디자인용 투명 아이콘 (실제 클릭 불가) */}
