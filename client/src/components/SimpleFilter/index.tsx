@@ -5,11 +5,9 @@ import { useSearchTriggerStore } from "@/store/searchTriggerStore";
 
 export default function SimpleFilter({ skipReset = false }: { skipReset?: boolean }) {
     const { simpleTag, setSimpleTag } = useSimpleTagStore();
-    const { fire } = useSearchTriggerStore();
 
     const handleSelect = (type: string, grade: string) => {
         setSimpleTag(type, grade, skipReset);
-        fire();
     };
 
     return (

@@ -189,20 +189,27 @@ def get_sales():
     result = []
     for sale in sales:
         if simple_type and simple_grade:
-            tags = sale.simple_tags or []
-            if isinstance(tags, str):
+            st = sale.simple_tags or None
+            if isinstance(st, str):
                 try:
-                    tags = json.loads(tags)
+                    st = json.loads(st)
                 except json.JSONDecodeError:
-                    tags = []
-            ok = any(
-                isinstance(tag, dict)
-                and tag.get("type") == simple_type
-                and tag.get("grade") == simple_grade
-                for tag in tags
-            )
+                    st = None
+
+            ok = False
+            if isinstance(st, dict):
+                ok = st.get("type") == simple_type and st.get("grade") == simple_grade
+            elif isinstance(st, list):
+                ok = any(
+                    isinstance(tag, dict)
+                    and tag.get("type") == simple_type
+                    and tag.get("grade") == simple_grade
+                    for tag in st
+                )
+
             if not ok:
                 continue
+
         result.append(sale.to_dict())
 
     return jsonify(result), 200
