@@ -62,6 +62,27 @@ def to_int_or_none(v):
         return None
 
 
+def flatten_tags(tags: dict) -> dict:
+    """중첩 tags({manufacturer, models[0].name, ...})를 평탄화해서 반환"""
+    out = {"manufacturer": "", "model": "", "subModel": "", "grade": ""}
+    if not isinstance(tags, dict):
+        return out
+
+    out["manufacturer"] = tags.get("manufacturer", "") or ""
+    models = tags.get("models")
+    if isinstance(models, list) and models:
+        m0 = models[0] if isinstance(models[0], dict) else {}
+        out["model"] = m0.get("name", "") or ""
+        subs = m0.get("subModels")
+        if isinstance(subs, list) and subs:
+            s0 = subs[0] if isinstance(subs[0], dict) else {}
+            out["subModel"] = s0.get("name", "") or ""
+            grades = s0.get("grades")
+            if isinstance(grades, list) and grades:
+                out["grade"] = grades[0] or ""
+    return out
+
+
 # 등록 api
 @sale_bp.route("/uploadSale", methods=["POST"])
 @jwt_required()
@@ -71,15 +92,9 @@ def register_sale():
         if ct.startswith("multipart/form-data"):
             form, files = request.form, request.files
 
-            tags = {}
-            tags_raw = form.get("tags")
-            if tags_raw:
-                try:
-                    tags = (
-                        json.loads(tags_raw) if isinstance(tags_raw, str) else tags_raw
-                    )
-                except Exception as e:
-                    current_app.logger.warning(f"tags 파싱 실패: {e}")
+            # ✅ 통일: parse_tag 사용
+            tags = parse_tag(form.get("tags"))
+            flat = flatten_tags(tags)
 
             thumb_url = ""
             if files.get("thumbnail"):
@@ -88,6 +103,7 @@ def register_sale():
             img_files = files.getlist("images") or files.getlist("images[]")
             valid_files = [f for f in img_files if getattr(f, "filename", None)]
             img_urls = [save_uploaded_file(f) for f in valid_files]
+
             sale = Sale(
                 name=form.get("name"),
                 fuel=form.get("fuel"),
@@ -97,22 +113,23 @@ def register_sale():
                 mileage=to_int_or_none(form.get("mileage")),
                 color=form.get("color"),
                 price=to_int_or_none(form.get("price")),
-                manufacturer=tags.get("manufacturer", ""),
-                model=tags.get("model", ""),
-                sub_model=tags.get("subModel", ""),
-                grade=tags.get("grade", ""),
+                manufacturer=flat["manufacturer"],  # ✅ 평탄화 사용
+                model=flat["model"],  # ✅
+                sub_model=flat["subModel"],  # ✅
+                grade=flat["grade"],  # ✅
                 transmission=form.get("transmission"),
                 thumbnail=thumb_url,
                 content=form.get("content"),
-                images=img_urls,
+                images=img_urls,  # JSON 컬럼 → 리스트로 저장
                 simple_tags=parse_simple_tags(form.get("simple_tags")),
-                tags=tags,
+                tags=tags,  # 원본 계층은 tags에 그대로 보관
                 status=True,
             )
 
         else:
             data = request.get_json(silent=True) or {}
             tags = parse_tag(data.get("tags"))
+            flat = flatten_tags(tags)
 
             sale = Sale(
                 name=data.get("name"),
@@ -123,22 +140,21 @@ def register_sale():
                 mileage=to_int_or_none(data.get("mileage")),
                 color=data.get("color"),
                 price=to_int_or_none(data.get("price")),
-                manufacturer=tags.get("manufacturer", ""),
-                model=tags.get("model", ""),
-                sub_model=tags.get("subModel", ""),
-                grade=tags.get("grade", ""),
+                manufacturer=flat["manufacturer"],  # ✅
+                model=flat["model"],  # ✅
+                sub_model=flat["subModel"],  # ✅
+                grade=flat["grade"],  # ✅
                 transmission=data.get("transmission"),
                 thumbnail=(data.get("thumbnail") or ""),
                 content=data.get("content"),
                 images=(
-                    json.dumps(data.get("images"), ensure_ascii=False)
-                    if isinstance(data.get("images"), list)
-                    else (data.get("images") or "[]")
-                ),
+                    data.get("images") if isinstance(data.get("images"), list) else []
+                ),  # ✅ JSON 컬럼에는 리스트
                 simple_tags=parse_simple_tags(data.get("simple_tags")),
                 tags=tags,
                 status=True,
             )
+
         db.session.add(sale)
         db.session.commit()
         return jsonify({"message": "등록 성공", "car": sale.to_dict()}), 201
@@ -223,117 +239,12 @@ def get_sale_by_id(sale_id):
     return jsonify(sale.to_dict()), 200
 
 
-# 수정 api
-# @sale_bp.route("/<int:sale_id>", methods=["PUT"])
-# @jwt_required()
-# def update_sale(sale_id):
-#     sale = Sale.query.get_or_404(sale_id)
-
-#     ct = (request.content_type or "").lower()
-
-#     if ct.startswith("multipart/form-data"):
-#         form, files = request.form, request.files
-
-#         if "status" in form:
-#             status_val = (form.get("status") or "").lower()
-#             sale.status = status_val in ["true", "1", "yes"]
-#         # tags 처리
-#         tags_raw = form.get("tags")
-#         if tags_raw:
-#             try:
-#                 tags = json.loads(tags_raw) if isinstance(tags_raw, str) else tags_raw
-#                 sale.tags = tags  # 전체 계층 구조 저장
-#                 sale.manufacturer = tags.get("manufacturer", "")
-#                 sale.model = tags.get("model", "")
-#                 sale.sub_model = tags.get("subModel", "")
-#                 sale.grade = tags.get("grade", "")
-#             except Exception as e:
-#                 current_app.logger.warning(f"tags 파싱 실패: {e}")
-
-#         sale.year = to_int_or_none(form.get("year"))
-#         sale.price = to_int_or_none(form.get("price"))
-#         sale.mileage = to_int_or_none(form.get("mileage"))
-#         sale.name = form.get("name") or ""
-#         sale.fuel = form.get("fuel") or ""
-#         sale.type = form.get("type") or ""
-#         sale.trim = form.get("trim") or ""
-#         sale.color = form.get("color") or ""
-#         sale.content = form.get("content") or ""
-#         sale.transmission = form.get("transmission") or ""
-
-#         # 썸네일
-#         if files.get("thumbnail"):
-#             sale.thumbnail = save_uploaded_file(files.get("thumbnail"))
-
-#         # 기존 이미지 URL
-#         existing_urls = []
-#         if form.get("originURLs"):
-#             try:
-#                 existing_urls = json.loads(form.get("originURLs"))
-#             except Exception as e:
-#                 current_app.logger.warning(f"originURLs 파싱 실패: {e}")
-
-#         # 새 파일 처리
-#         incoming_files = files.getlist("images") or files.getlist("images[]")
-#         valid_files = [f for f in incoming_files if getattr(f, "filename", None)]
-#         new_urls = [save_uploaded_file(f) for f in valid_files]
-
-#         # 합치기
-#         final_urls = existing_urls + new_urls
-
-#         # DB 저장 (컬럼 타입에 따라)
-#         sale.images = final_urls  # JSON 컬럼
-#         # sale.images = json.dumps(final_urls, ensure_ascii=False)  # TEXT 컬럼이면
-
-#         sale.simple_tags = parse_simple_tags(form.get("simple_tags"))
-
-#     else:
-#         # JSON 요청일 경우
-#         data = request.get_json(silent=True) or {}
-
-#         # ✅ status만 넘어올 수도 있으니 먼저 처리
-#         if "status" in data:
-#             sale.status = bool(data.get("status"))
-
-#         # ✅ tag가 없을 수도 있으니 안전하게 처리
-#         tag = parse_tag(data.get("tag")) if data.get("tag") else {}
-#         if isinstance(tag, dict):
-#             sale.manufacturer = tag.get("manufacturer", "")
-#             sale.model = tag.get("model", "")
-#             sale.sub_model = tag.get("subModel", "")
-#             sale.grade = tag.get("grade", "")
-
-#         # 이하 나머지 필드 처리
-#         sale.year = to_int_or_none(data.get("year"))
-#         sale.price = to_int_or_none(data.get("price"))
-#         sale.mileage = to_int_or_none(data.get("mileage"))
-#         sale.name = data.get("name") or ""
-#         sale.fuel = data.get("fuel") or ""
-#         sale.type = data.get("type") or ""
-#         sale.trim = data.get("trim") or ""
-#         sale.color = data.get("color") or ""
-#         sale.content = data.get("content") or ""
-
-#         if data.get("thumbnail") is not None:
-#             sale.thumbnail = data.get("thumbnail") or ""
-
-#         if data.get("images") is not None:
-#             if isinstance(data.get("images"), list):
-#                 sale.images = json.dumps(data.get("images"), ensure_ascii=False)
-#             else:
-#                 sale.images = data.get("images") or "[]"
-
-#         sale.simple_tags = parse_simple_tags(data.get("simple_tags"))
-#     db.session.commit()
-#     return jsonify({"message": "success", "sale": sale.to_dict()})
-
-
 def delete_file_if_exists(web_path: str | None):
     if not web_path:
         return
     try:
         if web_path.startswith("http://") or web_path.startswith("https://"):
-            web_path = urlparse(web_path).path  # "/static/uploads/xxx.png" 로 변환
+            web_path = urlparse(web_path).path
         abs_path = os.path.join(current_app.root_path, web_path.lstrip("/"))
         if os.path.exists(abs_path):
             os.remove(abs_path)
@@ -391,10 +302,11 @@ def update_sale(sale_id):
     tags = parse_tag(raw_tags)
     if tags:
         sale.tags = tags
-        sale.manufacturer = tags.get("manufacturer", "")
-        sale.model = tags.get("model", "")
-        sale.sub_model = tags.get("subModel", "")
-        sale.grade = tags.get("grade", "")
+        flat = flatten_tags(tags)
+        sale.manufacturer = flat["manufacturer"]
+        sale.model = flat["model"]
+        sale.sub_model = flat["subModel"]
+        sale.grade = flat["grade"]
 
     raw_simple_tags = (
         form.get("simple_tags") if is_multipart else data.get("simple_tags")
