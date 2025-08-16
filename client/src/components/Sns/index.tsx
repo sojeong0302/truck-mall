@@ -31,6 +31,7 @@ export default function Sns() {
             >
                 <ChatBubbleLeftEllipsisIcon className="w-3/4 h-3/4" />
             </a>
+            <a></a>
         </div>
     );
 }
