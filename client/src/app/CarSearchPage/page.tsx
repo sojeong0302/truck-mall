@@ -206,7 +206,7 @@ export default function CarSearchPage() {
                     </div>
 
                     {/* 변속기 */}
-                    <div className="flex w-full gap-0 sm:gap-10 flex-col sm:flex-row">
+                    <div className="flex w-full gap-0 sm:gap-10 flex-row sm:flex-row">
                         <div className="flex items-center gap-3">
                             <div className="text-sm sm:text-lg text-[#2E7D32]">▶</div>
                             <div className="text-lg sm:text-2xl font-medium">변속기</div>
