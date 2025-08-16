@@ -22,7 +22,7 @@ export default function WritingUpload() {
     const modalStore = useModalStore();
     const { isModalOpen, setIsModalOpen } = modalStore;
     const { simpleTag } = useSimpleTagStore();
-    const { tags, setManufacturer, setModel, setSubModel, setGrade } = useFilterTagStore();
+    const { tags } = useFilterTagStore();
     const { files, originURLs } = useImageStore();
 
     const router = useRouter();

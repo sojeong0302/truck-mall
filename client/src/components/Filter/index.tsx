@@ -72,37 +72,38 @@ function SelectBox({
 }
 
 export default function Filter({ skipReset = false }: { skipReset?: boolean }) {
-    const { tags, setManufacturer, setModel, setSubModel, setGrade } = useFilterTagStore();
+    const { draft, setDraftManufacturer, setDraftModel, setDraftSubModel, setDraftGrade } = useFilterTagStore();
 
-    const manufacturer = tags.manufacturer;
-    const model = tags.models[0]?.name || "";
-    const subModel = tags.models[0]?.subModels[0]?.name || "";
-    const grade = tags.models[0]?.subModels[0]?.grades[0] || "";
+    const manufacturer = draft.manufacturer;
+    const model = draft.models[0]?.name || "";
+    const subModel = draft.models[0]?.subModels[0]?.name || "";
+    const grade = draft.models[0]?.subModels[0]?.grades[0] || "";
 
     const models = data.find((m) => m.manufacturer === manufacturer)?.models || [];
     const subModels = models.find((m) => m.name === model)?.subModels || [];
     const grades = subModels.find((s) => s.name === subModel)?.grades || [];
+
     return (
         <div className="flex gap-4 flex-col sm:flex-row">
             <SelectBox
                 title="제조사"
                 options={data.map((d) => d.manufacturer)}
                 selected={manufacturer}
-                onChange={(v) => setManufacturer(v, skipReset)}
+                onChange={(v) => setDraftManufacturer(v, skipReset)}
             />
             <SelectBox
                 title="모델"
                 options={models.map((m) => m.name)}
                 selected={model}
-                onChange={(v) => setModel(v, skipReset)}
+                onChange={(v) => setDraftModel(v, skipReset)}
             />
             <SelectBox
                 title="세부모델"
                 options={subModels.map((s) => s.name)}
                 selected={subModel}
-                onChange={(v) => setSubModel(v, skipReset)}
+                onChange={(v) => setDraftSubModel(v, skipReset)}
             />
-            <SelectBox title="등급" options={grades} selected={grade} onChange={(v) => setGrade(v, skipReset)} />
+            <SelectBox title="등급" options={grades} selected={grade} onChange={(v) => setDraftGrade(v, skipReset)} />
         </div>
     );
 }

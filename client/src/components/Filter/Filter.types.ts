@@ -5,65 +5,71 @@ interface GradeData {
     name: string;
     grades: string[];
 }
-
 interface ModelData {
     name: string;
     subModels: GradeData[];
 }
-
 interface Tags {
     manufacturer: string;
     models: ModelData[];
 }
 
 interface FilterTagState {
+    // 적용 상태(쿼리에 쓰는 값)
     tags: Tags;
-    setManufacturer: (manufacturer: string, skipReset?: boolean) => void;
-    setModel: (model: string, skipReset?: boolean) => void;
-    setSubModel: (subModel: string, skipReset?: boolean) => void;
-    setGrade: (grade: string, skipReset?: boolean) => void;
-    clear: () => void;
+    // 선택 중 상태(검색 누르기 전)
+    draft: Tags;
+
+    // draft 전용 setters
+    setDraftManufacturer: (manufacturer: string, skipReset?: boolean) => void;
+    setDraftModel: (model: string, skipReset?: boolean) => void;
+    setDraftSubModel: (subModel: string, skipReset?: boolean) => void;
+    setDraftGrade: (grade: string, skipReset?: boolean) => void;
+
+    // 적용/초기화
+    applyDraft: () => void; // 검색 클릭 시 호출
+    clearDraft: () => void;
+    clear: () => void; // applied 초기화
+    clearAll: () => void; // draft+applied 모두 초기화
 }
 
+const empty: Tags = { manufacturer: "", models: [] };
+
 export const useFilterTagStore = create<FilterTagState>((set, get) => ({
-    tags: {
-        manufacturer: "",
-        models: [],
-    },
+    tags: empty,
+    draft: empty,
 
-    setManufacturer: (manufacturer, skipReset = false) => {
+    setDraftManufacturer: (manufacturer, skipReset = false) => {
         if (!skipReset) useSimpleTagStore.getState().resetSimpleTag();
-        set({ tags: { manufacturer, models: [] } });
+        set({ draft: { manufacturer, models: [] } });
     },
 
-    setModel: (model, skipReset = false) => {
+    setDraftModel: (model, skipReset = false) => {
         if (!skipReset) useSimpleTagStore.getState().resetSimpleTag();
-        const tags = get().tags;
-        set({
-            tags: {
-                ...tags,
-                models: [{ name: model, subModels: [] }],
-            },
-        });
+        const d = get().draft;
+        set({ draft: { ...d, models: [{ name: model, subModels: [] }] } });
     },
 
-    setSubModel: (subModel, skipReset = false) => {
+    setDraftSubModel: (subModel, skipReset = false) => {
         if (!skipReset) useSimpleTagStore.getState().resetSimpleTag();
-        const tags = get().tags;
-        if (!tags.models.length) return;
-        const updatedModels = [...tags.models];
-        updatedModels[0] = { ...updatedModels[0], subModels: [{ name: subModel, grades: [] }] };
-        set({ tags: { ...tags, models: updatedModels } });
+        const d = get().draft;
+        if (!d.models.length) return;
+        const updated = [...d.models];
+        updated[0] = { ...updated[0], subModels: [{ name: subModel, grades: [] }] };
+        set({ draft: { ...d, models: updated } });
     },
 
-    setGrade: (grade, skipReset = false) => {
+    setDraftGrade: (grade, skipReset = false) => {
         if (!skipReset) useSimpleTagStore.getState().resetSimpleTag();
-        const tags = get().tags;
-        if (!tags.models.length || !tags.models[0].subModels.length) return;
-        const updatedModels = [...tags.models];
-        updatedModels[0].subModels[0] = { ...updatedModels[0].subModels[0], grades: [grade] };
-        set({ tags: { ...tags, models: updatedModels } });
+        const d = get().draft;
+        if (!d.models.length || !d.models[0].subModels.length) return;
+        const updated = [...d.models];
+        updated[0].subModels[0] = { ...updated[0].subModels[0], grades: [grade] };
+        set({ draft: { ...d, models: updated } });
     },
 
-    clear: () => set({ tags: { manufacturer: "", models: [] } }),
+    applyDraft: () => set((s) => ({ tags: s.draft })), // ✅ 검색 시 적용
+    clearDraft: () => set({ draft: empty }),
+    clear: () => set({ tags: empty }),
+    clearAll: () => set({ tags: empty, draft: empty }),
 }));
