@@ -157,10 +157,10 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                                 <div className="max-w-[100px]">연식: {post.year}</div>
                                 <div className="max-w-[100px]">주행: {post.mileage}</div>
                             </div>
-                            <div className="fade-truncate text-sm sm:text-xl font-semibold flex flex-col gap-1">
-                                <div className="sm:hidden">모델: {post.name}</div>
-                                <div className="sm:hidden">연식: {post.year}</div>
-                                <div className="sm:hidden">주행: {post.mileage}</div>
+                            <div className="text-sm sm:text-xl font-semibold flex flex-col gap-1">
+                                <div className="fade-truncate sm:hidden">모델: {post.name}</div>
+                                <div className="fade-truncate sm:hidden">연식: {post.year}</div>
+                                <div className="fade-truncate sm:hidden">주행: {post.mileage}</div>
                                 <div>{post.price?.toLocaleString()}만원</div>
                             </div>
                             <div className="hidden sm:block text-xl font-semibold">상담문의: 010-8191-8244</div>

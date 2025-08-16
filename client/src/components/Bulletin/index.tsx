@@ -41,21 +41,19 @@ export default function Bulletin({ posts, basePath, uploadPath }: BulletinCompon
                         <div
                             key={post.id}
                             onClick={() => handleClick(post.id)}
-                            className="cursor-pointer text-sm sm:text-2xl w-full flex border-b-2 border-[#575757] justify-between py-2 hover:bg-gray-50 transition"
+                            className="fade-truncate cursor-pointer text-sm sm:text-2xl w-full flex border-b-2 border-[#575757] justify-between py-2 hover:bg-gray-50 transition"
                         >
-                            <div className="p-2 font-bold w-[35%] text-center truncate overflow-hidden whitespace-nowrap">
+                            <div className="p-2 font-bold w-[35%] text-center overflow-hidden whitespace-nowrap">
                                 {post.title}
                             </div>
-                            <div className="p-2 w-[25%] text-center truncate overflow-hidden whitespace-nowrap">
+                            <div className="p-2 w-[25%] text-center overflow-hidden whitespace-nowrap">
                                 {post.content}
                             </div>
-                            <div className="p-2 w-[20%] text-center truncate overflow-hidden whitespace-nowrap">
+                            <div className="p-2 w-[20%] text-center overflow-hidden whitespace-nowrap">
                                 <span className="hidden sm:inline">{post.date?.substring(0, 10)}</span>
                                 <span className="inline sm:hidden">{post.date?.substring(5, 10)}</span>
                             </div>
-                            <div className="p-2 w-[15%] text-center truncate overflow-hidden whitespace-nowrap">
-                                {post.view}
-                            </div>
+                            <div className="p-2 w-[15%] text-center overflow-hidden whitespace-nowrap">{post.view}</div>
                         </div>
                     ))
                 )}
