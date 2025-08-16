@@ -58,7 +58,7 @@ export default function MainPage() {
             <div className="flex flex-col lg:flex-row w-full gap-10 p-6 sm:p-10 justify-center">
                 <Sns />
                 <div className="shadow-lg relative w-full max-w-screen-lg p-4 border-5 border-[#2E7D32] rounded-4xl bg-[#F5F5F5] flex flex-col sm:flex-row items-center">
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 bg-[#F5F5F5] z-10 text-[#D4B76A] text-xl sm:text-4xl font-bold">
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 bg-[#F5F5F5] z-10 text-[#D4B76A] text-2xl sm:text-4xl font-bold">
                         TIP
                     </div>
                     {(carTIPs?.length ?? 0) === 0 ? (
