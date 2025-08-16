@@ -31,7 +31,15 @@ export default function Sns() {
             >
                 <ChatBubbleLeftEllipsisIcon className="w-3/4 h-3/4" />
             </a>
-            <a></a>
+            <a
+                href="https://open.kakao.com/o/sy2XQ9Eh"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="카카오 오픈채팅"
+                className={`hidden ${btn} ${size} bg-yellow-400 text-black`}
+            >
+                <ChatBubbleLeftEllipsisIcon className="w-3/4 h-3/4" />
+            </a>
         </div>
     );
 }
