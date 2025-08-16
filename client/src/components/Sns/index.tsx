@@ -13,7 +13,7 @@ export default function Sns() {
                 <img
                     src="/images/naver.png"
                     alt="네이버 블로그"
-                    className="transition transform duration-200 hover:scale-110 active:scale-95 shadow-lg w-auto h-15 sm:h-20 max-w-[200px] rounded-[16px]"
+                    className="min-w-[30px] sm:min-w-[30px] min-h-[30px] sm:min-h-[30px] transition transform duration-200 hover:scale-110 active:scale-95 shadow-lg w-auto h-15 sm:h-20 max-w-[200px] rounded-[16px]"
                 />
             </a>
 
