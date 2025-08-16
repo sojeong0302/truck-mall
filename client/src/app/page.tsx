@@ -88,11 +88,7 @@ export default function MainPage() {
                                                 alt="대표 이미지"
                                                 className="hidden sm:block shadow-lg w-[200px] h-[150px] object-cover rounded-xl mb-4 sm:mb-0"
                                             />
-                                        ) : (
-                                            <div className="hidden sm:flex items-center justify-center w-[200px] h-[150px] bg-gray-100 text-gray-500 shadow-lg text-xs rounded-xl mb-4 sm:mb-0">
-                                                이미지 준비 중입니다.
-                                            </div>
-                                        )}
+                                        ) : null}
 
                                         <div className="flex flex-col gap-5 justify-center">
                                             <p className="font-semibold text-xl sm:text-2xl">{item.title}</p>
