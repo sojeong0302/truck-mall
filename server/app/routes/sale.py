@@ -83,6 +83,22 @@ def flatten_tags(tags: dict) -> dict:
     return out
 
 
+def parse_bool(v):
+    if v is None:
+        return None
+    if isinstance(v, bool):
+        return v
+    if isinstance(v, (int, float)):
+        return bool(v)
+    if isinstance(v, str):
+        s = v.strip().lower()
+        if s in ("true", "1", "yes", "y", "on"):
+            return True
+        if s in ("false", "0", "no", "n", "off"):
+            return False
+    return None
+
+
 # 등록 api
 @sale_bp.route("/uploadSale", methods=["POST"])
 @jwt_required()
@@ -270,6 +286,11 @@ def update_sale(sale_id):
     form = request.form if is_multipart else None
     files = request.files if is_multipart else None
     data = None if is_multipart else (request.get_json(silent=True) or {})
+
+    raw_status = form.get("status") if is_multipart else data.get("status")
+    parsed_status = parse_bool(raw_status)
+    if parsed_status is not None:
+        sale.status = parsed_status
 
     thumb_state = (
         (
