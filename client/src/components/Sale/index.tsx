@@ -138,7 +138,7 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                             key={idx}
                             className="flex w-full p-3 justify-between items-center cursor-pointer"
                         >
-                            <div className="sm:w-[25%] sm:h-[180px] w-[15%] h-[100px] min-w-[100px] sm:min-w-[150px] rounded-xl shadow-lg flex items-center justify-center bg-gray-100 overflow-hidden">
+                            <div className="sm:w-[25%] sm:h-[10%] w-[10%] h-[100px] min-w-[100px] sm:min-w-[150px] rounded-xl shadow-lg flex items-center justify-center bg-gray-100 overflow-hidden">
                                 {post.thumbnail && !post.thumbnail.startsWith("blob:") ? (
                                     <img
                                         src={getImageUrl(post.thumbnail)}
@@ -152,13 +152,13 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                                 )}
                             </div>
                             <div className="fade-truncate hidden sm:block text-sm sm:text-xl font-semibold flex flex-col gap-3">
-                                <div className="max-w-[100px] sm:max-w-[200px]">모델: {post.name}</div>
+                                <div className="max-w-[100px] sm:max-w-[200px]">{post.name}</div>
                                 <div className="max-w-[100px]">연료: {post.fuel}</div>
                                 <div className="max-w-[100px]">연식: {post.year}</div>
                                 <div className="max-w-[100px]">주행: {post.mileage}</div>
                             </div>
                             <div className="text-sm sm:text-xl font-semibold flex flex-col gap-1">
-                                <div className="fade-truncate sm:hidden">모델: {post.name}</div>
+                                <div className="fade-truncate sm:hidden">{post.name}</div>
                                 <div className="fade-truncate sm:hidden">연식: {post.year}</div>
                                 <div className="fade-truncate sm:hidden">주행: {post.mileage}</div>
                                 <div>{post.price?.toLocaleString()}만원</div>
