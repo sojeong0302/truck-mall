@@ -157,7 +157,7 @@ export default function AdvicePage() {
                             <input
                                 ref={nameInputRef}
                                 placeholder="성함을 입력해 주세요."
-                                className="w-[50%] shadow-md text-lg sm:text-xl border-2 border-[#2E7D32] rounded-xl p-2 sm:p-5"
+                                className="sm:w-[50%] w-[100%] shadow-md text-lg sm:text-xl border-2 border-[#2E7D32] rounded-xl p-2 sm:p-5"
                             />
                         </div>
                         <div className="flex flex-col gap-1">
@@ -175,7 +175,7 @@ export default function AdvicePage() {
                                     const input = e.target as HTMLInputElement;
                                     input.value = input.value.replace(/[^0-9]/g, "");
                                 }}
-                                className="w-[50%] shadow-md text-lg sm:text-xl border-2 border-[#2E7D32] rounded-xl p-2 sm:p-5"
+                                className="sm:w-[50%] w-[100%] shadow-md text-lg sm:text-xl border-2 border-[#2E7D32] rounded-xl p-2 sm:p-5"
                             />
                         </div>
                         <div className="flex flex-col gap-1">
