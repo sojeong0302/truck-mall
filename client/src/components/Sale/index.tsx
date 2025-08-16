@@ -30,7 +30,6 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
     const { sales, setSales, clearSales } = useSaleStore();
     const isDefaultPrice = !priceRange || (priceRange[0] === PriceMIN && priceRange[1] === PriceMAX);
     const isDefaultYear = !yearRange || (yearRange[0] === YearMIN && yearRange[1] === YearMAX);
-    const toServerPrice = (v: number) => v * 10000;
 
     const manufacturer = tags.manufacturer;
     const model = tags.models[0]?.name || "";
@@ -63,8 +62,8 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                     if (simpleTag.grade) qs.set("simple_grade", simpleTag.grade);
                 }
                 if (!isDefaultPrice && priceRange) {
-                    qs.set("min_price", String(toServerPrice(priceRange[0])));
-                    qs.set("max_price", String(toServerPrice(priceRange[1])));
+                    qs.set("min_price", String(priceRange[0]));
+                    qs.set("max_price", String(priceRange[1]));
                 }
                 if (!isDefaultYear && yearRange) {
                     qs.set("min_year", String(yearRange[0]));
