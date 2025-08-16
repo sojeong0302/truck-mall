@@ -8,40 +8,40 @@ import { api } from "@/lib/api";
 export default function ReviewDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
     const [post, setPost] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
     const [id, setId] = useState<string | null>(null);
     const hasFetchedRef = useRef(false);
-    const router = useRouter();
-
-    useEffect(() => {
-        const unwrapParams = async () => {
-            const { id } = await params;
-            setId(id);
-        };
-        unwrapParams();
-    }, [params]);
+    const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
         if (!id || hasFetchedRef.current) return;
 
-        const fetchPost = async () => {
+        hasFetchedRef.current = true;
+        setLoading(true);
+
+        (async () => {
             try {
                 const res = await api.get(`${BASE_URL}/review/${id}`);
                 setPost(res.data);
-                hasFetchedRef.current = true;
-
-                await api.post(`${BASE_URL}/review/${id}/view`);
-            } catch (error) {
-                console.error("리뷰 조회 실패", error);
+                fetch(`${BASE_URL}/review/${id}/view`, { method: "POST" }).catch(() => {});
+            } catch (e) {
+                console.error(e);
             } finally {
                 setLoading(false);
             }
-        };
+        })();
+    }, [id, BASE_URL]);
 
-        fetchPost();
-    }, [id]);
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center p-10">
+                <div
+                    className="w-8 h-8 border-4 border-gray-300 rounded-full animate-spin"
+                    style={{ borderTopColor: "#2E7D32" }}
+                />
+            </div>
+        );
+    }
 
-    if (loading) return <div className="p-10 text-gray-500">불러오는 중...</div>;
     if (!post) return <div className="p-10 text-red-500">해당 글을 찾을 수 없습니다.</div>;
 
     return <WritingDetail deletePath="review" url="/ReviewPage" id={id!} crystalPath="ReviewCrystalPage" post={post} />;

@@ -26,7 +26,7 @@ export default function CarTIPDetailPage({ params }: { params: Promise<{ id: str
             } catch (e) {
                 console.error(e);
             } finally {
-                setLoading(false); // ✅ 반드시 로딩 종료
+                setLoading(false);
             }
         })();
     }, [id, BASE_URL]);
