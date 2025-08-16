@@ -54,7 +54,7 @@ export default function WritingUpload({ post, url }: WritingUploadProps) {
             alert("등록되었습니다.");
             setTitle("");
             setContent("");
-            clear(); // 이미지 스토어 정리
+            clear();
             router.push(`/${url}`);
         } catch (err) {
             console.error("요청 실패", err);

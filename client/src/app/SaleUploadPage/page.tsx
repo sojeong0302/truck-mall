@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import EtcPoto from "@/components/EtcPoto";
 import TextArea from "@/components/TextArea";
 import ShortButton from "@/components/ShortButton";
@@ -157,6 +157,28 @@ export default function WritingUpload() {
     const handleCancel = () => {
         router.back();
     };
+
+    // 컴포넌트 내부에 추가
+    const resetAllLocal = useCallback(() => {
+        // 썸네일이 blob URL이면 메모리 반환
+        if (thumbnail?.startsWith("blob:")) {
+            try {
+                URL.revokeObjectURL(thumbnail);
+            } catch {}
+        }
+        clearForm(); // ✅ 폼 초기화 (thumbnail, name, fuel, type, trim, year, mileage, color, price, content, transmission)
+        clearFilter(); // 제조사/모델 필터 초기화
+        resetSimpleTag(); // SimpleFilter 초기화
+        clearImages(); // 기타 이미지 스토어 초기화
+        setSelected(""); // 변속기 로컬 상태 초기화
+        if (fileInputRef.current) fileInputRef.current.value = "";
+    }, [thumbnail, clearForm, clearFilter, resetSimpleTag, clearImages]);
+
+    // 기존 useEffect 교체 (또는 추가)
+    useEffect(() => {
+        resetAllLocal(); // 페이지 들어올 때 초기화
+        return () => resetAllLocal(); // 페이지 나갈 때도 초기화
+    }, [resetAllLocal]);
 
     return (
         <>
