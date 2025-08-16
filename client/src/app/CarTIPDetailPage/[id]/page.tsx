@@ -25,6 +25,8 @@ export default function CarTIPDetailPage({ params }: { params: Promise<{ id: str
                 fetch(`${BASE_URL}/carTIP/${id}/view`, { method: "POST" }).catch(() => {});
             } catch (e) {
                 console.error(e);
+            } finally {
+                setLoading(false); // ✅ 반드시 로딩 종료
             }
         })();
     }, [id, BASE_URL]);
