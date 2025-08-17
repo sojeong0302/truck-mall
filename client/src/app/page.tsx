@@ -92,7 +92,7 @@ export default function MainPage() {
 
                                         <div className="flex flex-col gap-3 sm:gap-5 justify-center">
                                             <p className="font-semibold text-lg sm:text-2xl">{item.title}</p>
-                                            <p className="text-gray-500 line-clamp-3 text-sm sm:text-xl">
+                                            <p className="text-gray-500 sm:line-clamp-3 line-clamp-2 text-sm sm:text-xl">
                                                 {item.content}
                                             </p>
                                         </div>
