@@ -59,7 +59,7 @@ export default function CarSearchPage() {
             <div className="hidden md:block">
                 <SimpleFilter />
             </div>
-            <div className="w-[80%] mb-10">
+            <div className="w-[80%] mt-10">
                 <Filter />
             </div>
             <div className="flex w-[100%] justify-center gap-10 p-5 sm:p-25 items-stretch">
