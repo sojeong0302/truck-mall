@@ -90,9 +90,26 @@ export default function MainPage() {
                                             />
                                         ) : null}
 
-                                        <div className="flex flex-col gap-3 sm:gap-5 justify-center">
-                                            <p className="font-semibold text-lg sm:text-2xl">{item.title}</p>
-                                            <p className="text-gray-500 sm:line-clamp-3 line-clamp-2 text-sm sm:text-xl">
+                                        <div className="flex flex-col gap-3 sm:gap-5 justify-center min-w-0">
+                                            <p
+                                                className="
+      font-semibold text-lg sm:text-2xl
+      line-clamp-2 sm:line-clamp-3
+      min-w-0 overflow-hidden
+      [display:-webkit-box] [-webkit-box-orient:vertical]
+    "
+                                            >
+                                                {item.title}
+                                            </p>
+
+                                            <p
+                                                className="
+      text-gray-500 text-sm sm:text-xl
+      line-clamp-2 sm:line-clamp-3
+      min-w-0 overflow-hidden
+      [display:-webkit-box] [-webkit-box-orient:vertical]
+    "
+                                            >
                                                 {item.content}
                                             </p>
                                         </div>
