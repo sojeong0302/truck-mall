@@ -78,7 +78,7 @@ export default function MainPage() {
                                 <SwiperSlide key={i}>
                                     <div
                                         onClick={() => router.push(`/CarTIPDetailPage/${item.id}`)}
-                                        className="flex items-center justify-center gap-10 p-10 sm:p-14 cursor-pointer"
+                                        className="flex items-center justify-center gap-10 p-12 sm:p-14 cursor-pointer"
                                     >
                                         {item.images &&
                                         item.images.length > 0 &&
@@ -90,8 +90,8 @@ export default function MainPage() {
                                             />
                                         ) : null}
 
-                                        <div className="flex flex-col gap-5 justify-center">
-                                            <p className="font-semibold text-xl sm:text-2xl">{item.title}</p>
+                                        <div className="flex flex-col gap-3 sm:gap-5 justify-center">
+                                            <p className="font-semibold text-lg sm:text-2xl">{item.title}</p>
                                             <p className="text-gray-500 line-clamp-3 text-sm sm:text-xl">
                                                 {item.content}
                                             </p>
