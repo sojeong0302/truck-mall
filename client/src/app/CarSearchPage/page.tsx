@@ -66,7 +66,7 @@ export default function CarSearchPage() {
                 <div className="hidden md:flex self-stretch">
                     <Sns className="h-full" />
                 </div>
-                <div className="border-[5px] border-[#2E7D32] w-[100%] sm:w-[80%] flex flex-col p-10 justify-between rounded-4xl self-stretch">
+                <div className="border-[5px] border-[#2E7D32] w-[100%] sm:w-[80%] flex flex-col p-10 gap-5 sm:justify-between rounded-4xl self-stretch">
                     {/* 차량 가격 */}
                     <div className="flex w-full flex-col sm:flex-row">
                         <div className="w-[100%] sm:w-[30%] flex items-center gap-3">
