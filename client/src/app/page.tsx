@@ -78,7 +78,7 @@ export default function MainPage() {
                                 <SwiperSlide key={i}>
                                     <div
                                         onClick={() => router.push(`/CarTIPDetailPage/${item.id}`)}
-                                        className="flex items-center justify-center gap-10 p-14 cursor-pointer"
+                                        className="flex items-center justify-center gap-10 p-10 sm:p-14 cursor-pointer"
                                     >
                                         {item.images &&
                                         item.images.length > 0 &&
