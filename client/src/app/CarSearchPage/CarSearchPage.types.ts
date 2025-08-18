@@ -2,9 +2,9 @@
 
 import { create } from "zustand";
 
-export const YearMIN = 2000;
+export const YearMIN = 1990;
 export const YearMAX = new Date().getFullYear();
-export const PriceMIN = 100;
+export const PriceMIN = 0;
 export const PriceMAX = 10000;
 
 type RangeType = "price" | "year";

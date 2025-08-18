@@ -28,7 +28,8 @@ function LoginContent() {
             localStorage.setItem("token", token);
             setToken(token);
             axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-            router.replace(nextUrl);
+            // router.replace(nextUrl);
+            console.log(data.data);
         } catch (err) {
             console.error(err);
             alert("로그인 실패");

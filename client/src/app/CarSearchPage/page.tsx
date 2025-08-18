@@ -8,8 +8,8 @@ import { Range } from "react-range";
 import Sale from "@/components/Sale";
 import { useSearchTriggerStore } from "@/store/searchTriggerStore";
 import { useSearchFilterStore, PriceMIN, PriceMAX, YearMIN, YearMAX } from "./CarSearchPage.types";
-import { useFilterTagStore } from "@/components/Filter/Filter.types"; // ✅ 추가
-import { usePaginationStore } from "@/store/paginationStore"; // ✅ 추가
+import { useFilterTagStore } from "@/components/Filter/Filter.types";
+import { usePaginationStore } from "@/store/paginationStore";
 import { useCallback } from "react";
 
 export default function CarSearchPage() {
@@ -32,28 +32,24 @@ export default function CarSearchPage() {
         resetAll,
     } = useSearchFilterStore();
 
-    const applyFilterTags = useFilterTagStore((s) => s.applyDraft); // ✅ Filter(draft) → applied
-    const clearFilterTags = useFilterTagStore((s) => s.clearAll); // ✅ draft+applied 초기화
+    const applyFilterTags = useFilterTagStore((s) => s.applyDraft);
+    const clearFilterTags = useFilterTagStore((s) => s.clearAll);
     const { setPage } = usePaginationStore();
 
     const handleSubmit = useCallback(() => {
-        applyFilterTags(); // ✅ 제조사/모델/세부/등급 적용
-        applyFilters(); // ✅ 가격/연식/변속기 적용
-        setPage(1); // ✅ 1페이지로
-        fire(); // ✅ 목록 조회 트리거
+        applyFilterTags();
+        applyFilters();
+        setPage(1);
+        fire();
     }, [applyFilterTags, applyFilters, setPage, fire]);
 
     const handleReset = useCallback(() => {
-        resetAll(); // 가격/연식/변속기 초기화
-        clearFilterTags(); // Filter 초기화(draft+applied)
+        resetAll();
+        clearFilterTags();
         setPage(1);
         fire();
     }, [resetAll, clearFilterTags, setPage, fire]);
 
-    // 인풋에서 Enter 누르면 바로 검색 (선택)
-    const onKeyDownSubmit: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
-        if (e.key === "Enter") handleSubmit();
-    };
     return (
         <div className="w-[100%] flex flex-col items-center">
             <div className="hidden md:block">
