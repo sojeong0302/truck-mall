@@ -19,7 +19,7 @@ export default function SimpleFilter({ skipReset = false }: { skipReset?: boolea
                     return (
                         <div key={truck.type} className="bg-white p-1 shadow-md rounded-lg">
                             <div className="font-bold text-sm sm:text-lg mb-4 text-center">{truck.type}</div>
-                            <div className="flex flex-wrap gap-1 sm:gap-0 justify-center">
+                            <div className="flex flex-wrap gap-1 sm:gap-2 justify-center">
                                 {grades.map((grade) => (
                                     <button
                                         key={grade}
