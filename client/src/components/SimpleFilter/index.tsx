@@ -11,7 +11,7 @@ export default function SimpleFilter({ skipReset = false }: { skipReset?: boolea
 
     return (
         <div className="p-0 sm:p-10 w-full">
-            <div className="grid grid-cols-2 sm:grid-cols-8 gap-1 sm:gap-5 ">
+            <div className="grid grid-cols-2 sm:grid-cols-8 gap-1 sm:gap-3 ">
                 {data.map((truck) => {
                     const grades = truck.grades[0].split(", ");
                     const isSelected = simpleTag?.type === truck.type;
@@ -24,7 +24,7 @@ export default function SimpleFilter({ skipReset = false }: { skipReset?: boolea
                                     <button
                                         key={grade}
                                         onClick={() => handleSelect(truck.type, grade)}
-                                        className={`p-1 rounded-lg transition transform duration-200 active:scale-95 cursor-pointer text-lg font-medium 
+                                        className={`p-1 rounded-lg transition transform duration-200 active:scale-95 cursor-pointer text-xl font-medium 
                                             ${
                                                 isSelected && simpleTag?.grade === grade
                                                     ? "bg-[#2E7D32] text-white border-[#2E7D32]"
