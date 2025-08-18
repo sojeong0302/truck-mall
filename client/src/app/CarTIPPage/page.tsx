@@ -17,7 +17,7 @@ export default function CarTIPPage() {
             try {
                 const res = await api.get(`${BASE_URL}/carTIP/list`);
                 setCarTIPs(res.data);
-                console.log(res.data);
+                console.log(res.data[0]);
             } catch (err) {
                 console.error("리뷰 불러오기 실패:", err);
             }
