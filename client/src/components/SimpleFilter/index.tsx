@@ -19,12 +19,12 @@ export default function SimpleFilter({ skipReset = false }: { skipReset?: boolea
                     return (
                         <div key={truck.type} className="bg-white p-2 shadow-md rounded-lg">
                             <div className="font-bold text-sm sm:text-lg mb-4 text-center">{truck.type}</div>
-                            <div className="flex flex-wrap gap-1 sm:gap-2 justify-center">
+                            <div className="flex flex-wrap gap-1 sm:gap-1 justify-center">
                                 {grades.map((grade) => (
                                     <button
                                         key={grade}
                                         onClick={() => handleSelect(truck.type, grade)}
-                                        className={`transition transform duration-200 active:scale-95 cursor-pointer text-xl font-medium 
+                                        className={`p-1 transition transform duration-200 active:scale-95 cursor-pointer text-xl font-medium 
                                             ${
                                                 isSelected && simpleTag?.grade === grade
                                                     ? "bg-[#2E7D32] text-white border-[#2E7D32]"
