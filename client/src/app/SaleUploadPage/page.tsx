@@ -252,16 +252,6 @@ export default function WritingUpload() {
                                     setter: (v: string) => setField("accident_info", v),
                                 },
                                 {
-                                    label: "차량 번호",
-                                    value: car_number,
-                                    setter: (v: string) => setField("car_number", v),
-                                },
-                                {
-                                    label: "조합 정보",
-                                    value: combination_info,
-                                    setter: (v: string) => setField("combination_info", v),
-                                },
-                                {
                                     label: "가격",
                                     value: price,
                                     setter: (v: string) => setField("price", v),
@@ -272,6 +262,16 @@ export default function WritingUpload() {
                                     value: simple_content,
                                     setter: (v: string) => setField("simple_content", v),
                                     type: "number",
+                                },
+                                {
+                                    label: "차량 번호",
+                                    value: car_number,
+                                    setter: (v: string) => setField("car_number", v),
+                                },
+                                {
+                                    label: "조합 정보",
+                                    value: combination_info,
+                                    setter: (v: string) => setField("combination_info", v),
                                 },
                             ].map((field, idx) => (
                                 <div className="flex gap-1 sm:gap-3 sm:items-center flex-col sm:flex-row" key={idx}>
