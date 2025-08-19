@@ -123,6 +123,9 @@ export default function WritingUpload() {
         });
 
         formData.append("content", content);
+        for (let [key, value] of formData.entries()) {
+            console.log(`${key}:`, value);
+        }
 
         // api 연동
         try {
