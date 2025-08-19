@@ -11,9 +11,12 @@ function CheckBoxList({
 }: {
     title: string;
     options: string[];
-    selected: string[];
+    selected: string[]; // 체크박스니까 배열
     onChange: (v: string[]) => void;
 }) {
+    const ALL_LABEL = "전체";
+    const mobileOptions = [ALL_LABEL, ...options];
+
     const handleCheck = (value: string) => {
         if (selected.includes(value)) {
             onChange(selected.filter((v) => v !== value));
@@ -22,14 +25,32 @@ function CheckBoxList({
         }
     };
 
+    const handleMobileSelect = (value: string) => {
+        if (value === ALL_LABEL) onChange([]);
+        else onChange([value]);
+    };
+
+    const mobileValue = selected.length === 0 ? ALL_LABEL : selected[0];
+
     return (
         <div className="w-full bg-white rounded-xl shadow-xl overflow-hidden text-xl">
             <div className="bg-[#2E7D32]/25 text-lg sm:text-2xl font-bold text-center py-2 px-1 sm:py-4 sm:px-2">
                 {title}
             </div>
-
-            {/* ✅ 모바일에서도 항상 보이도록 flex로 수정 */}
-            <div className="flex flex-col gap-3 p-4">
+            <div className="p-4 block md:hidden">
+                <select
+                    value={mobileValue}
+                    onChange={(e) => handleMobileSelect(e.target.value)}
+                    className="w-full p-3 border-2 border-[#ccc] rounded-lg text-sm sm:text-[1.3rem]"
+                >
+                    {mobileOptions.map((option) => (
+                        <option key={option} value={option}>
+                            {option}
+                        </option>
+                    ))}
+                </select>
+            </div>
+            <div className="hidden md:flex flex-col gap-3 p-4">
                 {options.map((option) => (
                     <label key={option} className="cursor-pointer block">
                         <input
@@ -38,7 +59,9 @@ function CheckBoxList({
                             onChange={() => handleCheck(option)}
                             className="peer hidden"
                         />
-                        <div className={`w-full p-3 border-2 border-[#ccc] rounded-lg text-sm sm:text-[1.3rem]`}>
+                        <div
+                            className={`w-full rounded-lg border-2 px-4 py-3 transition-all duration-200 peer-checked:bg-[#2E7D32]/10 peer-checked:border-[#2E7D32] hover:border-[#2E7D32]/70 hover:bg-[#2E7D32]/5 text-[1.5rem] leading-snug transition transform duration-200 active:scale-95`}
+                        >
                             {option}
                         </div>
                     </label>
@@ -47,6 +70,7 @@ function CheckBoxList({
         </div>
     );
 }
+
 function SelectBox({
     title,
     options,
