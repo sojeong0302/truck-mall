@@ -23,9 +23,8 @@ export interface SaleProps {
 }
 
 export interface SaleComponentProps {
-    posts?: SaleProps[];
-    // basePath: string;
-    priceRange?: number[];
-    yearRange?: number[];
     transmission?: string;
+    posts?: any[];
+    priceRange?: [number, number];
+    yearRange?: [number, number];
 }
