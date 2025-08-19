@@ -28,8 +28,9 @@ class Sale(db.Model):
     grade = db.Column(db.String(50))
 
     transmission = db.Column(db.String(20))  # 변속기 0
-    thumbnail = db.Column(db.Text)  # 썸네일
+    thumbnail = db.Column(db.String(255))  # 썸네일
     content = db.Column(db.Text)  # 내용
+    simple_content = db.Column(db.String(100))  # 간단 내용
     images = db.Column(JSON)  # 기타 사진
     status = db.Column(Boolean, default=True, nullable=False)  # 판매 상태
     simple_tags = db.Column(JSON)  # SimpleFilter

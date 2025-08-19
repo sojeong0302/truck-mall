@@ -3,10 +3,70 @@ from ..models.sale_model import Sale
 from ..extensions import db
 from werkzeug.utils import secure_filename
 import os, json, datetime
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required
 from urllib.parse import urlparse
 
 sale_bp = Blueprint("sale", __name__)
+
+
+# 계층형 normal_tags 생성 함수 (매물 등록 api)
+def create_normal_tags(manufacturer, model, sub_model, grade):
+    return {
+        "manufacturer": manufacturer,
+        "models": [
+            {"name": model, "subModels": [{"name": sub_model, "grades": [grade]}]}
+        ],
+    }
+
+
+# 매물 등록 api
+@sale_bp.route("/uploadSale", methods=["POST"])
+@jwt_required()
+def register_sale():
+    try:
+        data = request.get_json(silent=True) or {}
+
+        # 계층형 구조로 만듦
+        manufacturer = data.get("manufacturer")
+        model = data.get("model")
+        sub_model = data.get("sub_model")
+        grade = data.get("grade")
+        normal_tags = create_normal_tags(manufacturer, model, sub_model, grade)
+
+        # DB 행 하나의 구성
+        sale = Sale(
+            name=data.get("name"),
+            fuel=data.get("fuel"),
+            type=data.get("type"),
+            trim=data.get("trim"),
+            year=data.get("year"),
+            mileage=data.get("mileage"),
+            color=data.get("color"),
+            price=data.get("price"),
+            car_number=data.get("car_number"),
+            vin=data.get("vin"),
+            accident_info=data.get("accident_info"),
+            combination_info=data.get("combination_info"),
+            manufacturer=data.get("manufacturer"),
+            model=data.get("model"),
+            sub_model=data.get("sub_model"),
+            grade=data.get("grade"),
+            transmission=data.get("transmission"),
+            thumbnail=data.get("thumbnail"),
+            content=data.get("content"),
+            status=data.get("status"),
+            images=data.get("images") if isinstance(data.get("images"), list) else [],
+            simple_tags=data.get("simple_tags"),
+            normal_tags=normal_tags,
+        )
+
+        db.session.add(sale)
+        db.session.commit()
+
+        return jsonify({"message": "등록 성공", "sale": sale.to_dict()}), 201
+
+    except Exception as e:
+        return jsonify({"error" "detail": str(e)}), 400
 
 
 def upload_dir_path():
@@ -97,86 +157,6 @@ def parse_bool(v):
         if s in ("false", "0", "no", "n", "off"):
             return False
     return None
-
-
-# 등록 api
-@sale_bp.route("/uploadSale", methods=["POST"])
-@jwt_required()
-def register_sale():
-    try:
-        ct = (request.content_type or "").lower()
-        if ct.startswith("multipart/form-data"):
-            form, files = request.form, request.files
-
-            # ✅ 통일: parse_tag 사용
-            tags = parse_tag(form.get("tags"))
-            flat = flatten_tags(tags)
-
-            thumb_url = ""
-            if files.get("thumbnail"):
-                thumb_url = save_uploaded_file(files.get("thumbnail"))
-
-            img_files = files.getlist("images") or files.getlist("images[]")
-            valid_files = [f for f in img_files if getattr(f, "filename", None)]
-            img_urls = [save_uploaded_file(f) for f in valid_files]
-
-            sale = Sale(
-                name=form.get("name"),
-                fuel=form.get("fuel"),
-                type=form.get("type"),
-                trim=form.get("trim"),
-                year=to_int_or_none(form.get("year")),
-                mileage=to_int_or_none(form.get("mileage")),
-                color=form.get("color"),
-                price=to_int_or_none(form.get("price")),
-                manufacturer=flat["manufacturer"],  # ✅ 평탄화 사용
-                model=flat["model"],  # ✅
-                sub_model=flat["subModel"],  # ✅
-                grade=flat["grade"],  # ✅
-                transmission=form.get("transmission"),
-                thumbnail=thumb_url,
-                content=form.get("content"),
-                images=img_urls,  # JSON 컬럼 → 리스트로 저장
-                simple_tags=parse_simple_tags(form.get("simple_tags")),
-                tags=tags,  # 원본 계층은 tags에 그대로 보관
-                status=True,
-            )
-
-        else:
-            data = request.get_json(silent=True) or {}
-            tags = parse_tag(data.get("tags"))
-            flat = flatten_tags(tags)
-
-            sale = Sale(
-                name=data.get("name"),
-                fuel=data.get("fuel"),
-                type=data.get("type"),
-                trim=data.get("trim"),
-                year=to_int_or_none(data.get("year")),
-                mileage=to_int_or_none(data.get("mileage")),
-                color=data.get("color"),
-                price=to_int_or_none(data.get("price")),
-                manufacturer=flat["manufacturer"],  # ✅
-                model=flat["model"],  # ✅
-                sub_model=flat["subModel"],  # ✅
-                grade=flat["grade"],  # ✅
-                transmission=data.get("transmission"),
-                thumbnail=(data.get("thumbnail") or ""),
-                content=data.get("content"),
-                images=(
-                    data.get("images") if isinstance(data.get("images"), list) else []
-                ),  # ✅ JSON 컬럼에는 리스트
-                simple_tags=parse_simple_tags(data.get("simple_tags")),
-                tags=tags,
-                status=True,
-            )
-
-        db.session.add(sale)
-        db.session.commit()
-        return jsonify({"message": "등록 성공", "car": sale.to_dict()}), 201
-
-    except Exception as e:
-        return jsonify({"error": "create failed", "detail": str(e)}), 400
 
 
 # 전체 데이터 조회

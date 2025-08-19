@@ -9,7 +9,7 @@ import Modal from "@/components/Modal";
 import { useModalStore } from "@/store/ModalStateStroe";
 import { useFilterTagStore } from "@/components/Filter/Filter.types";
 import SimpleFilter from "@/components/SimpleFilter";
-import { useCarFormStore } from "@/store/carFormStore";
+import { useSaleFormStore } from "@/store/saleForm/saleForm.hooks";
 import { useImageStore } from "@/store/imageStore";
 import { useSimpleTagStore } from "@/store/simpleTagStore";
 import { useRouter } from "next/navigation";
@@ -21,13 +21,8 @@ export default function WritingUpload() {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
     const modalStore = useModalStore();
     const { isModalOpen, setIsModalOpen } = modalStore;
-    const { simpleTag } = useSimpleTagStore();
-    const { tags } = useFilterTagStore();
-    const { files, originURLs } = useImageStore();
-
     const router = useRouter();
     const {
-        transmission,
         thumbnail,
         thumbnailFile,
         name,
@@ -38,13 +33,27 @@ export default function WritingUpload() {
         mileage,
         color,
         price,
-        images,
+        car_number,
+        vin,
+        accident_info,
+        combination_info,
+        manufacturer,
+        model,
+        sub_model,
+        grade,
+        transmission,
         content,
+        status,
+        simple_tags,
         setField,
         setThumbnail,
         setThumbnailFile,
         clearForm,
-    } = useCarFormStore();
+    } = useSaleFormStore();
+
+    const { simpleTag } = useSimpleTagStore();
+    const { tags } = useFilterTagStore();
+    const { files, originURLs } = useImageStore();
 
     const resetForm = SaleCrystalPagePropStore((s) => s.reset);
     const clearFilter = useFilterTagStore((s) => s.clear);
@@ -194,7 +203,7 @@ export default function WritingUpload() {
                         ))}
                     </div>
                 )}
-                <div className="flex flex-col sm:flex-row w-full gap-0 sm:gap-10">
+                {/* <div className="flex flex-col sm:flex-row w-full gap-0 sm:gap-10">
                     <div className="flex items-center gap-3">
                         <div className="text-sm sm:text-lg text-[#2E7D32]">▶</div>
                         <div className="text-lg sm:text-2xl font-medium">변속기</div>
@@ -221,8 +230,9 @@ export default function WritingUpload() {
                             </ul>
                         )}
                     </div>
-                </div>
+                </div> */}
                 <div className="w-full flex flex-col sm:flex-col justify-center gap-15">
+                    {/* 썸네일 */}
                     <div
                         className="mx-auto flex justify-center items-center cursor-pointer shadow-lg rounded-xl w-[70%] sm:w-[50%] aspect-square sm:min-w-[150px] bg-[rgba(179,179,179,0.25)] overflow-hidden"
                         onClick={!thumbnail ? handleClick : undefined}
@@ -255,6 +265,7 @@ export default function WritingUpload() {
                             />
                         )}
                     </div>
+                    {/* 상세란 */}
                     <div className="flex flex-col justify-around">
                         <input
                             className="focus:outline-none font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2"
@@ -264,15 +275,16 @@ export default function WritingUpload() {
                         />
                         <div className="flex flex-col text-xl sm:text-2xl p-2 gap-10">
                             {[
-                                { label: "연료", value: fuel, setter: (v: string) => setField("fuel", v) },
-                                { label: "차체 타입", value: type, setter: (v: string) => setField("type", v) },
-                                { label: "트림", value: trim, setter: (v: string) => setField("trim", v) },
                                 {
                                     label: "연식",
                                     value: year,
                                     setter: (v: string) => setField("year", v),
                                     type: "number",
                                 },
+                                { label: "연료", value: fuel, setter: (v: string) => setField("fuel", v) },
+                                { label: "차체 타입", value: type, setter: (v: string) => setField("type", v) },
+                                { label: "트림", value: trim, setter: (v: string) => setField("trim", v) },
+
                                 { label: "주행거리", value: mileage, setter: (v: string) => setField("mileage", v) },
                                 { label: "색상", value: color, setter: (v: string) => setField("color", v) },
                                 {
