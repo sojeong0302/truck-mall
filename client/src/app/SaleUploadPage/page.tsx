@@ -189,6 +189,12 @@ export default function WritingUpload() {
         return () => resetAllLocal(); // 페이지 나갈 때도 초기화
     }, [resetAllLocal]);
 
+    // 사고정보 & 조합정보 defalut 값
+    useEffect(() => {
+        if (!accident_info) setField("accident_info", "성능점검 참조");
+        if (!combination_info) setField("combination_info", "경기도자동차매매사업조합/031-242-8940");
+    }, []);
+
     return (
         <>
             <SimpleFilter skipReset={true} />
@@ -282,16 +288,34 @@ export default function WritingUpload() {
                                     type: "number",
                                 },
                                 { label: "연료", value: fuel, setter: (v: string) => setField("fuel", v) },
-                                { label: "차체 타입", value: type, setter: (v: string) => setField("type", v) },
-                                { label: "트림", value: trim, setter: (v: string) => setField("trim", v) },
-
-                                { label: "주행거리", value: mileage, setter: (v: string) => setField("mileage", v) },
+                                {
+                                    label: "변속기",
+                                    value: transmission,
+                                    setter: (v: string) => setField("transmission", v),
+                                },
                                 { label: "색상", value: color, setter: (v: string) => setField("color", v) },
+                                { label: "주행거리", value: mileage, setter: (v: string) => setField("mileage", v) },
+                                { label: "차대 번호", value: vin, setter: (v: string) => setField("vin", v) },
+                                {
+                                    label: "사고 정보",
+                                    value: accident_info,
+                                    setter: (v: string) => setField("accident_info", v),
+                                },
+                                {
+                                    label: "조합 정보",
+                                    value: combination_info,
+                                    setter: (v: string) => setField("combination_info", v),
+                                },
                                 {
                                     label: "가격",
                                     value: price,
                                     setter: (v: string) => setField("price", v),
                                     type: "number",
+                                },
+                                {
+                                    label: "차량 번호",
+                                    value: car_number,
+                                    setter: (v: string) => setField("car_number", v),
                                 },
                             ].map((field, idx) => (
                                 <div className="flex gap-1 sm:gap-3 sm:items-center flex-col sm:flex-row" key={idx}>
