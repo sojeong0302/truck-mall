@@ -177,6 +177,7 @@ export default function WritingUpload() {
         if (!accident_info) setField("accident_info", "성능점검 참조");
         if (!combination_info) setField("combination_info", "경기도자동차매매사업조합/031-242-8940");
     }, []);
+    console.log("selectedTags", selectedTags);
 
     return (
         <>
