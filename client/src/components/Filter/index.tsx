@@ -15,8 +15,8 @@ function SelectBox({
     onChange: (v: string) => void;
 }) {
     const ALL_LABEL = "전체";
-    const mobileOptions = [ALL_LABEL, ...options];
-    const mobileValue = selected === "" ? ALL_LABEL : selected;
+    const isArray = Array.isArray(selected);
+    const mobileValue = isArray ? (selected as string[]).join(", ") : selected === "" ? ALL_LABEL : selected;
 
     return (
         <div className="w-full bg-white rounded-xl shadow-xl overflow-hidden text-xl">
@@ -32,7 +32,7 @@ function SelectBox({
                     }}
                     className="w-full p-3 border-2 border-[#ccc] rounded-lg text-sm sm:text-[1.3rem]"
                 >
-                    {mobileOptions.map((option) => (
+                    {[ALL_LABEL, ...options].map((option) => (
                         <option key={option} value={option}>
                             {option}
                         </option>
@@ -40,24 +40,24 @@ function SelectBox({
                 </select>
             </div>
 
-            <div className="hidden md:flex flex-col gap-3 p-4">
-                {options.map((option) => (
-                    <label key={option} className="cursor-pointer block">
-                        <input
-                            type="radio"
-                            name={title}
-                            value={option}
-                            checked={selected === option}
-                            onChange={() => onChange(option)}
-                            className="peer hidden"
-                        />
-                        <div
-                            className={`w-full rounded-lg border-2 px-4 py-3 transition-all duration-200 peer-checked:bg-[#2E7D32]/10 peer-checked:border-[#2E7D32] hover:border-[#2E7D32]/70 hover:bg-[#2E7D32]/5 text-[1.5rem] leading-snug transition transform duration-200 active:scale-95`}
+            <div className="hidden md:flex flex-wrap gap-3 p-4">
+                {options.map((option) => {
+                    const isChecked = Array.isArray(selected) ? selected.includes(option) : selected === option;
+
+                    return (
+                        <button
+                            key={option}
+                            type="button"
+                            onClick={() => onChange(option)}
+                            className={`px-4 py-2 rounded-lg border-2 text-[1.3rem] 
+                                transition-all duration-200 active:scale-95
+                                ${isChecked ? "bg-[#2E7D32]/10 border-[#2E7D32]" : "border-black"}
+                            `}
                         >
                             {option}
-                        </div>
-                    </label>
-                ))}
+                        </button>
+                    );
+                })}
             </div>
         </div>
     );
@@ -138,7 +138,12 @@ export default function Filter({ skipReset = false }: { skipReset?: boolean }) {
                 selected={subModel}
                 onChange={(v) => setDraftSubModel(v, skipReset)}
             />
-            <MultiSelectBox title="등급" options={grades} selected={draft.grades} onChange={(v) => setDraftGrade(v)} />
+            <MultiSelectBox
+                title="등급"
+                options={grades}
+                selected={draft.grades} // ✅ string[]
+                onChange={(v) => setDraftGrade(v, skipReset)} // ✅ 다중 선택용 함수
+            />
         </div>
     );
 }
