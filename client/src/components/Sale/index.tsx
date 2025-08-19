@@ -1,6 +1,6 @@
 "use client";
 
-import { SaleComponentProps } from "./Sale.types";
+import { SaleComponentProps } from "./Sale.hooks";
 import Pagination from "../Pagination";
 import { usePaginationStore } from "@/store/paginationStore";
 import { useRouter } from "next/navigation";
@@ -19,7 +19,7 @@ const PriceMIN = 100;
 const PriceMAX = 10000;
 const ITEMS_PER_PAGE = 5;
 
-export default function Sale({ transmission, posts, priceRange, yearRange }: SaleComponentProps) {
+export default function Sale({ transmission, priceRange, yearRange }: SaleComponentProps) {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
     const router = useRouter();
     const { currentPage } = usePaginationStore();
@@ -30,12 +30,7 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
     const isDefaultPrice = !priceRange || (priceRange[0] === PriceMIN && priceRange[1] === PriceMAX);
     const isDefaultYear = !yearRange || (yearRange[0] === YearMIN && yearRange[1] === YearMAX);
     const { draft } = useFilterTagStore();
-    const normal_tags = {
-        manufacturer: draft.manufacturer,
-        model: draft.models[0]?.name || "",
-        sub_model: draft.models[0]?.subModels[0]?.name || "",
-        grade: draft.models[0]?.subModels[0]?.grades[0] || "",
-    };
+
     const manufacturer = draft.manufacturer;
     const model = draft.models[0]?.name || "";
     const subModel = draft.models[0]?.subModels[0]?.name || "";
@@ -158,9 +153,12 @@ export default function Sale({ transmission, posts, priceRange, yearRange }: Sal
                             </div>
                             <div className="max-w-[110px] sm:max-w-[250px] fade-truncate hidden sm:block text-sm sm:text-xl font-semibold flex flex-col gap-3">
                                 <div className="">{post.name}</div>
-                                <div className="">연료: {post.fuel}</div>
-                                <div className="">연식: {post.year}</div>
-                                <div className="">주행: {post.mileage}</div>
+                                <div>
+                                    <div className="">{post.year}</div>
+                                    <div className="">{post.mileage}</div>
+                                    <div className="">{post.fuel}</div>
+                                </div>
+                                <div>{post.simple_content}</div>
                             </div>
                             <div className="max-w-[110px] sm:max-w-[250px] text-sm sm:text-xl font-semibold flex flex-col gap-1">
                                 <div className="fade-truncate sm:hidden">{post.name}</div>

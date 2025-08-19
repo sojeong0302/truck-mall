@@ -1,4 +1,3 @@
-// Sale/Sale.types.ts
 export interface SaleProps {
     id: number;
     thumbnail?: string;
@@ -15,16 +14,20 @@ export interface SaleProps {
     status: boolean;
     transmission?: string;
 
-    // 🆕 tag 정보 추가
+    // 🆕 tag 정보
     manufacturer?: string;
     model?: string;
     sub_model?: string;
     grade?: string;
-}
 
-export interface SaleComponentProps {
-    transmission?: string;
-    posts?: any[];
-    priceRange?: [number, number];
-    yearRange?: [number, number];
+    // 🆕 상세 정보
+    car_number?: string;
+    vin?: string;
+    accident_info?: string;
+    combination_info?: string;
+    simple_content?: string;
+
+    // 🆕 JSON 필터 정보
+    simple_tags?: any;
+    normal_tags?: any;
 }
