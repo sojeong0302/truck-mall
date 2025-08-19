@@ -33,6 +33,7 @@ export const useFilterTagStore = create<FilterTagState>((set) => ({
             const newModel = {
                 name: model,
                 subModels: [],
+                grades: [],
             };
 
             return {
@@ -46,28 +47,24 @@ export const useFilterTagStore = create<FilterTagState>((set) => ({
 
     setDraftSubModel: (subModel, skipReset = false) =>
         set((state) => {
-            const models = state.draft.models.map((m) => {
-                const subExists = m.subModels.find((s) => s.name === subModel);
-                const newSub = {
-                    name: subModel,
-                    grades: [],
-                };
+            const model = state.draft.models[0];
+            if (!model) return { draft: state.draft };
 
-                return {
-                    ...m,
-                    subModels: subExists
-                        ? m.subModels.map((s) =>
-                              s.name === subModel ? { ...s, grades: skipReset ? s.grades : [] } : s
-                          )
-                        : [...m.subModels, newSub],
-                };
-            });
+            const newSubModel = {
+                name: subModel,
+                grades: [],
+            };
+
+            const updatedModel = {
+                ...model,
+                subModels: [newSubModel],
+            };
 
             return {
                 draft: {
                     ...state.draft,
-                    models,
-                    grades: skipReset ? state.draft.grades : [], // 세부모델 바꿀 때 등급 초기화
+                    models: [updatedModel],
+                    grades: [], // ✅ 기존 grades 초기화!
                 },
             };
         }),
