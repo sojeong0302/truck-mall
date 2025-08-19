@@ -151,7 +151,7 @@ export default function Sale({ transmission, priceRange, yearRange }: SaleCompon
                                     </div>
                                 )}
                             </div>
-                            <div className="max-w-[110px] sm:max-w-[250px] fade-truncate hidden sm:block text-sm sm:text-2xl font-semibold flex flex-col gap-3">
+                            <div className="max-w-[110px] sm:max-w-[350px] fade-truncate hidden sm:block text-sm sm:text-2xl font-semibold flex flex-col gap-3">
                                 <div className="">{post.name}</div>
                                 <div className="flex">
                                     <div className="">{post.year}</div>
