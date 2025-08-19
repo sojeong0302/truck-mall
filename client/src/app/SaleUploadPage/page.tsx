@@ -185,13 +185,22 @@ export default function WritingUpload() {
                 <Filter skipReset={true} />
                 {selectedTags.length > 0 && (
                     <div className="flex flex-wrap gap-3 text-lg font-semibold text-[#2E7D32] px-1">
-                        {selectedTags.map((tag, idx) => (
-                            <span key={idx} className="bg-[#2E7D32]/10 px-3 py-1 rounded-full">
-                                #{tag}
-                            </span>
-                        ))}
+                        {selectedTags.flatMap((tag) =>
+                            Array.isArray(tag)
+                                ? tag.map((t, i) => (
+                                      <span key={`${t}-${i}`} className="bg-[#2E7D32]/10 px-3 py-1 rounded-full">
+                                          #{t}
+                                      </span>
+                                  ))
+                                : [
+                                      <span key={tag} className="bg-[#2E7D32]/10 px-3 py-1 rounded-full">
+                                          #{tag}
+                                      </span>,
+                                  ]
+                        )}
                     </div>
                 )}
+
                 <div className="w-full flex flex-col sm:flex-col justify-center gap-15">
                     {/* 썸네일 */}
                     <div
