@@ -24,49 +24,54 @@ def create_normal_tags(manufacturer, model, sub_model, grade):
 @jwt_required()
 def register_sale():
     try:
-        data = request.get_json(silent=True) or {}
+        form = request.form
+        files = request.files
 
-        # 계층형 구조로 만듦
-        manufacturer = data.get("manufacturer")
-        model = data.get("model")
-        sub_model = data.get("sub_model")
-        grade = data.get("grade")
-        normal_tags = create_normal_tags(manufacturer, model, sub_model, grade)
+        manufacturer = form.get("manufacturer")
+        model = form.get("model")
+        sub_model = form.get("sub_model")
+        grade = form.get("grade")
 
-        # DB 행 하나의 구성
+        # string -> dict
+        normal_tags = parse_tag(form.get("normal_tags"))
+        simple_tags = parse_tag(form.get("simple_tags"))
+
         sale = Sale(
-            name=data.get("name"),
-            fuel=data.get("fuel"),
-            type=data.get("type"),
-            trim=data.get("trim"),
-            year=data.get("year"),
-            mileage=data.get("mileage"),
-            color=data.get("color"),
-            price=data.get("price"),
-            car_number=data.get("car_number"),
-            vin=data.get("vin"),
-            accident_info=data.get("accident_info"),
-            combination_info=data.get("combination_info"),
-            manufacturer=data.get("manufacturer"),
-            model=data.get("model"),
-            sub_model=data.get("sub_model"),
-            grade=data.get("grade"),
-            transmission=data.get("transmission"),
-            thumbnail=data.get("thumbnail"),
-            content=data.get("content"),
-            status=data.get("status"),
-            images=data.get("images") if isinstance(data.get("images"), list) else [],
-            simple_tags=data.get("simple_tags"),
+            name=form.get("name"),
+            fuel=form.get("fuel"),
+            type=form.get("type"),
+            trim=form.get("trim"),
+            year=to_int_or_none(form.get("year")),
+            mileage=form.get("mileage"),
+            color=form.get("color"),
+            price=to_int_or_none(form.get("price")),
+            car_number=form.get("car_number"),
+            vin=form.get("vin"),
+            accident_info=form.get("accident_info"),
+            combination_info=form.get("combination_info"),
+            transmission=form.get("transmission"),
+            manufacturer=manufacturer,
+            model=model,
+            sub_model=sub_model,
+            grade=grade,
+            thumbnail=None,  # 아래에서 처리
+            content=form.get("content"),
+            status=True,
+            images=[],  # 이미지 처리 로직 추가
+            simple_tags=simple_tags,
             normal_tags=normal_tags,
         )
+
+        # 파일 저장
+        if files.get("thumbnail"):
+            sale.thumbnail = save_uploaded_file(files["thumbnail"])
 
         db.session.add(sale)
         db.session.commit()
 
         return jsonify({"message": "등록 성공", "sale": sale.to_dict()}), 201
-
     except Exception as e:
-        return jsonify({"error" "detail": str(e)}), 400
+        return jsonify({"error": str(e)}), 400
 
 
 def upload_dir_path():
