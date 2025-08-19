@@ -264,7 +264,6 @@ export default function WritingUpload() {
                                     label: "간단 내용",
                                     value: simple_content,
                                     setter: (v: string) => setField("simple_content", v),
-                                    type: "number",
                                 },
                                 {
                                     label: "차량 번호",
