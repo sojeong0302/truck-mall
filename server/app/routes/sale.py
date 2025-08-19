@@ -60,6 +60,7 @@ def register_sale():
             images=[],  # 이미지 처리 로직 추가
             simple_tags=simple_tags,
             normal_tags=normal_tags,
+            simple_content=form.get("simple_content"),
         )
 
         # 파일 저장
