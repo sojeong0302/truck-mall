@@ -146,7 +146,7 @@ export default function WritingUpload() {
             console.error("업로드 중 에러 발생:", error); // 이거 꼭 추가!
         }
     };
-    console.log("업로드 성공:", response.data);
+    console.log("콘솔아 나와랏!");
     // 변속기 선택지
     const handleSelect = (item: string) => {
         setSelected(item);
