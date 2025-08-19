@@ -9,80 +9,62 @@ export const useFilterTagStore = create<FilterTagState>((set) => ({
     },
 
     setDraftManufacturer: (manufacturer, skipReset = false) =>
-        set((state) => ({
+        set(() => ({
             draft: {
                 manufacturer,
-                models: skipReset ? state.draft.models : [],
-                grades: skipReset ? state.draft.grades : [], // 💡 manufacturer 바꾸면 등급도 초기화
+                models: [], // ✅ 완전 초기화
+                grades: [], // 선택 사항
             },
         })),
 
     setDraftModel: (model, skipReset = false) =>
-        set((state) => {
-            const models = state.draft.models.map((m) => {
-                if (m.name === model) {
-                    return {
-                        ...m,
-                        subModels: skipReset ? m.subModels : [],
-                    };
-                }
-                return m;
-            });
-
-            const exists = models.find((m) => m.name === model);
-            const newModel = {
-                name: model,
-                subModels: [],
-                grades: [],
-            };
-
-            return {
-                draft: {
-                    ...state.draft,
-                    models: exists ? models : [...models, newModel],
-                    grades: skipReset ? state.draft.grades : [], // 모델 바꾸면 등급도 초기화
-                },
-            };
-        }),
+        set(() => ({
+            draft: {
+                manufacturer: "",
+                models: [
+                    {
+                        name: model,
+                        subModels: [], // ✅ subModel 초기화
+                    },
+                ],
+                grades: [], // 선택 사항
+            },
+        })),
 
     setDraftSubModel: (subModel, skipReset = false) =>
         set((state) => {
             const model = state.draft.models[0];
-            if (!model) return { draft: state.draft };
-
-            const newSubModel = {
-                name: subModel,
-                grades: [],
-            };
+            if (!model) return state;
 
             const updatedModel = {
                 ...model,
-                subModels: [newSubModel],
+                subModels: [
+                    {
+                        name: subModel,
+                        grades: [], // ✅ grade 초기화
+                    },
+                ],
             };
 
             return {
                 draft: {
                     ...state.draft,
                     models: [updatedModel],
-                    grades: [], // ✅ 기존 grades 초기화!
+                    grades: [], // 선택 사항
                 },
             };
         }),
 
-    setDraftGrade: (grades: string[], skipReset = false) =>
+    setDraftGrade: (grades, skipReset = false) =>
         set((state) => {
             const models = state.draft.models.map((model) => {
                 return {
                     ...model,
                     subModels: model.subModels.map((subModel) => {
-                        if (model.name === state.draft.models[0]?.name && subModel.name === model.subModels[0]?.name) {
-                            // 현재 선택된 모델/세부모델에만 적용
-                            return {
-                                ...subModel,
-                                grades,
-                            };
-                        }
-                        return subModel;
+                        const isCurrent =
+                            model.name === state.draft.models[0]?.name && subModel.name === model.subModels[0]?.name;
+
+                        return isCurrent ? { ...subModel, grades } : subModel;
                     }),
                 };
             });
@@ -91,7 +73,6 @@ export const useFilterTagStore = create<FilterTagState>((set) => ({
                 draft: {
                     ...state.draft,
                     models,
-                    grades, // 이건 전체 선택값을 저장해두고 싶다면 유지
                 },
             };
         }),
