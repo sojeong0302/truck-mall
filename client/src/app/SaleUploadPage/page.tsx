@@ -137,10 +137,14 @@ export default function WritingUpload() {
             const { data } = await authApi.post(`${BASE_URL}/sale/uploadSale`, formData, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            router.push(`/SaleDetailPage/${data.car.id}`);
-            console.log("성공/");
+
+            // 잘못된 부분 수정!
+            router.push(`/SaleDetailPage/${data.sale.id}`);
+            console.log("성공");
             console.log(data.sale);
-        } catch (error) {}
+        } catch (error) {
+            console.error("업로드 중 에러 발생:", error); // 이거 꼭 추가!
+        }
     };
 
     // 변속기 선택지
