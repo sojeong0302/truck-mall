@@ -13,6 +13,6 @@ export interface FilterTagState {
     setDraftManufacturer: (manufacturer: string, skipReset?: boolean) => void;
     setDraftModel: (model: string, skipReset?: boolean) => void;
     setDraftSubModel: (subModel: string, skipReset?: boolean) => void;
-    setDraftGrade: (grade: string, skipReset?: boolean) => void;
+    setDraftGrade: (grades: string[], skipReset?: boolean) => void;
     clear: () => void;
 }

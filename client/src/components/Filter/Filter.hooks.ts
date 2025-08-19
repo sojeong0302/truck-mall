@@ -72,17 +72,29 @@ export const useFilterTagStore = create<FilterTagState>((set) => ({
             };
         }),
 
-    setDraftGrade: (grade: string) =>
+    setDraftGrade: (grades: string[], skipReset = false) =>
         set((state) => {
-            const exists = state.draft.grades.includes(grade);
-            const newGrades = exists
-                ? state.draft.grades.filter((g) => g !== grade) // 체크 해제
-                : [...state.draft.grades, grade]; // 체크 추가
+            const models = state.draft.models.map((model) => {
+                return {
+                    ...model,
+                    subModels: model.subModels.map((subModel) => {
+                        if (model.name === state.draft.models[0]?.name && subModel.name === model.subModels[0]?.name) {
+                            // 현재 선택된 모델/세부모델에만 적용
+                            return {
+                                ...subModel,
+                                grades,
+                            };
+                        }
+                        return subModel;
+                    }),
+                };
+            });
 
             return {
                 draft: {
                     ...state.draft,
-                    grades: newGrades,
+                    models,
+                    grades, // 이건 전체 선택값을 저장해두고 싶다면 유지
                 },
             };
         }),

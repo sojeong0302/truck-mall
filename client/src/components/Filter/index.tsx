@@ -3,6 +3,74 @@
 import { useFilterTagStore } from "./Filter.hooks";
 import { truckFilterData } from "./Filter.datas";
 
+function CheckBoxList({
+    title,
+    options,
+    selected,
+    onChange,
+}: {
+    title: string;
+    options: string[];
+    selected: string[]; // 체크박스니까 배열
+    onChange: (v: string[]) => void;
+}) {
+    const ALL_LABEL = "전체";
+    const mobileOptions = [ALL_LABEL, ...options];
+
+    const handleCheck = (value: string) => {
+        if (selected.includes(value)) {
+            onChange(selected.filter((v) => v !== value));
+        } else {
+            onChange([...selected, value]);
+        }
+    };
+
+    const handleMobileSelect = (value: string) => {
+        if (value === ALL_LABEL) onChange([]);
+        else onChange([value]);
+    };
+
+    const mobileValue = selected.length === 0 ? ALL_LABEL : selected[0];
+
+    return (
+        <div className="w-full bg-white rounded-xl shadow-xl overflow-hidden text-xl">
+            <div className="bg-[#2E7D32]/25 text-lg sm:text-2xl font-bold text-center py-2 px-1 sm:py-4 sm:px-2">
+                {title}
+            </div>
+            <div className="p-4 block md:hidden">
+                <select
+                    value={mobileValue}
+                    onChange={(e) => handleMobileSelect(e.target.value)}
+                    className="w-full p-3 border-2 border-[#ccc] rounded-lg text-sm sm:text-[1.3rem]"
+                >
+                    {mobileOptions.map((option) => (
+                        <option key={option} value={option}>
+                            {option}
+                        </option>
+                    ))}
+                </select>
+            </div>
+            <div className="hidden md:flex flex-col gap-3 p-4">
+                {options.map((option) => (
+                    <label key={option} className="cursor-pointer block">
+                        <input
+                            type="checkbox"
+                            checked={selected.includes(option)}
+                            onChange={() => handleCheck(option)}
+                            className="peer hidden"
+                        />
+                        <div
+                            className={`w-full rounded-lg border-2 px-4 py-3 transition-all duration-200 peer-checked:bg-[#2E7D32]/10 peer-checked:border-[#2E7D32] hover:border-[#2E7D32]/70 hover:bg-[#2E7D32]/5 text-[1.5rem] leading-snug transition transform duration-200 active:scale-95`}
+                        >
+                            {option}
+                        </div>
+                    </label>
+                ))}
+            </div>
+        </div>
+    );
+}
+
 function SelectBox({
     title,
     options,
@@ -75,7 +143,7 @@ export default function Filter({ skipReset = false }: { skipReset?: boolean }) {
     const subModel = draft.models[0]?.subModels[0]?.name || "";
     const grades = subModels.find((s) => s.name === subModel)?.grades || [];
 
-    const grade = draft.models[0]?.subModels[0]?.grades[0] || "";
+    const selectedGrades = draft.models[0]?.subModels[0]?.grades || [];
 
     return (
         <div className="flex gap-4 flex-col sm:flex-row">
@@ -97,7 +165,12 @@ export default function Filter({ skipReset = false }: { skipReset?: boolean }) {
                 selected={subModel}
                 onChange={(v) => setDraftSubModel(v, skipReset)}
             />
-            <SelectBox title="등급" options={grades} selected={grade} onChange={(v) => setDraftGrade(v, skipReset)} />
+            <CheckBoxList
+                title="등급"
+                options={grades}
+                selected={selectedGrades}
+                onChange={(v) => setDraftGrade(v, skipReset)}
+            />
         </div>
     );
 }
