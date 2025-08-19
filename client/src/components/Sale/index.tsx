@@ -160,20 +160,19 @@ export default function Sale({ transmission, priceRange, yearRange }: SaleCompon
                                 </div>
                                 <div>{post.simple_content}</div>
                             </div>
+
                             <div className="max-w-[110px] sm:max-w-[250px] text-sm sm:text-xl font-semibold flex flex-col gap-1">
                                 <div className="fade-truncate sm:hidden">{post.name}</div>
                                 <div className="fade-truncate sm:hidden">연식: {post.year}</div>
                                 <div className="fade-truncate sm:hidden">주행: {post.mileage}</div>
                                 <div>{post.price?.toLocaleString()}만원</div>
                             </div>
-                            <div>
-                                <div
-                                    className={`flex justify-center shadow-lg text-xs sm:text-xl w-[60px] sm:w-[100px] p-1.5 sm:p-2.5 rounded-md font-medium text-white ${
-                                        post.status ? "bg-[#2E7D32]" : "bg-[#C62828]"
-                                    }`}
-                                >
-                                    {post.status ? "판매중" : "판매완료"}
-                                </div>
+                            <div
+                                className={`flex justify-center shadow-lg text-xs sm:text-xl w-[60px] sm:w-[100px] p-1.5 sm:p-2.5 rounded-md font-medium text-white ${
+                                    post.status ? "bg-[#2E7D32]" : "bg-[#C62828]"
+                                }`}
+                            >
+                                {post.status ? "판매중" : "판매완료"}
                             </div>
                         </div>
                     ))
