@@ -57,6 +57,7 @@ class Sale(db.Model):
             "transmission": self.transmission,
             "thumbnail": self.thumbnail,
             "content": self.content,
+            "simple_content": self.simple_content,
             "status": self.status,
             "images": self.images,
             "simple_tags": self.simple_tags,
