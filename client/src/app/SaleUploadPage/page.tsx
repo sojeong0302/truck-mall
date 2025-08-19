@@ -137,7 +137,7 @@ export default function WritingUpload() {
             const { data } = await authApi.post(`${BASE_URL}/sale/uploadSale`, formData, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-
+            console.log(simple_content);
             // 잘못된 부분 수정!
             router.push(`/SaleDetailPage/${data.sale.id}`);
             console.log("성공");
