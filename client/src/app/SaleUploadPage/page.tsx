@@ -50,7 +50,6 @@ export default function WritingUpload() {
     const rawGrades = draft.models[0]?.subModels[0]?.grades as string | string[];
     const grades = typeof rawGrades === "string" ? rawGrades.split("/") : Array.isArray(rawGrades) ? rawGrades : [];
 
-    // ✅ formData에 넣을 normal_tags 구성
     const normal_tags = {
         manufacturer: draft.manufacturer,
         models: [
@@ -59,7 +58,7 @@ export default function WritingUpload() {
                 subModels: [
                     {
                         name: draft.models?.[0]?.subModels?.[0]?.name || "",
-                        grades: grades, // ✅ 배열로 들어감!
+                        grades: grades,
                     },
                 ],
             },
@@ -181,7 +180,6 @@ export default function WritingUpload() {
         if (!accident_info) setField("accident_info", "성능점검 참조");
         if (!combination_info) setField("combination_info", "경기도자동차매매사업조합/031-242-8940");
     }, []);
-    console.log("selectedTags", selectedTags);
 
     return (
         <>
