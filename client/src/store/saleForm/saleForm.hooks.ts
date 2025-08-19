@@ -20,12 +20,6 @@ export const useSaleFormStore = create<SaleFormState>((set) => ({
     vin: "",
     accident_info: "",
     combination_info: "",
-
-    // 필터 관련
-    manufacturer: "",
-    model: "",
-    sub_model: "",
-    grade: "",
     transmission: "",
 
     // 기타
@@ -55,10 +49,6 @@ export const useSaleFormStore = create<SaleFormState>((set) => ({
             vin: "",
             accident_info: "",
             combination_info: "",
-            manufacturer: "",
-            model: "",
-            sub_model: "",
-            grade: "",
             transmission: "",
             content: "",
             simple_content: "",

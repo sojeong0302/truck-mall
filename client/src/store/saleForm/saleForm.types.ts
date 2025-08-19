@@ -19,20 +19,13 @@ export interface SaleFormState {
     vin: string;
     accident_info: string;
     combination_info: string;
-
-    // Filter값
-    manufacturer: string;
-    model: string;
-    sub_model: string;
-    grade: string;
-
     transmission: string;
 
     // 기타
     content: string;
     simple_content: string;
-    status: boolean; // 판매 상태
-    simple_tags: SimpleTag | null; //simpleFilter값
+    status: boolean;
+    simple_tags: SimpleTag | null;
 
     // Zustand 메서드
     setField: (key: keyof SaleFormState, value: any) => void;
