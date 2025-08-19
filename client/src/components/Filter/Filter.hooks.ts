@@ -18,16 +18,15 @@ export const useFilterTagStore = create<FilterTagState>((set) => ({
         })),
 
     setDraftModel: (model, skipReset = false) =>
-        set(() => ({
+        set((state) => ({
             draft: {
-                manufacturer: "",
+                ...state.draft, // ✅ manufacturer 유지
                 models: [
                     {
                         name: model,
-                        subModels: [], // ✅ subModel 초기화
+                        subModels: [],
                     },
                 ],
-                grades: [], // 선택 사항
             },
         })),
 
