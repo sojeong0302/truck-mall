@@ -1,19 +1,17 @@
 "use client";
 
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect } from "react";
 import EtcPoto from "@/components/EtcPoto";
 import TextArea from "@/components/TextArea";
 import ShortButton from "@/components/ShortButton";
 import Filter from "@/components/Filter";
 import Modal from "@/components/Modal";
 import { useModalStore } from "@/store/ModalStateStroe";
-import { useFilterTagStore } from "@/components/Filter/Filter.types";
+import { useFilterTagStore } from "@/components/Filter/Filter.hooks";
 import SimpleFilter from "@/components/SimpleFilter";
 import { useSaleFormStore } from "@/store/saleForm/saleForm.hooks";
 import { useImageStore } from "@/store/imageStore";
-import { useSimpleTagStore } from "@/store/simpleTagStore";
 import { useRouter } from "next/navigation";
-import { SaleCrystalPagePropStore } from "../SaleCrystalPage/[id]/SaleCrystalPage.types";
 import { useAuthStore } from "@/store/useAuthStore";
 import { authApi } from "@/lib/api";
 
@@ -43,35 +41,35 @@ export default function WritingUpload() {
         grade,
         transmission,
         content,
-        status,
         simple_tags,
         setField,
         setThumbnail,
         setThumbnailFile,
         clearForm,
+        simple_content,
     } = useSaleFormStore();
 
-    const { simpleTag } = useSimpleTagStore();
-    const { tags } = useFilterTagStore();
-    const { files, originURLs } = useImageStore();
+    const { draft } = useFilterTagStore();
 
-    const resetForm = SaleCrystalPagePropStore((s) => s.reset);
-    const clearFilter = useFilterTagStore((s) => s.clear);
-    const resetSimpleTag = useSimpleTagStore((s) => s.resetSimpleTag);
-    const clearImages = useImageStore((s) => s.clear);
+    const normal_tags = {
+        manufacturer: draft.manufacturer,
+        model: draft.models[0]?.name || "",
+        sub_model: draft.models[0]?.subModels[0]?.name || "",
+        grade: draft.models[0]?.subModels[0]?.grades[0] || "",
+    };
 
-    useEffect(() => {
-        resetForm();
-        clearFilter();
-        resetSimpleTag();
-        clearImages();
-        setSelected("");
-    }, [resetForm, clearFilter, resetSimpleTag, clearImages]);
+    const { files } = useImageStore();
 
     const [selected, setSelected] = useState("");
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [isOpen, setIsOpen] = useState(false);
 
+    // 썸네일 클릭 (파일 탐색기 오픈)
+    const handleClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    // 썸네일 선택
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -80,13 +78,9 @@ export default function WritingUpload() {
         setThumbnail(URL.createObjectURL(file));
     };
 
-    const handleClick = () => {
-        fileInputRef.current?.click();
-    };
-
     const token = useAuthStore((s) => s.token);
 
-    // 등록 API 연동
+    // 등록 시도
     const handleSubmit = async () => {
         // 토큰 없으면 로그인 페이지 이동
         if (!token) {
@@ -98,8 +92,8 @@ export default function WritingUpload() {
 
         //formData=서버로 보낼 데이터 묶음
         const formData = new FormData();
-        formData.append("simple_tags", JSON.stringify(simpleTag || null));
-        formData.append("tags", JSON.stringify(tags));
+        formData.append("simple_tags", JSON.stringify(simple_tags));
+        formData.append("normal_tags", JSON.stringify(normal_tags));
         formData.append("transmission", transmission);
 
         if (thumbnailFile) {
@@ -125,6 +119,8 @@ export default function WritingUpload() {
         });
 
         formData.append("content", content);
+
+        // api 연동
         try {
             const { data } = await authApi.post(`${BASE_URL}/sale/uploadSale`, formData, {
                 headers: { Authorization: `Bearer ${token}` },
@@ -144,13 +140,6 @@ export default function WritingUpload() {
         }
     };
 
-    const selectedTags = [
-        tags.manufacturer,
-        tags.models?.[0]?.name,
-        tags.models?.[0]?.subModels?.[0]?.name,
-        tags.models?.[0]?.subModels?.[0]?.grades?.[0],
-    ].filter(Boolean);
-
     // 썸네일 삭제
     const handleClearThumbnail = () => {
         if (thumbnail?.startsWith("blob:")) {
@@ -163,31 +152,18 @@ export default function WritingUpload() {
         if (fileInputRef.current) fileInputRef.current.value = "";
     };
 
+    // 취소 모달 -> '네' 클릭
     const handleCancel = () => {
         router.back();
     };
 
-    // 컴포넌트 내부에 추가
-    const resetAllLocal = useCallback(() => {
-        // 썸네일이 blob URL이면 메모리 반환
-        if (thumbnail?.startsWith("blob:")) {
-            try {
-                URL.revokeObjectURL(thumbnail);
-            } catch {}
-        }
-        clearForm(); // ✅ 폼 초기화 (thumbnail, name, fuel, type, trim, year, mileage, color, price, content, transmission)
-        clearFilter(); // 제조사/모델 필터 초기화
-        resetSimpleTag(); // SimpleFilter 초기화
-        clearImages(); // 기타 이미지 스토어 초기화
-        setSelected(""); // 변속기 로컬 상태 초기화
-        if (fileInputRef.current) fileInputRef.current.value = "";
-    }, [thumbnail, clearForm, clearFilter, resetSimpleTag, clearImages]);
-
-    // 기존 useEffect 교체 (또는 추가)
-    useEffect(() => {
-        resetAllLocal(); // 페이지 들어올 때 초기화
-        return () => resetAllLocal(); // 페이지 나갈 때도 초기화
-    }, [resetAllLocal]);
+    // 사용자가 선택한 Filter를 보여지게 하기 위한 용도
+    const selectedTags = [
+        draft.manufacturer,
+        draft.models[0]?.name,
+        draft.models[0]?.subModels[0]?.name,
+        draft.models[0]?.subModels[0]?.grades[0],
+    ].filter(Boolean);
 
     // 사고정보 & 조합정보 defalut 값
     useEffect(() => {
@@ -209,34 +185,6 @@ export default function WritingUpload() {
                         ))}
                     </div>
                 )}
-                {/* <div className="flex flex-col sm:flex-row w-full gap-0 sm:gap-10">
-                    <div className="flex items-center gap-3">
-                        <div className="text-sm sm:text-lg text-[#2E7D32]">▶</div>
-                        <div className="text-lg sm:text-2xl font-medium">변속기</div>
-                    </div>
-                    <div className="relative w-48">
-                        <button
-                            className="transition transform duration-200 active:scale-95 cursor-pointer w-full text-left border border-[#2E7D32] rounded-md px-3 py-2 text-xl"
-                            onClick={() => setIsOpen((prev) => !prev)}
-                        >
-                            {selected || "전체"}
-                        </button>
-
-                        {isOpen && (
-                            <ul className="absolute z-10 bg-white border border-[#2E7D32] rounded-md w-full mt-1">
-                                {["전체", "오토", "수동", "세미오토", "무단변속기"].map((item) => (
-                                    <li
-                                        key={item}
-                                        className="px-3 py-2 hover:bg-[#2E7D32]/10 cursor-pointer"
-                                        onClick={() => handleSelect(item)}
-                                    >
-                                        {item}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </div>
-                </div> */}
                 <div className="w-full flex flex-col sm:flex-col justify-center gap-15">
                     {/* 썸네일 */}
                     <div
@@ -288,11 +236,6 @@ export default function WritingUpload() {
                                     type: "number",
                                 },
                                 { label: "연료", value: fuel, setter: (v: string) => setField("fuel", v) },
-                                {
-                                    label: "변속기",
-                                    value: transmission,
-                                    setter: (v: string) => setField("transmission", v),
-                                },
                                 { label: "색상", value: color, setter: (v: string) => setField("color", v) },
                                 { label: "주행거리", value: mileage, setter: (v: string) => setField("mileage", v) },
                                 { label: "차대 번호", value: vin, setter: (v: string) => setField("vin", v) },
@@ -300,6 +243,11 @@ export default function WritingUpload() {
                                     label: "사고 정보",
                                     value: accident_info,
                                     setter: (v: string) => setField("accident_info", v),
+                                },
+                                {
+                                    label: "차량 번호",
+                                    value: car_number,
+                                    setter: (v: string) => setField("car_number", v),
                                 },
                                 {
                                     label: "조합 정보",
@@ -313,9 +261,10 @@ export default function WritingUpload() {
                                     type: "number",
                                 },
                                 {
-                                    label: "차량 번호",
-                                    value: car_number,
-                                    setter: (v: string) => setField("car_number", v),
+                                    label: "간단 내용",
+                                    value: simple_content,
+                                    setter: (v: string) => setField("simple_content", v),
+                                    type: "number",
                                 },
                             ].map((field, idx) => (
                                 <div className="flex gap-1 sm:gap-3 sm:items-center flex-col sm:flex-row" key={idx}>
@@ -329,6 +278,34 @@ export default function WritingUpload() {
                                     />
                                 </div>
                             ))}
+                        </div>
+                        <div className="flex flex-col sm:flex-row w-full gap-0 sm:gap-10">
+                            <div className="flex items-center gap-3">
+                                <div className="text-sm sm:text-lg text-[#2E7D32]">▶</div>
+                                <div className="text-lg sm:text-2xl font-medium">변속기</div>
+                            </div>
+                            <div className="relative w-48">
+                                <button
+                                    className="transition transform duration-200 active:scale-95 cursor-pointer w-full text-left border border-[#2E7D32] rounded-md px-3 py-2 text-xl"
+                                    onClick={() => setIsOpen((prev) => !prev)}
+                                >
+                                    {selected || "전체"}
+                                </button>
+
+                                {isOpen && (
+                                    <ul className="absolute z-10 bg-white border border-[#2E7D32] rounded-md w-full mt-1">
+                                        {["전체", "오토", "수동", "세미오토", "무단변속기"].map((item) => (
+                                            <li
+                                                key={item}
+                                                className="px-3 py-2 hover:bg-[#2E7D32]/10 cursor-pointer"
+                                                onClick={() => handleSelect(item)}
+                                            >
+                                                {item}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>

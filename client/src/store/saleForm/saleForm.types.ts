@@ -25,6 +25,7 @@ export interface SaleFormState {
     model: string;
     sub_model: string;
     grade: string;
+
     transmission: string;
 
     // 기타

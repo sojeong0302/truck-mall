@@ -1,12 +1,15 @@
 "use client";
 import { data } from "./SimpleFilter.hooks";
 import { useSimpleTagStore } from "@/store/simpleTagStore";
+import { useSaleFormStore } from "@/store/saleForm/saleForm.hooks";
 
 export default function SimpleFilter({ skipReset = false }: { skipReset?: boolean }) {
     const { simpleTag, setSimpleTag } = useSimpleTagStore();
+    const setSaleFormField = useSaleFormStore((s) => s.setField);
 
     const handleSelect = (type: string, grade: string) => {
-        setSimpleTag(type, grade, skipReset);
+        setSimpleTag(type, grade, skipReset); // 버튼 색깔 등 UI 상태
+        setSaleFormField("simple_tags", { type, grade }); // 서버로 보낼 값 저장
     };
 
     return (
