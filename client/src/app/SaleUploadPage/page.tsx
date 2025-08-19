@@ -47,18 +47,28 @@ export default function WritingUpload() {
 
     const { draft } = useFilterTagStore();
 
+    // ✨ 타입 안전하게 grades 배열 만들기
+    let grades: string[] = [];
+    const rawGrades = draft.models?.[0]?.subModels?.[0]?.grades as string | string[];
+
+    if (typeof rawGrades === "string") {
+        grades = rawGrades.split("/");
+    } else if (Array.isArray(rawGrades)) {
+        grades = rawGrades;
+    } else {
+        grades = [];
+    }
+
+    // ✅ formData에 넣을 normal_tags 구성
     const normal_tags = {
         manufacturer: draft.manufacturer,
         models: [
             {
-                name: draft.models[0]?.name || "",
+                name: draft.models?.[0]?.name || "",
                 subModels: [
                     {
-                        name: draft.models[0]?.subModels[0]?.name || "",
-                        grades:
-                            typeof draft.models[0]?.subModels[0]?.grades === "string"
-                                ? draft.models[0].subModels[0].grades.split("/")
-                                : draft.models[0]?.subModels[0]?.grades || [],
+                        name: draft.models?.[0]?.subModels?.[0]?.name || "",
+                        grades: grades, // ✅ 배열로 들어감!
                     },
                 ],
             },
