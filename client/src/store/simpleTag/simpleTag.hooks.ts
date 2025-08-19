@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { useFilterTagStore } from "@/components/Filter/Filter.types"; // Filter store 사용
+import { useFilterTagStore } from "@/components/Filter/Filter.hooks"; // Filter store 사용
 import { SimpleTagState } from "./simpleTag.types";
 
 export const useSimpleTagStore = create<SimpleTagState>((set) => ({

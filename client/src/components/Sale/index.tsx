@@ -6,7 +6,7 @@ import { usePaginationStore } from "@/store/paginationStore";
 import { useRouter } from "next/navigation";
 import { useAuthToggle } from "../Header/Header.hooks";
 import { useEffect, useMemo } from "react";
-import { useFilterTagStore } from "@/components/Filter/Filter.types";
+import { useFilterTagStore } from "@/components/Filter/Filter.hooks";
 import { useSimpleTagStore } from "@/store/simpleTagStore";
 import { useSearchTriggerStore } from "@/store/searchTriggerStore";
 import { useSaleStore } from "@/store/saleStore";

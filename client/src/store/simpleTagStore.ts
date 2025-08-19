@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { useFilterTagStore } from "@/components/Filter/Filter.types"; // ✅ 다른 store import
+import { useFilterTagStore } from "@/components/Filter/Filter.hooks"; // ✅ 다른 store import
 
 interface SimpleTag {
     type: string;
