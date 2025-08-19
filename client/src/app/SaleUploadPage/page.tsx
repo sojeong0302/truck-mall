@@ -47,17 +47,8 @@ export default function WritingUpload() {
 
     const { draft } = useFilterTagStore();
 
-    // ✨ 타입 안전하게 grades 배열 만들기
-    let grades: string[] = [];
-    const rawGrades = draft.models?.[0]?.subModels?.[0]?.grades as string | string[];
-
-    if (typeof rawGrades === "string") {
-        grades = rawGrades.split("/");
-    } else if (Array.isArray(rawGrades)) {
-        grades = rawGrades;
-    } else {
-        grades = [];
-    }
+    const rawGrades = draft.models[0]?.subModels[0]?.grades as string | string[];
+    const grades = typeof rawGrades === "string" ? rawGrades.split("/") : Array.isArray(rawGrades) ? rawGrades : [];
 
     // ✅ formData에 넣을 normal_tags 구성
     const normal_tags = {
@@ -182,7 +173,7 @@ export default function WritingUpload() {
         draft.manufacturer,
         draft.models[0]?.name,
         draft.models[0]?.subModels[0]?.name,
-        draft.models[0]?.subModels[0]?.grades[0],
+        ...grades,
     ].filter(Boolean);
 
     // 사고정보 & 조합정보 defalut 값
