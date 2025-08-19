@@ -118,6 +118,11 @@ export default function WritingUpload() {
         formData.append("mileage", mileage);
         formData.append("color", color);
         formData.append("price", price);
+        formData.append("simple_content", simple_content);
+        formData.append("vin", vin);
+        formData.append("combination_info", combination_info);
+        formData.append("accident_info", accident_info);
+        formData.append("car_number", car_number);
 
         files.forEach((file) => {
             if (file instanceof File && file.name) {
