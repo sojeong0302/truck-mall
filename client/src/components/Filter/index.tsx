@@ -38,18 +38,23 @@ function CheckBoxList({
                 {title}
             </div>
             <div className="p-4 block md:hidden">
-                <select
-                    value={mobileValue}
-                    onChange={(e) => handleMobileSelect(e.target.value)}
-                    className="w-full p-3 border-2 border-[#ccc] rounded-lg text-sm sm:text-[1.3rem]"
-                >
-                    {mobileOptions.map((option) => (
-                        <option key={option} value={option}>
+                {options.map((option) => (
+                    <label key={option} className="cursor-pointer block">
+                        <input
+                            type="checkbox"
+                            checked={selected.includes(option)}
+                            onChange={() => handleCheck(option)}
+                            className="peer hidden"
+                        />
+                        <div
+                            className={`w-full rounded-lg border-2 px-4 py-3 transition-all duration-200 peer-checked:bg-[#2E7D32]/10 peer-checked:border-[#2E7D32] hover:border-[#2E7D32]/70 hover:bg-[#2E7D32]/5 text-[1.3rem] leading-snug active:scale-95`}
+                        >
                             {option}
-                        </option>
-                    ))}
-                </select>
+                        </div>
+                    </label>
+                ))}
             </div>
+
             <div className="hidden md:flex flex-col gap-3 p-4">
                 {options.map((option) => (
                     <label key={option} className="cursor-pointer block">
