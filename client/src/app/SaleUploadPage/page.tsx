@@ -49,9 +49,17 @@ export default function WritingUpload() {
 
     const normal_tags = {
         manufacturer: draft.manufacturer,
-        model: draft.models[0]?.name || "",
-        sub_model: draft.models[0]?.subModels[0]?.name || "",
-        grades: draft.grades,
+        models: [
+            {
+                name: draft.models[0]?.name || "",
+                subModels: [
+                    {
+                        name: draft.models[0]?.subModels[0]?.name || "",
+                        grades: draft.models[0]?.subModels[0]?.grades || [],
+                    },
+                ],
+            },
+        ],
     };
 
     const { files } = useImageStore();
