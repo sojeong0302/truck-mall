@@ -151,9 +151,9 @@ export default function Sale({ transmission, priceRange, yearRange }: SaleCompon
                                     </div>
                                 )}
                             </div>
-                            <div className="max-w-[110px] sm:max-w-[250px] fade-truncate hidden sm:block text-sm sm:text-xl font-semibold flex flex-col gap-3">
+                            <div className="max-w-[110px] sm:max-w-[250px] fade-truncate hidden sm:block text-sm sm:text-2xl font-semibold flex flex-col gap-3">
                                 <div className="">{post.name}</div>
-                                <div>
+                                <div className="flex">
                                     <div className="">{post.year}</div>
                                     <div className="">{post.mileage}</div>
                                     <div className="">{post.fuel}</div>
@@ -166,7 +166,6 @@ export default function Sale({ transmission, priceRange, yearRange }: SaleCompon
                                 <div className="fade-truncate sm:hidden">주행: {post.mileage}</div>
                                 <div>{post.price?.toLocaleString()}만원</div>
                             </div>
-                            <div className="hidden sm:block text-xl font-semibold">문의: 010-8191-8244</div>
                             <div>
                                 <div
                                     className={`flex justify-center shadow-lg text-xs sm:text-xl w-[60px] sm:w-[100px] p-1.5 sm:p-2.5 rounded-md font-medium text-white ${
