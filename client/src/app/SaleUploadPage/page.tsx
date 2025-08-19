@@ -55,7 +55,10 @@ export default function WritingUpload() {
                 subModels: [
                     {
                         name: draft.models[0]?.subModels[0]?.name || "",
-                        grades: draft.models[0]?.subModels[0]?.grades || [],
+                        grades:
+                            typeof draft.models[0]?.subModels[0]?.grades === "string"
+                                ? draft.models[0].subModels[0].grades.split("/")
+                                : draft.models[0]?.subModels[0]?.grades || [],
                     },
                 ],
             },
