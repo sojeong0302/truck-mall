@@ -138,6 +138,7 @@ export default function WritingUpload() {
                 headers: { Authorization: `Bearer ${token}` },
             });
             router.push(`/SaleDetailPage/${data.car.id}`);
+            console.log("성공/");
             console.log(data.sale);
         } catch (error) {}
     };
