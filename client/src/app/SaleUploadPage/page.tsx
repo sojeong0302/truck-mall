@@ -131,9 +131,6 @@ export default function WritingUpload() {
         });
 
         formData.append("content", content);
-        for (let [key, value] of formData.entries()) {
-            console.log(`${key}:`, value);
-        }
 
         // api 연동
         try {
@@ -141,6 +138,7 @@ export default function WritingUpload() {
                 headers: { Authorization: `Bearer ${token}` },
             });
             router.push(`/SaleDetailPage/${data.car.id}`);
+            console.log(data.data);
         } catch (error) {}
     };
 
