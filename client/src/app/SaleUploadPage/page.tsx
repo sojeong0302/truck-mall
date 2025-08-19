@@ -51,7 +51,7 @@ export default function WritingUpload() {
         manufacturer: draft.manufacturer,
         model: draft.models[0]?.name || "",
         sub_model: draft.models[0]?.subModels[0]?.name || "",
-        grade: draft.models[0]?.subModels[0]?.grades[0] || "",
+        grades: draft.grades,
     };
 
     const { files } = useImageStore();

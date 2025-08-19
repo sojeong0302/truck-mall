@@ -63,6 +63,49 @@ function SelectBox({
     );
 }
 
+function MultiSelectBox({
+    title,
+    options,
+    selected,
+    onChange,
+}: {
+    title: string;
+    options: string[];
+    selected: string[];
+    onChange: (v: string) => void;
+}) {
+    return (
+        <div className="w-full bg-white rounded-xl shadow-xl overflow-hidden text-xl">
+            <div className="bg-[#2E7D32]/25 text-lg sm:text-2xl font-bold text-center py-2 px-1 sm:py-4 sm:px-2">
+                {title}
+            </div>
+            <div className="p-4 grid grid-cols-2 gap-2">
+                {options.map((option) => {
+                    const isChecked = selected.includes(option);
+                    return (
+                        <label key={option} className="cursor-pointer">
+                            <input
+                                type="checkbox"
+                                value={option}
+                                checked={isChecked}
+                                onChange={() => onChange(option)}
+                                className="peer hidden"
+                            />
+                            <div
+                                className={`w-full rounded-lg border-2 px-4 py-3 text-sm sm:text-base transition-all duration-200 
+                                    peer-checked:bg-[#2E7D32]/10 peer-checked:border-[#2E7D32] 
+                                    hover:border-[#2E7D32]/70 hover:bg-[#2E7D32]/5 active:scale-95`}
+                            >
+                                {option}
+                            </div>
+                        </label>
+                    );
+                })}
+            </div>
+        </div>
+    );
+}
+
 export default function Filter({ skipReset = false }: { skipReset?: boolean }) {
     const { draft, setDraftManufacturer, setDraftModel, setDraftSubModel, setDraftGrade } = useFilterTagStore();
 
@@ -74,8 +117,6 @@ export default function Filter({ skipReset = false }: { skipReset?: boolean }) {
 
     const subModel = draft.models[0]?.subModels[0]?.name || "";
     const grades = subModels.find((s) => s.name === subModel)?.grades || [];
-
-    const grade = draft.models[0]?.subModels[0]?.grades[0] || "";
 
     return (
         <div className="flex gap-4 flex-col sm:flex-row">
@@ -97,7 +138,7 @@ export default function Filter({ skipReset = false }: { skipReset?: boolean }) {
                 selected={subModel}
                 onChange={(v) => setDraftSubModel(v, skipReset)}
             />
-            <SelectBox title="등급" options={grades} selected={grade} onChange={(v) => setDraftGrade(v, skipReset)} />
+            <MultiSelectBox title="등급" options={grades} selected={draft.grades} onChange={(v) => setDraftGrade(v)} />
         </div>
     );
 }

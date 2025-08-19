@@ -8,6 +8,7 @@ export interface FilterTagState {
                 grades: string[];
             }[];
         }[];
+        grades: string[];
     };
     setDraftManufacturer: (manufacturer: string, skipReset?: boolean) => void;
     setDraftModel: (model: string, skipReset?: boolean) => void;

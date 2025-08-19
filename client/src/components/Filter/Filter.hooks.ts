@@ -5,6 +5,7 @@ export const useFilterTagStore = create<FilterTagState>((set) => ({
     draft: {
         manufacturer: "",
         models: [],
+        grades: [],
     },
 
     setDraftManufacturer: (manufacturer, skipReset = false) =>
@@ -12,6 +13,7 @@ export const useFilterTagStore = create<FilterTagState>((set) => ({
             draft: {
                 manufacturer,
                 models: skipReset ? state.draft.models : [],
+                grades: skipReset ? state.draft.grades : [], // 💡 manufacturer 바꾸면 등급도 초기화
             },
         })),
 
@@ -37,6 +39,7 @@ export const useFilterTagStore = create<FilterTagState>((set) => ({
                 draft: {
                     ...state.draft,
                     models: exists ? models : [...models, newModel],
+                    grades: skipReset ? state.draft.grades : [], // 모델 바꾸면 등급도 초기화
                 },
             };
         }),
@@ -64,24 +67,22 @@ export const useFilterTagStore = create<FilterTagState>((set) => ({
                 draft: {
                     ...state.draft,
                     models,
+                    grades: skipReset ? state.draft.grades : [], // 세부모델 바꿀 때 등급 초기화
                 },
             };
         }),
 
-    setDraftGrade: (grade, _skipReset = false) =>
+    setDraftGrade: (grade: string) =>
         set((state) => {
-            const models = state.draft.models.map((m) => ({
-                ...m,
-                subModels: m.subModels.map((s) => ({
-                    ...s,
-                    grades: [grade],
-                })),
-            }));
+            const exists = state.draft.grades.includes(grade);
+            const newGrades = exists
+                ? state.draft.grades.filter((g) => g !== grade) // 체크 해제
+                : [...state.draft.grades, grade]; // 체크 추가
 
             return {
                 draft: {
                     ...state.draft,
-                    models,
+                    grades: newGrades,
                 },
             };
         }),
@@ -91,6 +92,7 @@ export const useFilterTagStore = create<FilterTagState>((set) => ({
             draft: {
                 manufacturer: "",
                 models: [],
+                grades: [],
             },
         })),
 }));
