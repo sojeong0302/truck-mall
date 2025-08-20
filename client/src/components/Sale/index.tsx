@@ -161,7 +161,7 @@ export default function Sale({ transmission, priceRange, yearRange }: SaleCompon
                                 <div>{post.simple_content}</div>
                             </div>
 
-                            <div className="sm:w-[15%] max-w-[110px] sm:max-w-[250px] text-sm sm:text-xl font-semibold flex flex-col gap-1">
+                            <div className="sm:w-[15%] max-w-[110px] sm:max-w-[250px] text-sm sm:text-xl font-semibold flex flex-col gap-1 items-center">
                                 <div className="fade-truncate sm:hidden">{post.name}</div>
                                 <div className="fade-truncate sm:hidden">연식: {post.year}</div>
                                 <div className="fade-truncate sm:hidden">주행: {post.mileage}</div>
