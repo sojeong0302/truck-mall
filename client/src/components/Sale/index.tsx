@@ -158,7 +158,7 @@ export default function Sale({ transmission, priceRange, yearRange }: SaleCompon
                                     <div>{post.mileage}</div>
                                     <div>{post.fuel}</div>
                                 </div>
-                                <div className="bg-black-200 fade-truncate text-2xl font-semibold">
+                                <div className="bg-orange-200 fade-truncate text-2xl font-semibold">
                                     {post.simple_content}
                                 </div>
                             </div>
