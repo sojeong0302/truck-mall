@@ -151,14 +151,14 @@ export default function Sale({ transmission, priceRange, yearRange }: SaleCompon
                                     </div>
                                 )}
                             </div>
-                            <div className="fade-truncate sm:w-[50%] hidden sm:block font-semibold flex flex-col ">
-                                <div className="text-lg sm:text-4xl">{post.name}</div>
-                                <div className="flex gap-5 text-sm sm:text-2xl">
+                            <div className="fade-truncate sm:w-[50%] hidden sm:block flex flex-col h-[180px] justify-center">
+                                <div className="text-3xl font-bold">{post.name}</div>
+                                <div className="flex gap-5 text-2xl font-semibold">
                                     <div>{post.year}</div>
                                     <div>{post.mileage}</div>
                                     <div>{post.fuel}</div>
                                 </div>
-                                <div>{post.simple_content}</div>
+                                <div className="text-2xl font-semibold">{post.simple_content}</div>
                             </div>
 
                             <div className="sm:w-[15%] max-w-[110px] sm:max-w-[250px] text-sm sm:text-xl font-semibold flex flex-col gap-1">
