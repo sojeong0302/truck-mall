@@ -3,8 +3,6 @@ export interface SaleProps {
     thumbnail?: string;
     name?: string;
     fuel?: string;
-    type?: string;
-    trim?: string;
     year?: number;
     mileage?: string;
     color?: string;
@@ -23,8 +21,8 @@ export interface SaleProps {
     // 🆕 상세 정보
     car_number?: string;
     vin?: string;
-    accident_info?: string;
-    combination_info?: string;
+    suggest_number?: string;
+    performance_number?: string;
     simple_content?: string;
 
     // 🆕 JSON 필터 정보

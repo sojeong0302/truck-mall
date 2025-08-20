@@ -239,7 +239,12 @@ export default function WritingUpload() {
                                     options: ["오토", "수동", "세미오토", "무단변속기"],
                                 },
                                 { label: "색상", value: color, setter: (v: string) => setField("color", v) },
-                                { label: "주행거리", value: mileage, setter: (v: string) => setField("mileage", v) },
+                                {
+                                    label: "주행거리",
+                                    value: mileage,
+                                    setter: (v: string) => setField("mileage", v),
+                                    type: "number",
+                                },
                                 { label: "차대 번호", value: vin, setter: (v: string) => setField("vin", v) },
                                 {
                                     label: "간단 내용",

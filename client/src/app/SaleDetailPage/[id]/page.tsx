@@ -22,8 +22,8 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
 
     useEffect(() => {
         fetchById(BASE_URL, id);
-        return () => clear();
-    }, [BASE_URL, id, fetchById, clear]);
+        return () => clear(); // 언마운트 시 상태 초기화
+    }, [id]);
 
     //수정 페이지 이동 URL
     const handleGoCrystal = () => router.push(`/SaleCrystalPage/${id}`);
@@ -122,35 +122,27 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                         <div className="font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2">
                             {post.name}
                         </div>
+
                         <div className="flex flex-col text-xl sm:text-2xl p-2 sm:gap-5 gap-3">
-                            <div className="flex gap-3">
-                                <div className="font-bold">연료:</div>
-                                <div>{post.fuel}</div>
-                            </div>
-                            <div className="flex gap-3">
-                                <div className="font-bold">차체 타입:</div>
-                                <div>{post.type}</div>
-                            </div>
-                            <div className="flex gap-3">
-                                <div className="font-bold">트림:</div>
-                                <div>{post.trim}</div>
-                            </div>
-                            <div className="flex gap-3">
-                                <div className="font-bold">연식:</div>
-                                <div>{post.year}</div>
-                            </div>
-                            <div className="flex gap-3">
-                                <div className="font-bold">주행거리:</div>
-                                <div>{post.mileage}</div>
-                            </div>
-                            <div className="flex gap-3">
-                                <div className="font-bold">색상:</div>
-                                <div>{post.color}</div>
-                            </div>
-                            <div className="flex gap-3">
-                                <div className="font-bold">가격:</div>
-                                <div className="text-[#C62828]">{post.price}만원</div>
-                            </div>
+                            {[
+                                { label: "연식", value: post.year },
+                                { label: "연료", value: post.fuel },
+                                { label: "변속기", value: post.transmission },
+                                { label: "색상", value: post.color },
+                                { label: "주행 거리", value: post.mileage },
+                                { label: "차대 번호", value: post.vin },
+                                { label: "제시 번호", value: post.performance_number },
+                                { label: "성능 번호", value: post.suggest_number },
+                                { label: "차량 번호", value: post.car_number },
+                                { label: "가격", value: `${post.price}만원`, color: "text-[#C62828]" },
+                                { label: "차량 번호", value: "성능점검 참조" },
+                                { label: "조합 번호", value: "경기도자동차매매사업조합\n031-242-8940" },
+                            ].map((item, idx) => (
+                                <div className="flex gap-3" key={idx}>
+                                    <div className="font-bold">{item.label}:</div>
+                                    <div className={item.color || ""}>{item.value}</div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
