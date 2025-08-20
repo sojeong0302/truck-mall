@@ -25,16 +25,14 @@ export default function WritingUpload() {
         thumbnailFile,
         name,
         fuel,
-        type,
-        trim,
         year,
         mileage,
         color,
         price,
         car_number,
         vin,
-        accident_info,
-        combination_info,
+        performance_number,
+        suggest_number,
         transmission,
         content,
         simple_tags,
@@ -67,9 +65,7 @@ export default function WritingUpload() {
 
     const { files } = useImageStore();
 
-    const [selected, setSelected] = useState("");
     const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const [isOpen, setIsOpen] = useState(false);
 
     // 썸네일 클릭 (파일 탐색기 오픈)
     const handleClick = () => {
@@ -112,16 +108,14 @@ export default function WritingUpload() {
 
         formData.append("name", name);
         formData.append("fuel", fuel);
-        formData.append("type", type);
-        formData.append("trim", trim);
-        formData.append("year", year);
-        formData.append("mileage", mileage);
+        formData.append("year", year.toString());
+        formData.append("mileage", mileage.toString());
         formData.append("color", color);
-        formData.append("price", price);
+        formData.append("price", price.toString());
         formData.append("simple_content", simple_content);
         formData.append("vin", vin);
-        formData.append("combination_info", combination_info);
-        formData.append("accident_info", accident_info);
+        formData.append("performance_number", performance_number);
+        formData.append("suggest_number", suggest_number);
         formData.append("car_number", car_number);
 
         files.forEach((file) => {
@@ -143,18 +137,7 @@ export default function WritingUpload() {
             console.log("성공");
             console.log(data.sale);
         } catch (error) {
-            console.error("업로드 중 에러 발생:", error); // 이거 꼭 추가!
-        }
-    };
-    console.log("콘솔아 나와랏!");
-    // 변속기 선택지
-    const handleSelect = (item: string) => {
-        setSelected(item);
-        setIsOpen(false);
-        if (item !== "전체") {
-            setField("transmission", item);
-        } else {
-            setField("transmission", "");
+            console.error("업로드 중 에러 발생:", error);
         }
     };
 
@@ -182,12 +165,6 @@ export default function WritingUpload() {
         draft.models[0]?.subModels[0]?.name,
         ...grades,
     ].filter(Boolean);
-
-    // 사고정보 & 조합정보 defalut 값
-    useEffect(() => {
-        if (!accident_info) setField("accident_info", "성능점검 참조");
-        if (!combination_info) setField("combination_info", "경기도자동차매매사업조합/031-242-8940");
-    }, []);
 
     return (
         <>
@@ -254,20 +231,16 @@ export default function WritingUpload() {
                                     type: "number",
                                 },
                                 { label: "연료", value: fuel, setter: (v: string) => setField("fuel", v) },
+                                {
+                                    label: "변속기",
+                                    value: transmission,
+                                    setter: (v: string) => setField("transmission", v),
+                                    customType: "select",
+                                    options: ["오토", "수동", "세미오토", "무단변속기"],
+                                },
                                 { label: "색상", value: color, setter: (v: string) => setField("color", v) },
                                 { label: "주행거리", value: mileage, setter: (v: string) => setField("mileage", v) },
                                 { label: "차대 번호", value: vin, setter: (v: string) => setField("vin", v) },
-                                {
-                                    label: "사고 정보",
-                                    value: accident_info,
-                                    setter: (v: string) => setField("accident_info", v),
-                                },
-                                {
-                                    label: "가격",
-                                    value: price,
-                                    setter: (v: string) => setField("price", v),
-                                    type: "number",
-                                },
                                 {
                                     label: "간단 내용",
                                     value: simple_content,
@@ -279,9 +252,20 @@ export default function WritingUpload() {
                                     setter: (v: string) => setField("car_number", v),
                                 },
                                 {
-                                    label: "조합 정보",
-                                    value: combination_info,
-                                    setter: (v: string) => setField("combination_info", v),
+                                    label: "제시 번호",
+                                    value: performance_number,
+                                    setter: (v: string) => setField("performance_number", v),
+                                },
+                                {
+                                    label: "성능 번호",
+                                    value: suggest_number,
+                                    setter: (v: string) => setField("suggest_number", v),
+                                },
+                                {
+                                    label: "가격",
+                                    value: price,
+                                    setter: (v: string) => setField("price", v),
+                                    type: "number",
                                 },
                             ].map((field, idx) => (
                                 <div className="flex gap-1 sm:gap-3 sm:items-center flex-col sm:flex-row" key={idx}>
@@ -295,34 +279,6 @@ export default function WritingUpload() {
                                     />
                                 </div>
                             ))}
-                        </div>
-                        <div className="flex flex-col sm:flex-row w-full gap-0 sm:gap-10">
-                            <div className="flex items-center gap-3">
-                                <div className="text-sm sm:text-lg text-[#2E7D32]">▶</div>
-                                <div className="text-lg sm:text-2xl font-medium">변속기</div>
-                            </div>
-                            <div className="relative w-48">
-                                <button
-                                    className="transition transform duration-200 active:scale-95 cursor-pointer w-full text-left border border-[#2E7D32] rounded-md px-3 py-2 text-xl"
-                                    onClick={() => setIsOpen((prev) => !prev)}
-                                >
-                                    {selected || "전체"}
-                                </button>
-
-                                {isOpen && (
-                                    <ul className="absolute z-10 bg-white border border-[#2E7D32] rounded-md w-full mt-1">
-                                        {["전체", "오토", "수동", "세미오토", "무단변속기"].map((item) => (
-                                            <li
-                                                key={item}
-                                                className="px-3 py-2 hover:bg-[#2E7D32]/10 cursor-pointer"
-                                                onClick={() => handleSelect(item)}
-                                            >
-                                                {item}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )}
-                            </div>
                         </div>
                     </div>
                 </div>

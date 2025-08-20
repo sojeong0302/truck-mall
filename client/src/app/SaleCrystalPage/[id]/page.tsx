@@ -28,16 +28,14 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         thumbnailFile,
         name,
         fuel,
-        type,
-        trim,
         year,
         mileage,
         color,
         price,
         car_number,
         vin,
-        accident_info,
-        combination_info,
+        suggest_number,
+        performance_number,
         transmission,
         content,
         simple_tags,
@@ -103,16 +101,14 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                 // 나머지 필드
                 setField("name", name);
                 setField("fuel", fuel);
-                setField("type", type);
-                setField("trim", trim);
                 setField("year", year);
                 setField("mileage", mileage);
                 setField("color", color);
                 setField("price", price);
                 setField("simple_content", simple_content);
                 setField("vin", vin);
-                setField("combination_info", combination_info);
-                setField("accident_info", accident_info);
+                setField("performance_number", performance_number);
+                setField("suggest_number", suggest_number);
                 setField("car_number", car_number);
                 setField("content", data.content ?? "");
                 setField("transmission", data.transmission ?? "");
@@ -225,16 +221,15 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         // 기본 필드
         formData.append("name", name);
         formData.append("fuel", fuel);
-        formData.append("type", type);
-        formData.append("trim", trim);
-        formData.append("year", year);
-        formData.append("mileage", mileage);
+
+        formData.append("year", year.toString());
+        formData.append("mileage", mileage.toString());
         formData.append("color", color);
-        formData.append("price", price);
+        formData.append("price", price.toString());
         formData.append("simple_content", simple_content);
         formData.append("vin", vin);
-        formData.append("combination_info", combination_info);
-        formData.append("accident_info", accident_info);
+        formData.append("performance_number", performance_number);
+        formData.append("suggest_number", suggest_number);
         formData.append("car_number", car_number);
         formData.append("content", content);
 
@@ -315,11 +310,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                                 { label: "색상", value: color, setter: (v: string) => setField("color", v) },
                                 { label: "주행거리", value: mileage, setter: (v: string) => setField("mileage", v) },
                                 { label: "차대 번호", value: vin, setter: (v: string) => setField("vin", v) },
-                                {
-                                    label: "사고 정보",
-                                    value: accident_info,
-                                    setter: (v: string) => setField("accident_info", v),
-                                },
+
                                 {
                                     label: "가격",
                                     value: price,
@@ -335,11 +326,6 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                                     label: "차량 번호",
                                     value: car_number,
                                     setter: (v: string) => setField("car_number", v),
-                                },
-                                {
-                                    label: "조합 정보",
-                                    value: combination_info,
-                                    setter: (v: string) => setField("combination_info", v),
                                 },
                             ].map((field, idx) => (
                                 <div className="flex gap-1 sm:gap-3 sm:items-center flex-col sm:flex-row" key={idx}>
