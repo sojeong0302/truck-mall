@@ -270,13 +270,28 @@ export default function WritingUpload() {
                             ].map((field, idx) => (
                                 <div className="flex gap-1 sm:gap-3 sm:items-center flex-col sm:flex-row" key={idx}>
                                     <div className="font-bold">{field.label}</div>
-                                    <input
-                                        type={field.type || "text"}
-                                        className="flex-1 shadow-md text-2xl border-2 border-[#2E7D32] rounded-xl p-3"
-                                        value={field.value}
-                                        onChange={(e) => field.setter(e.target.value)}
-                                        placeholder={`${field.label}을 입력해 주세요.`}
-                                    />
+                                    {field.customType === "select" ? (
+                                        <select
+                                            className="flex-1 shadow-md text-2xl border-2 border-[#2E7D32] rounded-xl p-3"
+                                            value={field.value}
+                                            onChange={(e) => field.setter(e.target.value)}
+                                        >
+                                            <option value="">선택해 주세요</option>
+                                            {field.options?.map((option) => (
+                                                <option key={option} value={option}>
+                                                    {option}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <input
+                                            type={field.type || "text"}
+                                            className="flex-1 shadow-md text-2xl border-2 border-[#2E7D32] rounded-xl p-3"
+                                            value={field.value}
+                                            onChange={(e) => field.setter(e.target.value)}
+                                            placeholder={`${field.label}을 입력해 주세요.`}
+                                        />
+                                    )}
                                 </div>
                             ))}
                         </div>
