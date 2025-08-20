@@ -9,72 +9,6 @@ from urllib.parse import urlparse
 sale_bp = Blueprint("sale", __name__)
 
 
-# 계층형 normal_tags 생성 함수 (매물 등록 api)
-def create_normal_tags(manufacturer, model, sub_model, grade):
-    return {
-        "manufacturer": manufacturer,
-        "models": [
-            {"name": model, "subModels": [{"name": sub_model, "grades": [grade]}]}
-        ],
-    }
-
-
-# 매물 등록 api
-@sale_bp.route("/uploadSale", methods=["POST"])
-@jwt_required()
-def register_sale():
-    try:
-        form = request.form
-        files = request.files
-
-        manufacturer = form.get("manufacturer")
-        model = form.get("model")
-        sub_model = form.get("sub_model")
-        grade = form.get("grade")
-
-        # string -> dict
-        normal_tags = parse_tag(form.get("normal_tags"))
-        simple_tags = parse_tag(form.get("simple_tags"))
-
-        sale = Sale(
-            name=form.get("name"),
-            fuel=form.get("fuel"),
-            type=form.get("type"),
-            trim=form.get("trim"),
-            year=to_int_or_none(form.get("year")),
-            mileage=form.get("mileage"),
-            color=form.get("color"),
-            price=to_int_or_none(form.get("price")),
-            car_number=form.get("car_number"),
-            vin=form.get("vin"),
-            accident_info=form.get("accident_info"),
-            combination_info=form.get("combination_info"),
-            transmission=form.get("transmission"),
-            manufacturer=manufacturer,
-            model=model,
-            sub_model=sub_model,
-            grade=grade,
-            thumbnail=None,  # 아래에서 처리
-            content=form.get("content"),
-            status=True,
-            images=[],  # 이미지 처리 로직 추가
-            simple_tags=simple_tags,
-            normal_tags=normal_tags,
-            simple_content=form.get("simple_content"),
-        )
-
-        # 파일 저장
-        if files.get("thumbnail"):
-            sale.thumbnail = save_uploaded_file(files["thumbnail"])
-
-        db.session.add(sale)
-        db.session.commit()
-
-        return jsonify({"message": "등록 성공", "sale": sale.to_dict()}), 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-
-
 def upload_dir_path():
     """업로드 폴더 생성/반환"""
     upload_dir = os.path.join(current_app.root_path, "static", "uploads")
@@ -165,67 +99,130 @@ def parse_bool(v):
     return None
 
 
-# 전체 데이터 조회
+# 계층형 normal_tags 생성 함수 (매물 등록 api)
+def create_normal_tags(manufacturer, model, sub_model, grade):
+    return {
+        "manufacturer": manufacturer,
+        "models": [
+            {"name": model, "subModels": [{"name": sub_model, "grades": [grade]}]}
+        ],
+    }
+
+
+# 매물 등록 api
+@sale_bp.route("/uploadSale", methods=["POST"])
+@jwt_required()
+def register_sale():
+    try:
+        form = request.form
+        files = request.files
+
+        # string -> dict
+        normal_tags = parse_tag(form.get("normal_tags"))
+        simple_tags = parse_tag(form.get("simple_tags"))
+
+        sale = Sale(
+            # 차량 정보
+            name=form.get("name"),
+            car_number=form.get("car_number"),
+            price=to_int_or_none(form.get("price")),
+            year=to_int_or_none(form.get("year")),
+            fuel=form.get("fuel"),
+            transmission=form.get("transmission"),
+            color=form.get("color"),
+            mileage=to_int_or_none(form.get("mileage")),
+            vin=form.get("vin"),
+            # 제시/성능 번호
+            suggest_number=form.get("suggest_number"),
+            performance_number=form.get("performance_number"),
+            # 필터 정보
+            manufacturer=form.get("manufacturer"),
+            model=form.get("model"),
+            sub_model=form.get("sub_model"),
+            grade=form.get("grade"),
+            normal_tags=normal_tags,
+            simple_tags=simple_tags,
+            # 기타 정보
+            thumbnail=None,  # 아래에서 처리
+            content=form.get("content"),
+            simple_content=form.get("simple_content"),
+            images=[],  # 기타 이미지들 처리 예정
+            status=True,
+        )
+
+        # 썸네일 저장
+        if files.get("thumbnail"):
+            sale.thumbnail = save_uploaded_file(files["thumbnail"])
+
+        # 기타 이미지 저장 (예: files.getlist("images"))
+        # 생략된 경우: 필요 시 반복 처리 가능
+
+        db.session.add(sale)
+        db.session.commit()
+
+        return jsonify({"message": "등록 성공", "sale": sale.to_dict()}), 201
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+# 전체 매물 조회
 @sale_bp.route("/list", methods=["GET"])
 def get_sales():
-    simple_type = request.args.get("simple_type")
-    simple_grade = request.args.get("simple_grade")
-
-    manufacturer = request.args.get("manufacturer")
-    model = request.args.get("model")
-    sub_model = request.args.get("sub_model")
-    grade = request.args.get("grade")
-    transmission = request.args.get("transmission")
-
-    min_price = request.args.get("min_price", type=int)
-    max_price = request.args.get("max_price", type=int)
-    min_year = request.args.get("min_year", type=int)
-    max_year = request.args.get("max_year", type=int)
-
+    args = request.args
     query = Sale.query
-    if manufacturer:
-        query = query.filter(Sale.manufacturer == manufacturer)
-    if model:
-        query = query.filter(Sale.model == model)
-    if sub_model:
-        query = query.filter(Sale.sub_model == sub_model)
-    if grade:
-        query = query.filter(Sale.grade == grade)
-    if transmission:
-        query = query.filter(Sale.transmission == transmission)
-    if min_price is not None:
-        query = query.filter(Sale.price >= min_price)
-    if max_price is not None:
-        query = query.filter(Sale.price <= max_price)
-    if min_year is not None:
-        query = query.filter(Sale.year >= min_year)
-    if max_year is not None:
-        query = query.filter(Sale.year <= max_year)
 
+    # 기본 필터
+    if args.get("manufacturer"):
+        query = query.filter(Sale.manufacturer == args["manufacturer"])
+    if args.get("model"):
+        query = query.filter(Sale.model == args["model"])
+    if args.get("sub_model"):
+        query = query.filter(Sale.sub_model == args["sub_model"])
+    if args.get("grade"):
+        query = query.filter(Sale.grade == args["grade"])
+    if args.get("transmission"):
+        query = query.filter(Sale.transmission == args["transmission"])
+
+    # 숫자 필터
+    if args.get("min_price", type=int) is not None:
+        query = query.filter(Sale.price >= args.get("min_price", type=int))
+    if args.get("max_price", type=int) is not None:
+        query = query.filter(Sale.price <= args.get("max_price", type=int))
+    if args.get("min_year", type=int) is not None:
+        query = query.filter(Sale.year >= args.get("min_year", type=int))
+    if args.get("max_year", type=int) is not None:
+        query = query.filter(Sale.year <= args.get("max_year", type=int))
+
+    # 전체 결과 조회
     sales = query.order_by(Sale.id.desc()).all()
-
     result = []
+
+    # simple filter 처리
+    simple_type = args.get("simple_type")
+    simple_grade = args.get("simple_grade")
+
     for sale in sales:
         if simple_type and simple_grade:
-            st = sale.simple_tags or None
+            st = sale.simple_tags or {}
             if isinstance(st, str):
                 try:
                     st = json.loads(st)
-                except json.JSONDecodeError:
-                    st = None
+                except Exception:
+                    st = {}
 
-            ok = False
+            match = False
             if isinstance(st, dict):
-                ok = st.get("type") == simple_type and st.get("grade") == simple_grade
-            elif isinstance(st, list):
-                ok = any(
-                    isinstance(tag, dict)
-                    and tag.get("type") == simple_type
-                    and tag.get("grade") == simple_grade
-                    for tag in st
+                match = (
+                    st.get("type") == simple_type and st.get("grade") == simple_grade
                 )
-
-            if not ok:
+            elif isinstance(st, list):
+                match = any(
+                    tag.get("type") == simple_type and tag.get("grade") == simple_grade
+                    for tag in st
+                    if isinstance(tag, dict)
+                )
+            if not match:
                 continue
 
         result.append(sale.to_dict())
@@ -233,6 +230,7 @@ def get_sales():
     return jsonify(result), 200
 
 
+# 특정 매물 조회
 @sale_bp.route("/<int:sale_id>", methods=["GET"])
 def get_sale_by_id(sale_id):
     sale = Sale.query.get(sale_id)
@@ -262,6 +260,7 @@ def apply_if_present(val, current):
     return val
 
 
+# 특정 매물 수정
 @sale_bp.route("/<int:sale_id>", methods=["PUT"])
 @jwt_required()
 def update_sale(sale_id):
@@ -294,6 +293,7 @@ def update_sale(sale_id):
     def get_val(key, default=""):
         return (form.get(key) if is_multipart else data.get(key)) or default
 
+    # 기본 정보 업데이트
     sale.name = get_val("name", sale.name)
     sale.fuel = get_val("fuel", sale.fuel)
     sale.type = get_val("type", sale.type)
@@ -305,6 +305,14 @@ def update_sale(sale_id):
     sale.content = get_val("content", sale.content)
     sale.transmission = get_val("transmission", sale.transmission)
 
+    # 추가된 필드 업데이트
+    sale.car_number = get_val("car_number", sale.car_number)
+    sale.vin = get_val("vin", sale.vin)
+    sale.suggest_number = get_val("suggest_number", sale.suggest_number)
+    sale.performance_number = get_val("performance_number", sale.performance_number)
+    sale.simple_content = get_val("simple_content", sale.simple_content)
+
+    # normal_tags 및 필터 정보
     raw_tags = form.get("tags") if is_multipart else data.get("tags")
     tags = parse_tag(raw_tags)
     if tags:
@@ -315,11 +323,13 @@ def update_sale(sale_id):
         sale.sub_model = flat["subModel"]
         sale.grade = flat["grade"]
 
+    # simple_tags
     raw_simple_tags = (
         form.get("simple_tags") if is_multipart else data.get("simple_tags")
     )
     sale.simple_tags = parse_simple_tags(raw_simple_tags)
 
+    # 썸네일 처리
     if thumb_state == "remove":
         delete_file_if_exists(sale.thumbnail)
         sale.thumbnail = None
@@ -334,6 +344,7 @@ def update_sale(sale_id):
         else:
             sale.thumbnail = tv
 
+    # 이미지 처리
     if is_multipart:
         existing_urls = form.getlist("originImages") or []
         incoming_files = files.getlist("images") or []
@@ -358,9 +369,16 @@ def update_sale(sale_id):
 @sale_bp.route("/<int:sale_id>", methods=["DELETE"])
 @jwt_required()
 def delete_sale(sale_id):
-    sale = Sale.query.get(sale_id)
-    if sale is None:
-        return jsonify({"error": "해당 매물을 찾을 수 없습니다."}), 404
+    sale = Sale.query.get_or_404(sale_id)
+
+    # 썸네일 삭제
+    delete_file_if_exists(sale.thumbnail)
+
+    # 기타 이미지 삭제
+    if isinstance(sale.images, list):
+        for image_url in sale.images:
+            delete_file_if_exists(image_url)
+
     db.session.delete(sale)
     db.session.commit()
     return jsonify({"message": "삭제 성공"}), 200
