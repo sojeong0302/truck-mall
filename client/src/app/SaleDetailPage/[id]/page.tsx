@@ -107,10 +107,11 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
             )}
             <div className="w-[95%] sm:w-[80%] flex flex-col sm:gap-15 gap-5">
                 <div className="w-full flex flex-col sm:flex-row justify-center gap-5 sm:gap-15">
+                    <div className="font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2">{post.name}</div>
                     {post.thumbnail ? (
                         <img
                             src={getImageUrl(post.thumbnail)}
-                            className="border-1 shadow-lg rounded-xl w-full sm:w-[70%] sm:h-[700px] h-[300px]"
+                            className="border-1 shadow-lg rounded-xl w-full sm:w-[60%] sm:h-[700px] h-[200px]"
                             alt="썸네일"
                         />
                     ) : (
@@ -118,43 +119,38 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                             이미지 준비중
                         </div>
                     )}
-                    <div className="flex flex-col justify-around">
-                        <div className="font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2">
-                            {post.name}
-                        </div>
 
-                        <div className="flex flex-col text-xl sm:text-2xl p-2 sm:gap-5 gap-3">
-                            {[
-                                { label: "연식", value: post.year },
-                                { label: "연료", value: post.fuel },
-                                { label: "변속기", value: post.transmission },
-                                { label: "색상", value: post.color },
-                                { label: "주행거리", value: post.mileage },
-                                { label: "차대번호", value: post.vin },
-                                { label: "제시번호", value: post.performance_number },
-                                { label: "성능번호", value: post.suggest_number },
-                                { label: "차량번호", value: post.car_number },
-                                { label: "가격", value: `${post.price}만원`, color: "text-[#C62828]" },
-                                { label: "사고정보", value: "성능점검 참조" },
-                                { label: "조합번호", value: "경기도자동차매매사업조합\n031-242-8940" },
-                            ].map((item, idx) => (
-                                <div className="flex gap-3" key={idx}>
-                                    <div className="font-bold">{item.label}:</div>
-                                    {item.label === "조합번호" && typeof item.value === "string" ? (
-                                        <div className={item.color || ""}>
-                                            {item.value.split("\n").map((line: string, i: number) => (
-                                                <React.Fragment key={i}>
-                                                    {line}
-                                                    <br />
-                                                </React.Fragment>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className={item.color || ""}>{item.value}</div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
+                    <div className="flex flex-col text-xl sm:text-2xl p-2 sm:gap-5 gap-3">
+                        {[
+                            { label: "연식", value: post.year },
+                            { label: "연료", value: post.fuel },
+                            { label: "변속기", value: post.transmission },
+                            { label: "색상", value: post.color },
+                            { label: "주행거리", value: post.mileage },
+                            { label: "차대번호", value: post.vin },
+                            { label: "제시번호", value: post.performance_number },
+                            { label: "성능번호", value: post.suggest_number },
+                            { label: "차량번호", value: post.car_number },
+                            { label: "가격", value: `${post.price}만원`, color: "text-[#C62828]" },
+                            { label: "사고정보", value: "성능점검 참조" },
+                            { label: "조합번호", value: "경기도자동차매매사업조합\n031-242-8940" },
+                        ].map((item, idx) => (
+                            <div className="flex gap-3" key={idx}>
+                                <div className="font-bold">{item.label}:</div>
+                                {item.label === "조합번호" && typeof item.value === "string" ? (
+                                    <div className={item.color || ""}>
+                                        {item.value.split("\n").map((line: string, i: number) => (
+                                            <React.Fragment key={i}>
+                                                {line}
+                                                <br />
+                                            </React.Fragment>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className={item.color || ""}>{item.value}</div>
+                                )}
+                            </div>
+                        ))}
                     </div>
                 </div>
                 {post.images && post.images.length > 0 && (
