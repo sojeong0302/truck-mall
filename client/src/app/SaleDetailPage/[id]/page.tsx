@@ -24,7 +24,12 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
         fetchById(BASE_URL, id);
         return () => clear(); // 언마운트 시 상태 초기화
     }, [id]);
-
+    useEffect(() => {
+        if (post) {
+            console.log("✅ post 객체:", post);
+            console.log("✅ post.images:", post.images);
+        }
+    }, [post]);
     //수정 페이지 이동 URL
     const handleGoCrystal = () => router.push(`/SaleCrystalPage/${id}`);
 
