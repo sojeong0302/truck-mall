@@ -93,7 +93,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
     if (!post) return <div className="p-10 text-red-500">해당 게시물을 찾을 수 없습니다.</div>;
 
     return (
-        <div className="w-full flex justify-center flex-col items-center p-5 sm:p-15">
+        <div className="w-full h-full flex justify-center flex-col items-center p-5 sm:p-15">
             {isLoggedIn && (
                 <div className="flex w-[100%] sm:w-[80%] justify-end gap-2 p-4 text-sm">
                     <div onClick={handleGoCrystal} className="cursor-pointer">
@@ -105,9 +105,11 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                     </div>
                 </div>
             )}
-            <div className="w-[95%] sm:w-[80%] flex flex-col sm:gap-15 gap-5">
-                <div className="font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2">{post.name}</div>
-                <div className="w-full flex flex-col sm:flex-row justify-center gap-5 sm:gap-15">
+            <div className="w-[95%] h-full sm:w-[80%] flex flex-col sm:gap-15 gap-5">
+                <div className="w-full h-full font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2">
+                    {post.name}
+                </div>
+                <div className="w-full h-full flex flex-col sm:flex-row justify-center gap-5 sm:gap-15">
                     {post.thumbnail ? (
                         <img
                             src={getImageUrl(post.thumbnail)}
@@ -115,7 +117,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                             alt="썸네일"
                         />
                     ) : (
-                        <div className="flex w-full sm:w-[50%] sm:h-[500px] border-1 shadow-lg  rounded-xl h-[300px] items-center justify-center text-sm text-center text-gray-500">
+                        <div className="border-1 shadow-lg rounded-xl w-full sm:w-[50%] sm:h-[500px]  h-[300px] flex  items-center justify-center text-sm text-center text-gray-500">
                             이미지 준비중
                         </div>
                     )}
