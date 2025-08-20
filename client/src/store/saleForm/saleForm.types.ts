@@ -3,12 +3,12 @@ import type { SimpleTag } from "@/store/simpleTag/simpleTag.types";
 export interface SaleFormState {
     name: string;
     car_number: string;
-    price: number;
-    year: number;
+    price: string;
+    year: string;
     fuel: string;
     transmission: string;
     color: string;
-    mileage: number;
+    mileage: string;
     vin: string;
     performance_number: string;
     suggest_number: string;

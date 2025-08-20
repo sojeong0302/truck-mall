@@ -108,10 +108,10 @@ export default function WritingUpload() {
 
         formData.append("name", name);
         formData.append("fuel", fuel);
-        formData.append("year", year.toString());
-        formData.append("mileage", mileage.toString());
+        formData.append("year", year);
+        formData.append("mileage", mileage);
         formData.append("color", color);
-        formData.append("price", price.toString());
+        formData.append("price", price);
         formData.append("simple_content", simple_content);
         formData.append("vin", vin);
         formData.append("performance_number", performance_number);
@@ -276,7 +276,9 @@ export default function WritingUpload() {
                                             value={field.value}
                                             onChange={(e) => field.setter(e.target.value)}
                                         >
-                                            <option value="">선택해 주세요</option>
+                                            <option value="" disabled hidden className="text-gray-400">
+                                                선택해 주세요
+                                            </option>
                                             {field.options?.map((option) => (
                                                 <option key={option} value={option}>
                                                     {option}

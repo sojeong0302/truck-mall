@@ -110,8 +110,8 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                 setField("performance_number", performance_number);
                 setField("suggest_number", suggest_number);
                 setField("car_number", car_number);
-                setField("content", data.content ?? "");
-                setField("transmission", data.transmission ?? "");
+                setField("content", data.content);
+                setField("transmission", data.transmission);
 
                 if (data.simple_tags?.type && data.simple_tags?.grade) {
                     setSimpleTag(data.simple_tags.type, data.simple_tags.grade, true);
@@ -222,10 +222,10 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         formData.append("name", name);
         formData.append("fuel", fuel);
 
-        formData.append("year", year.toString());
-        formData.append("mileage", mileage.toString());
+        formData.append("year", year);
+        formData.append("mileage", mileage);
         formData.append("color", color);
-        formData.append("price", price.toString());
+        formData.append("price", price);
         formData.append("simple_content", simple_content);
         formData.append("vin", vin);
         formData.append("performance_number", performance_number);
