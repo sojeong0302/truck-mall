@@ -276,7 +276,7 @@ export default function WritingUpload() {
                                             value={field.value}
                                             onChange={(e) => field.setter(e.target.value)}
                                         >
-                                            <option value="" disabled hidden className="text-gray-400">
+                                            <option value="" disabled hidden className="text-gray-200">
                                                 선택해 주세요
                                             </option>
                                             {field.options?.map((option) => (
