@@ -154,8 +154,16 @@ def register_sale():
         if files.get("thumbnail"):
             sale.thumbnail = save_uploaded_file(files["thumbnail"])
 
-        # 기타 이미지 저장 (예: files.getlist("images"))
-        # 생략된 경우: 필요 시 반복 처리 가능
+        # 기타 이미지 저장 (이 코드 추가!)
+        image_files = files.getlist("images")
+        image_paths = []
+
+        for image in image_files:
+            if image and getattr(image, "filename", ""):
+                path = save_uploaded_file(image)
+                image_paths.append(path)
+
+        sale.images = image_paths
 
         db.session.add(sale)
         db.session.commit()
