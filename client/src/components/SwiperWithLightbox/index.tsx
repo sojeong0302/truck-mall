@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
@@ -9,6 +10,18 @@ import { getImageUrl } from "@/utils/getImageUrl";
 
 export default function SwiperWithLightbox({ images }: { images: string[] }) {
     const { open, selectedIndex, setOpen, setSelectedIndex } = useLightboxStore();
+    useEffect(() => {
+        if (open) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "auto";
+        }
+
+        // 컴포넌트 언마운트 될 때도 원복
+        return () => {
+            document.body.style.overflow = "auto";
+        };
+    }, [open]);
 
     return (
         <div className="relative w-full px-20">
