@@ -272,8 +272,8 @@ export default function WritingUpload() {
                                     <div className="font-bold">{field.label}</div>
                                     {field.customType === "select" ? (
                                         <select
-                                            className={`flex-1 shadow-md text-2xl border-2 border-[#2E7D32] rounded-xl p-3
-    ${!field.value ? "text-gray-400" : "text-black"}`}
+                                            className={`flex-1 shadow-md text-2xl border-2 border-[#2E7D32] rounded-xl p-3.5
+    ${!field.value ? "text-gray-500" : "text-black"}`}
                                             value={field.value}
                                             onChange={(e) => field.setter(e.target.value)}
                                         >
