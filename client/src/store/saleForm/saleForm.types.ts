@@ -27,9 +27,24 @@ export interface SaleFormState {
     status: boolean;
     simple_tags: SimpleTag | null;
 
+    normal_tags: {
+        manufacturer: string;
+        models: {
+            name: string;
+            subModels: {
+                name: string;
+                grades: string[];
+            }[];
+        }[];
+    } | null;
+
     // Zustand 메서드
     setField: (key: keyof SaleFormState, value: any) => void;
     setThumbnail: (url: string) => void;
     setThumbnailFile: (file: File | null) => void;
     clearForm: () => void;
+    setManufacturer: (manufacturer: string) => void;
+    setModel: (model: string) => void;
+    setSubModel: (subModel: string) => void;
+    setGrade: (grades: string[]) => void;
 }

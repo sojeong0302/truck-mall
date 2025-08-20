@@ -21,7 +21,7 @@ export const useSaleFormStore = create<SaleFormState>((set) => ({
     accident_info: "",
     combination_info: "",
     transmission: "",
-
+    normal_tags: null,
     // 기타
     content: "",
     simple_content: "",
@@ -54,5 +54,63 @@ export const useSaleFormStore = create<SaleFormState>((set) => ({
             simple_content: "",
             status: true,
             simple_tags: null,
+            normal_tags: null,
         }),
+    setManufacturer: (manufacturer) =>
+        set((state) => ({
+            normal_tags: {
+                ...state.normal_tags,
+                manufacturer,
+                models: state.normal_tags?.models || [],
+            },
+        })),
+    setModel: (model) =>
+        set((state) => ({
+            normal_tags: {
+                ...state.normal_tags,
+                manufacturer: state.normal_tags?.manufacturer || "",
+                models: [
+                    {
+                        name: model,
+                        subModels: state.normal_tags?.models?.[0]?.subModels || [],
+                    },
+                ],
+            },
+        })),
+    setSubModel: (subModel) =>
+        set((state) => ({
+            normal_tags: {
+                ...state.normal_tags,
+                manufacturer: state.normal_tags?.manufacturer || "",
+                models: [
+                    {
+                        name: state.normal_tags?.models?.[0]?.name || "",
+                        subModels: [
+                            {
+                                name: subModel,
+                                grades: state.normal_tags?.models?.[0]?.subModels?.[0]?.grades || [],
+                            },
+                        ],
+                    },
+                ],
+            },
+        })),
+    setGrade: (grades) =>
+        set((state) => ({
+            normal_tags: {
+                ...state.normal_tags,
+                manufacturer: state.normal_tags?.manufacturer || "",
+                models: [
+                    {
+                        name: state.normal_tags?.models?.[0]?.name || "",
+                        subModels: [
+                            {
+                                name: state.normal_tags?.models?.[0]?.subModels?.[0]?.name || "",
+                                grades,
+                            },
+                        ],
+                    },
+                ],
+            },
+        })),
 }));
