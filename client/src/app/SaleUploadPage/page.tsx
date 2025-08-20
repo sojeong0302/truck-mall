@@ -272,11 +272,12 @@ export default function WritingUpload() {
                                     <div className="font-bold">{field.label}</div>
                                     {field.customType === "select" ? (
                                         <select
-                                            className="flex-1 shadow-md text-2xl border-2 border-[#2E7D32] rounded-xl p-3"
+                                            className={`flex-1 shadow-md text-2xl border-2 border-[#2E7D32] rounded-xl p-3
+    ${!field.value ? "text-gray-400" : "text-black"}`}
                                             value={field.value}
                                             onChange={(e) => field.setter(e.target.value)}
                                         >
-                                            <option value="" disabled hidden className="text-gray-200">
+                                            <option value="" disabled hidden>
                                                 선택해 주세요
                                             </option>
                                             {field.options?.map((option) => (
