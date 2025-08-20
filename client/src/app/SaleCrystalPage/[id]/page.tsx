@@ -271,33 +271,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                         ))}
                     </div>
                 )}
-                <div className="flex flex-col sm:flex-row w-full gap-0 sm:gap-10">
-                    <div className="flex items-center gap-3">
-                        <div className="text-sm sm:text-lg text-[#2E7D32]">▶</div>
-                        <div className="text-lg sm:text-2xl font-medium">변속기</div>
-                    </div>
-                    <div className="relative w-48">
-                        <button
-                            className="transition transform duration-200 active:scale-95 cursor-pointer w-full text-left border border-[#2E7D32] rounded-md px-3 py-2 text-xl"
-                            onClick={() => setIsOpen((prev) => !prev)}
-                        >
-                            {transmission || "전체"}
-                        </button>
-                        {isOpen && (
-                            <ul className="absolute z-10 bg-white border border-[#2E7D32] rounded-md w-full mt-1">
-                                {["전체", "오토", "수동", "세미오토", "무단변속기"].map((item) => (
-                                    <li
-                                        key={item}
-                                        className="px-3 py-2 hover:bg-[#2E7D32]/10 cursor-pointer"
-                                        onClick={() => handleSelect(item)}
-                                    >
-                                        {item}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </div>
-                </div>
+
                 <div className="w-full flex flex-col sm:flex-col justify-center gap-15 ">
                     <div
                         className="mx-auto flex justify-center items-center cursor-pointer shadow-lg rounded-xl w-[70%] sm:w-[50%] aspect-square sm:min-w-[150px] bg-[rgba(179,179,179,0.25)] overflow-hidden"
@@ -331,22 +305,41 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                         />
                         <div className="flex flex-col text-xl sm:text-2xl p-2 gap-10">
                             {[
-                                { label: "연료", value: fuel, setter: (v: string) => setField("fuel", v) },
-                                { label: "차체 타입", value: type, setter: (v: string) => setField("type", v) },
-                                { label: "트림", value: trim, setter: (v: string) => setField("trim", v) },
                                 {
                                     label: "연식",
                                     value: year,
                                     setter: (v: string) => setField("year", v),
                                     type: "number",
                                 },
-                                { label: "주행거리", value: mileage, setter: (v: string) => setField("mileage", v) },
+                                { label: "연료", value: fuel, setter: (v: string) => setField("fuel", v) },
                                 { label: "색상", value: color, setter: (v: string) => setField("color", v) },
+                                { label: "주행거리", value: mileage, setter: (v: string) => setField("mileage", v) },
+                                { label: "차대 번호", value: vin, setter: (v: string) => setField("vin", v) },
+                                {
+                                    label: "사고 정보",
+                                    value: accident_info,
+                                    setter: (v: string) => setField("accident_info", v),
+                                },
                                 {
                                     label: "가격",
                                     value: price,
                                     setter: (v: string) => setField("price", v),
                                     type: "number",
+                                },
+                                {
+                                    label: "간단 내용",
+                                    value: simple_content,
+                                    setter: (v: string) => setField("simple_content", v),
+                                },
+                                {
+                                    label: "차량 번호",
+                                    value: car_number,
+                                    setter: (v: string) => setField("car_number", v),
+                                },
+                                {
+                                    label: "조합 정보",
+                                    value: combination_info,
+                                    setter: (v: string) => setField("combination_info", v),
                                 },
                             ].map((field, idx) => (
                                 <div className="flex gap-1 sm:gap-3 sm:items-center flex-col sm:flex-row" key={idx}>
@@ -360,6 +353,33 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                                     />
                                 </div>
                             ))}
+                        </div>
+                    </div>
+                    <div className="flex flex-col sm:flex-row w-full gap-0 sm:gap-10">
+                        <div className="flex items-center gap-3">
+                            <div className="text-sm sm:text-lg text-[#2E7D32]">▶</div>
+                            <div className="text-lg sm:text-2xl font-medium">변속기</div>
+                        </div>
+                        <div className="relative w-48">
+                            <button
+                                className="transition transform duration-200 active:scale-95 cursor-pointer w-full text-left border border-[#2E7D32] rounded-md px-3 py-2 text-xl"
+                                onClick={() => setIsOpen((prev) => !prev)}
+                            >
+                                {transmission || "전체"}
+                            </button>
+                            {isOpen && (
+                                <ul className="absolute z-10 bg-white border border-[#2E7D32] rounded-md w-full mt-1">
+                                    {["전체", "오토", "수동", "세미오토", "무단변속기"].map((item) => (
+                                        <li
+                                            key={item}
+                                            className="px-3 py-2 hover:bg-[#2E7D32]/10 cursor-pointer"
+                                            onClick={() => handleSelect(item)}
+                                        >
+                                            {item}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
                         </div>
                     </div>
                 </div>
