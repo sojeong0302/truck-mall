@@ -153,7 +153,7 @@ export default function Sale({ transmission, priceRange, yearRange }: SaleCompon
                             </div>
                             <div className="fade-truncate sm:w-[50%] hidden sm:block flex flex-col">
                                 <div className="text-3xl font-bold">{post.name}</div>
-                                <div className="flex gap-5 text-2xl font-semibold">
+                                <div className="my-5 flex gap-5 text-2xl font-semibold">
                                     <div>{post.year}</div>
                                     <div>{post.mileage}</div>
                                     <div>{post.fuel}</div>
@@ -165,7 +165,7 @@ export default function Sale({ transmission, priceRange, yearRange }: SaleCompon
                                 <div className="fade-truncate sm:hidden">{post.name}</div>
                                 <div className="fade-truncate sm:hidden">연식: {post.year}</div>
                                 <div className="fade-truncate sm:hidden">주행: {post.mileage}</div>
-                                <div>{post.price?.toLocaleString()}만원</div>
+                                <div>{post.price?.toLocaleString()} 만원</div>
                             </div>
                             <div className="sm:w-[10%]">
                                 <div
