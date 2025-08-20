@@ -1,5 +1,5 @@
 "use client";
-
+import React from "react";
 import { use, useEffect } from "react";
 import SwiperWithLightbox from "@/components/SwiperWithLightbox";
 import ShortButton from "@/components/ShortButton";
@@ -129,18 +129,29 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                                 { label: "연료", value: post.fuel },
                                 { label: "변속기", value: post.transmission },
                                 { label: "색상", value: post.color },
-                                { label: "주행 거리", value: post.mileage },
-                                { label: "차대 번호", value: post.vin },
-                                { label: "제시 번호", value: post.performance_number },
-                                { label: "성능 번호", value: post.suggest_number },
-                                { label: "차량 번호", value: post.car_number },
+                                { label: "주행거리", value: post.mileage },
+                                { label: "차대번호", value: post.vin },
+                                { label: "제시번호", value: post.performance_number },
+                                { label: "성능번호", value: post.suggest_number },
+                                { label: "차량번호", value: post.car_number },
                                 { label: "가격", value: `${post.price}만원`, color: "text-[#C62828]" },
-                                { label: "차량 번호", value: "성능점검 참조" },
-                                { label: "조합 번호", value: "경기도자동차매매사업조합\n031-242-8940" },
+                                { label: "사고정보", value: "성능점검 참조" },
+                                { label: "조합번호", value: "경기도자동차매매사업조합\n031-242-8940" },
                             ].map((item, idx) => (
                                 <div className="flex gap-3" key={idx}>
                                     <div className="font-bold">{item.label}:</div>
-                                    <div className={item.color || ""}>{item.value}</div>
+                                    {item.label === "조합번호" && typeof item.value === "string" ? (
+                                        <div className={item.color || ""}>
+                                            {item.value.split("\n").map((line: string, i: number) => (
+                                                <React.Fragment key={i}>
+                                                    {line}
+                                                    <br />
+                                                </React.Fragment>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className={item.color || ""}>{item.value}</div>
+                                    )}
                                 </div>
                             ))}
                         </div>
