@@ -326,11 +326,12 @@ def update_sale(sale_id):
         sale.simple_content = get_val("simple_content", sale.simple_content)
 
         # tags / normal_tags
-        raw_tags = form.get("tags") if is_multipart else data.get("tags")
-        tags = parse_tag(raw_tags)
-        if tags:
-            sale.tags = tags
-            flat = flatten_tags(tags)
+        # normal_tags 및 필터 정보
+        raw_tags = form.get("normal_tags") if is_multipart else data.get("normal_tags")
+        normal_tags = parse_tag(raw_tags)
+        if normal_tags:
+            sale.normal_tags = normal_tags
+            flat = flatten_tags(normal_tags)
             sale.manufacturer = flat["manufacturer"]
             sale.model = flat["model"]
             sale.sub_model = flat["subModel"]
