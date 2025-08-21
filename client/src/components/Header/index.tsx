@@ -39,16 +39,16 @@ export default function Header() {
                     <img
                         src="/images/logo.png"
                         alt="로고"
-                        className="w-[50px] sm:w-[130px] h-auto rounded-full border-[5px] border-[#2E7D32] shadow-md"
+                        className="w-[50px] sm:w-[120px] h-auto rounded-full border-[5px] border-[#2E7D32] shadow-md"
                     />
 
                     {/* 로고 텍스트 */}
                     <div className="flex flex-col gap-2">
                         <div className="text-base sm:text-3xl font-bold">화물차 / 특장차 매매 전문 새마을 트럭</div>
-                        <div className="hidden sm:block text-2xl font-semibold">
+                        <div className="hidden sm:block text-xl font-semibold">
                             10년간에 독일 프리미엄 브랜드 재직경험을 바탕으로 진정성 넘치는 판매를 추구 합니다.
                         </div>
-                        <div className="hidden sm:block text-2xl font-semibold">010-8191-8244</div>
+                        <div className="hidden sm:block text-xl font-semibold">010-8191-8244</div>
                     </div>
                 </div>
             </div>
