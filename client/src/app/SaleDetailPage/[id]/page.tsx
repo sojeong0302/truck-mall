@@ -166,9 +166,8 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                                         type="button"
                                         onClick={copySuggestNumber}
                                         className="ml-2 px-3 py-1 text-sm rounded-md border-[1.5px] border-[#2E7D32] text-[#2E7D32] hover:bg-[#2E7D32] hover:text-white transition"
-                                        aria-label="성능점검보기(클릭)"
                                     >
-                                        복사
+                                        성능점검보기(클릭)
                                     </button>
                                 )}
                             </div>
