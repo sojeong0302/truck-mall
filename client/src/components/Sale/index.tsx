@@ -136,8 +136,7 @@ export default function Sale({ transmission, priceRange, yearRange }: SaleCompon
         };
 
         fetchFiltered();
-        // ⬇ 의존성은 오직 trigger 하나
-    }, [trigger]);
+    }, [trigger, simpleTag]);
 
     // 페이지네이션
     const pagedData = useMemo(() => {
