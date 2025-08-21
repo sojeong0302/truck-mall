@@ -95,6 +95,10 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
         );
     }
 
+    const copySuggestNumber = async () => {
+        console.log("성능점검보기 클릭");
+    };
+
     if (!post) return <div className="p-10 text-red-500">해당 게시물을 찾을 수 없습니다.</div>;
 
     return (
@@ -155,6 +159,17 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                                     </div>
                                 ) : (
                                     <div className={item.color || ""}>{item.value}</div>
+                                )}
+                                {/* ✅ 성능번호 줄에만 버튼 1개 추가 */}
+                                {item.label === "성능번호" && (
+                                    <button
+                                        type="button"
+                                        onClick={copySuggestNumber}
+                                        className="ml-2 px-3 py-1 text-sm rounded-md border-[1.5px] border-[#2E7D32] text-[#2E7D32] hover:bg-[#2E7D32] hover:text-white transition"
+                                        aria-label="성능점검보기(클릭)"
+                                    >
+                                        복사
+                                    </button>
                                 )}
                             </div>
                         ))}
