@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { use, useEffect } from "react";
+import { use, useEffect, useState } from "react";
 import SwiperWithLightbox from "@/components/SwiperWithLightbox";
 import ShortButton from "@/components/ShortButton";
 import { useRouter } from "next/navigation";
@@ -10,8 +10,15 @@ import { useModalStore } from "@/store/ModalStateStroe";
 import { useSaleDetailStore } from "./saleDetailStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { api, authApi } from "@/lib/api";
+import Script from "next/script";
 
-export default function ReviewPage({ params }: { params: Promise<{ id: string }> }) {
+declare global {
+    interface Window {
+        Kakao: any;
+    }
+}
+
+export default function SaleDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
     const { id } = use(params);
     const router = useRouter();
@@ -19,11 +26,18 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
     const { isModalOpen, setIsModalOpen, isSaleCompleteModalOpen, setIsSaleCompleteModalOpen } = useModalStore();
     const token = useAuthStore((s) => s.token);
     const { post, loading, error, fetchById, clear } = useSaleDetailStore();
-
+    const [shareOpen, setShareOpen] = useState(false);
     useEffect(() => {
         fetchById(BASE_URL, id);
         return () => clear(); // 언마운트 시 상태 초기화
     }, [id]);
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        const key = process.env.NEXT_PUBLIC_KAKAO_JS_KEY;
+        if (key && window.Kakao && !window.Kakao.isInitialized()) {
+            window.Kakao.init(key);
+        }
+    }, []);
     useEffect(() => {
         if (post) {
             console.log("✅ post 객체:", post);
@@ -32,6 +46,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
     }, [post]);
     //수정 페이지 이동 URL
     const handleGoCrystal = () => router.push(`/SaleCrystalPage/${id}`);
+    const openShareSheet = () => setShareOpen(true);
 
     //삭제 API 연동
     const handleDelete = async () => {
@@ -98,7 +113,6 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
     const copySuggestNumber = async () => {
         console.log("성능점검보기 클릭");
     };
-
     const handleShareSMS = async () => {
         const pageUrl = typeof window !== "undefined" ? window.location.href : "";
         const title = post?.name ? `[매물] ${post.name}` : "새마일 트럭 매물";
@@ -107,23 +121,43 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
 
         const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
         const isIOS = /iPad|iPhone|iPod/.test(ua);
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(ua);
 
-        // 모바일 문자 앱 열기 (iOS는 &body, 안드로이드는 ?body)
-        const smsUrl = isIOS ? `sms:&body=${body}` : `sms:?body=${body}`;
-
-        try {
-            // 데스크톱에서는 sms: 스킴이 동작 안할 수 있으니 폴백
-            if (/Android|iPhone|iPad|iPod/i.test(ua)) {
-                window.location.href = smsUrl;
-            } else {
-                await navigator.clipboard.writeText(pageUrl);
-                alert("링크를 복사했습니다. 모바일에서 문자를 이용해 보내주세요.");
-            }
-        } catch {
-            // 마지막 폴백
+        if (isMobile) {
+            const smsUrl = isIOS ? `sms:&body=${body}` : `sms:?body=${body}`;
+            window.location.href = smsUrl;
+            setShareOpen(false);
+        } else {
             await navigator.clipboard.writeText(pageUrl);
-            alert("링크를 복사했습니다.");
+            alert("링크를 복사했습니다. 모바일에서 문자로 보내주세요.");
         }
+    }; // 카카오톡으로 공유
+    const handleShareKakao = () => {
+        const pageUrl = typeof window !== "undefined" ? window.location.href : "";
+        const title = post?.name || "새마일 트럭";
+        const text = "관심 있으면 확인해보세요!";
+        const image = `${BASE_URL}/og.png`; // 썸네일 없으면 대체 이미지
+
+        if (!window.Kakao || !window.Kakao.isInitialized()) {
+            alert("카카오 공유를 사용할 수 없습니다. (도메인/JS키 확인)");
+            return;
+        }
+        window.Kakao.Share.sendDefault({
+            objectType: "feed",
+            content: {
+                title,
+                description: text,
+                imageUrl: image,
+                link: { webUrl: pageUrl, mobileWebUrl: pageUrl },
+            },
+            buttons: [
+                {
+                    title: "자세히 보기",
+                    link: { webUrl: pageUrl, mobileWebUrl: pageUrl },
+                },
+            ],
+        });
+        setShareOpen(false);
     };
 
     if (!post) return <div className="p-10 text-red-500">해당 게시물을 찾을 수 없습니다.</div>;
@@ -146,7 +180,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                     <div className="w-full h-full font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2">
                         {post.name}
                     </div>
-                    <div className="cursor-pointer p-3 flex items-center" onClick={handleShareSMS}>
+                    <div className="cursor-pointer p-3 flex items-center" onClick={openShareSheet}>
                         <img
                             src="/images/sharing.png"
                             alt="공유하기"
@@ -236,6 +270,53 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
             )}
             {isModalOpen && (
                 <Modal onConfirm={handleDelete} text={"삭제된 내용은 복구할 수 없습니다.\n정말 삭제하시겠습니까?"} />
+            )}
+            {/* 공유 시트 모달 */}
+            {shareOpen && (
+                <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" onClick={() => setShareOpen(false)}>
+                    {/* 배경 */}
+                    <div className="absolute inset-0 bg-black/40" />
+
+                    {/* 바텀시트 */}
+                    <div
+                        className="absolute left-0 right-0 bottom-0 bg-white rounded-t-2xl p-4 shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-gray-300" />
+                        <div className="text-center text-lg font-bold mb-2">공유하기</div>
+
+                        <div className="grid grid-cols-2 gap-4 py-3">
+                            {/* 문자 */}
+                            <button onClick={handleShareSMS} className="flex flex-col items-center gap-2 group">
+                                <div className="h-14 w-14 rounded-2xl ring-1 ring-gray-200 shadow-md flex items-center justify-center group-hover:scale-105 transition bg-white">
+                                    {/* 말풍선 아이콘 (SVG) */}
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-7 w-7">
+                                        <path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z" />
+                                    </svg>
+                                </div>
+                                <span className="text-sm">문자</span>
+                            </button>
+
+                            {/* 카카오톡 */}
+                            <button onClick={handleShareKakao} className="flex flex-col items-center gap-2 group">
+                                <div
+                                    className="h-14 w-14 rounded-2xl shadow-md flex items-center justify-center group-hover:scale-105 transition"
+                                    style={{ backgroundColor: "#FEE500" }}
+                                >
+                                    <span className="text-black font-extrabold text-lg">톡</span>
+                                </div>
+                                <span className="text-sm">카카오톡</span>
+                            </button>
+                        </div>
+
+                        <button
+                            className="mt-2 w-full rounded-xl border p-3 text-gray-700 hover:bg-gray-50"
+                            onClick={() => setShareOpen(false)}
+                        >
+                            닫기
+                        </button>
+                    </div>
+                </div>
             )}
         </div>
     );
