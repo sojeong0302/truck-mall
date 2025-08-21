@@ -119,10 +119,8 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                     <div className="w-full h-full font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2">
                         {post.name}
                     </div>
-                    <div className="inline-flex items-center justify-center rounded-full bg-gradient-to-br from-[#2E7D32] to-[#76D275] p-[2px] shadow-[0_8px_20px_rgba(46,125,50,0.35)] hover:shadow-[0_12px_28px_rgba(46,125,50,0.45)] transition transform hover:-translate-y-0.5">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white">
-                            <img src="/images/sharing.png" alt="공유하기" className="h-5 w-5 opacity-90" />
-                        </div>
+                    <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-white ring-2 ring-[#2E7D32]/70 shadow-[0_8px_18px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.16)] transition transform hover:-translate-y-0.5">
+                        <img src="/images/sharing.png" alt="공유하기" className="h-5 w-5 opacity-90" />
                     </div>
                 </div>
                 <div className="w-full h-full flex flex-col sm:flex-row justify-center gap-5 sm:gap-10">
