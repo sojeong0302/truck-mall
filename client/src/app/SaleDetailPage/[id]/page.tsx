@@ -180,7 +180,7 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
                     <div className="w-full h-full font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2">
                         {post.name}
                     </div>
-                    <div className="cursor-pointer p-3 flex items-center" onClick={openShareSheet}>
+                    <div className="cursor-pointer flex items-center" onClick={openShareSheet}>
                         <img
                             src="/images/sharing.png"
                             alt="공유하기"
