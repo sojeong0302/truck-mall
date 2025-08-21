@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import SimpleFilter from "@/components/SimpleFilter";
 import Filter from "@/components/Filter";
 import { useImageStore } from "@/store/imageStore";
-import { useSimpleTagStore } from "@/store/simpleTagStore";
+import { useSimpleTagStore } from "@/store/simpleTag/simpleTag.hooks";
 import { useSaleFormStore } from "@/store/saleForm/saleForm.hooks";
 import { useAuthStore } from "@/store/useAuthStore";
 import { api, authApi } from "@/lib/api";
