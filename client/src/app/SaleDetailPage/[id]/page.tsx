@@ -115,7 +115,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                 </div>
             )}
             <div className="w-[95%] h-full sm:w-[80%] flex flex-col sm:gap-15 gap-5">
-                <div className="flex">
+                <div className="flex gap-5">
                     <div className="w-full h-full font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2">
                         {post.name}
                     </div>
