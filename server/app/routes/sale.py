@@ -354,7 +354,7 @@ def update_sale(sale_id):
 
     # 이미지 처리
     if is_multipart:
-        existing_urls = form.getlist("originImages") or []
+        existing_urls = form.getlist("originImages") or form.getlist("originURLs") or []
         incoming_files = files.getlist("images") or []
         valid_files = [f for f in incoming_files if getattr(f, "filename", None)]
         new_urls = [save_uploaded_file(f) for f in valid_files]
