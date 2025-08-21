@@ -7,10 +7,6 @@ export default function Header() {
     const { isLoggedIn, toggleAuth, isHydrated } = useAuthToggle();
     const router = useRouter();
 
-    // if (!isHydrated) {
-    //     return null;
-    // }
-
     return (
         <>
             {/* 로그인 상태 바 */}
@@ -43,7 +39,7 @@ export default function Header() {
                     <img
                         src="/images/logo.png"
                         alt="로고"
-                        className="w-[50px] sm:w-[120px] h-auto rounded-full border border-black shadow-md"
+                        className="w-[50px] sm:w-[120px] h-auto rounded-full border-[3px] border-[#2E7D32] shadow-md"
                     />
 
                     {/* 로고 텍스트 */}
