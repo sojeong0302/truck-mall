@@ -309,8 +309,6 @@ def update_sale(sale_id):
         # 기본 정보
         sale.name = get_val("name", sale.name)
         sale.fuel = get_val("fuel", sale.fuel)
-        sale.type = get_val("type", sale.type)
-        sale.trim = get_val("trim", sale.trim)
         sale.year = to_int_or_none(get_val("year", sale.year))
         sale.mileage = to_int_or_none(get_val("mileage", sale.mileage))
         sale.color = get_val("color", sale.color)
