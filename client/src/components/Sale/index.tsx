@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useAuthToggle } from "../Header/Header.hooks";
 import { useEffect, useMemo } from "react";
 import { useFilterTagStore } from "@/components/Filter/Filter.hooks";
-import { useSimpleTagStore } from "@/store/simpleTagStore";
+import { useSimpleTagStore } from "@/store/simpleTag/simpleTag.hooks";
 import { useSearchTriggerStore } from "@/store/searchTriggerStore";
 import { useSaleStore } from "@/store/saleStore";
 import { getImageUrl } from "@/utils/getImageUrl";
