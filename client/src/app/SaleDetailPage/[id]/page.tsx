@@ -103,7 +103,6 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
 
     return (
         <div className="w-full h-full flex justify-center flex-col items-center p-5 sm:p-15">
-            <div>공유</div>
             {isLoggedIn && (
                 <div className="flex w-[100%] sm:w-[80%] justify-end gap-2 p-4 text-sm">
                     <div onClick={handleGoCrystal} className="cursor-pointer">
@@ -116,8 +115,11 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                 </div>
             )}
             <div className="w-[95%] h-full sm:w-[80%] flex flex-col sm:gap-15 gap-5">
-                <div className="w-full h-full font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2">
-                    {post.name}
+                <div className="flex">
+                    <div className="w-full h-full font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2">
+                        {post.name}
+                    </div>
+                    <div>공유</div>
                 </div>
                 <div className="w-full h-full flex flex-col sm:flex-row justify-center gap-5 sm:gap-10">
                     {post.thumbnail ? (
