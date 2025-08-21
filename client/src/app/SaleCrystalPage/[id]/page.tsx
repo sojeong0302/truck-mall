@@ -34,8 +34,8 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         price,
         car_number,
         vin,
-        suggest_number,
         performance_number,
+        suggest_number,
         transmission,
         content,
         simple_tags,
@@ -45,8 +45,8 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         clearForm,
         simple_content,
         setManufacturer,
-        setSubModel,
         setModel,
+        setSubModel,
         setGrade,
     } = useSaleFormStore();
 
@@ -69,19 +69,17 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
             },
         ],
     };
-    const { files, originURLs } = useImageStore();
 
-    const [selected, setSelected] = useState("");
     const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const [isOpen, setIsOpen] = useState(false);
 
-    const [prevImages, setPrevImages] = useState<string[]>([]);
-    const [newImages, setNewImages] = useState<File[]>([]);
-    const store = SaleCrystalPagePropStore();
-    const [sanitizedImages, setSanitizedImages] = useState<string[]>([]);
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
 
-    const { simpleTag, setSimpleTag } = useSimpleTagStore();
-    const thumbFileRef = useRef<File | null>(null);
+        setThumbnailFile(file);
+        setThumbnail(URL.createObjectURL(file));
+    };
+
     const token = useAuthStore((s) => s.token);
 
     //기존 값 가져오기
@@ -125,7 +123,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                     setManufacturer(manufacturer);
                     setModel(model);
                     setSubModel(subModel);
-                    setGrade(grades); // ✅ 배열 상태로 저장!
+                    setGrade(grades);
                 }
             } catch (error) {
                 console.error("데이터 가져오기 실패:", error);
@@ -134,14 +132,42 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         fetchPost();
     }, [BASE_URL, id]);
 
+    // 썸네일 삭제
+    const handleClearThumbnail = () => {
+        if (thumbnail?.startsWith("blob:")) {
+            try {
+                URL.revokeObjectURL(thumbnail);
+            } catch {}
+        }
+        setThumbnail("");
+        setThumbnailFile(null);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+    };
+
+    // 취소 모달 -> '네' 클릭
+    const handleCancel = () => {
+        router.back();
+    };
+
+    // 사용자가 선택한 Filter를 보여지게 하기 위한 용도
+    const selectedTags = [
+        draft.manufacturer,
+        draft.models[0]?.name,
+        draft.models[0]?.subModels[0]?.name,
+        ...grades,
+    ].filter(Boolean);
+
+    const [prevImages, setPrevImages] = useState<string[]>([]);
+    const [newImages, setNewImages] = useState<File[]>([]);
+    const [sanitizedImages, setSanitizedImages] = useState<string[]>([]);
+
+    const { simpleTag, setSimpleTag } = useSimpleTagStore();
+    const thumbFileRef = useRef<File | null>(null);
+
     const handleImageClick = () => fileInputRef.current?.click();
     const previewUrlRef = useRef<string | null>(null);
     const [thumbnailState, setThumbnailState] = useState<"keep" | "new" | "remove">("keep");
-    //변속기 선택지
-    const handleSelect = (item: string) => {
-        setIsOpen(false);
-        setField("transmission", item !== "전체" ? item : "");
-    };
+
     // 기존 이미지 URL 변환
     const getImageUrl = (url: string) => {
         if (!url) return "";
@@ -167,28 +193,6 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         setNewImages(files);
         setPrevImages(keepImages);
     }, []);
-
-    const handleCancel = () => {
-        router.back();
-    };
-
-    // 썸네일 삭제
-    const handleDeleteThumbnail = () => {
-        setThumbnailState("remove");
-        setThumbnail("");
-        if (previewUrlRef.current) {
-            URL.revokeObjectURL(previewUrlRef.current);
-            previewUrlRef.current = null;
-        }
-        thumbFileRef.current = null;
-    };
-
-    const selectedTags = [
-        draft.manufacturer,
-        draft.models?.[0]?.name,
-        draft.models?.[0]?.subModels?.[0]?.name,
-        draft.models?.[0]?.subModels?.[0]?.grades?.[0],
-    ];
 
     // 수정 시도
     const handleSubmit = async () => {
@@ -271,7 +275,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                     <div
                         className="mx-auto flex justify-center items-center cursor-pointer shadow-lg rounded-xl w-[70%] sm:w-[50%] aspect-square sm:min-w-[150px] bg-[rgba(179,179,179,0.25)] overflow-hidden"
                         onClick={!thumbnail ? handleImageClick : undefined}
-                        onDoubleClick={thumbnail ? handleDeleteThumbnail : undefined}
+                        onDoubleClick={thumbnail ? handleClearThumbnail : undefined}
                         title={thumbnail ? "더블클릭: 썸네일 삭제" : "클릭: 썸네일 선택"}
                     >
                         <input
@@ -307,16 +311,21 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                                     type: "number",
                                 },
                                 { label: "연료", value: fuel, setter: (v: string) => setField("fuel", v) },
-                                { label: "색상", value: color, setter: (v: string) => setField("color", v) },
-                                { label: "주행거리", value: mileage, setter: (v: string) => setField("mileage", v) },
-                                { label: "차대 번호", value: vin, setter: (v: string) => setField("vin", v) },
-
                                 {
-                                    label: "가격",
-                                    value: price,
-                                    setter: (v: string) => setField("price", v),
+                                    label: "변속기",
+                                    value: transmission,
+                                    setter: (v: string) => setField("transmission", v),
+                                    customType: "select",
+                                    options: ["오토", "수동", "세미오토", "무단변속기"],
+                                },
+                                { label: "색상", value: color, setter: (v: string) => setField("color", v) },
+                                {
+                                    label: "주행거리",
+                                    value: mileage,
+                                    setter: (v: string) => setField("mileage", v),
                                     type: "number",
                                 },
+                                { label: "차대 번호", value: vin, setter: (v: string) => setField("vin", v) },
                                 {
                                     label: "간단 내용",
                                     value: simple_content,
@@ -327,45 +336,52 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                                     value: car_number,
                                     setter: (v: string) => setField("car_number", v),
                                 },
+                                {
+                                    label: "제시 번호",
+                                    value: performance_number,
+                                    setter: (v: string) => setField("performance_number", v),
+                                },
+                                {
+                                    label: "성능 번호",
+                                    value: suggest_number,
+                                    setter: (v: string) => setField("suggest_number", v),
+                                },
+                                {
+                                    label: "가격",
+                                    value: price,
+                                    setter: (v: string) => setField("price", v),
+                                    type: "number",
+                                },
                             ].map((field, idx) => (
                                 <div className="flex gap-1 sm:gap-3 sm:items-center flex-col sm:flex-row" key={idx}>
                                     <div className="font-bold">{field.label}</div>
-                                    <input
-                                        type={field.type || "text"}
-                                        className="flex-1 shadow-md text-lg sm:text-2xl border-2 border-[#2E7D32] rounded-xl p-3"
-                                        value={field.value}
-                                        onChange={(e) => field.setter(e.target.value)}
-                                        placeholder={`${field.label}을 입력해 주세요.`}
-                                    />
+                                    {field.customType === "select" ? (
+                                        <select
+                                            className={`flex-1 shadow-md text-2xl border-2 border-[#2E7D32] rounded-xl p-3.5
+    ${!field.value ? "text-gray-500" : "text-black"}`}
+                                            value={field.value}
+                                            onChange={(e) => field.setter(e.target.value)}
+                                        >
+                                            <option value="" disabled hidden>
+                                                선택해 주세요
+                                            </option>
+                                            {field.options?.map((option) => (
+                                                <option key={option} value={option}>
+                                                    {option}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <input
+                                            type={field.type || "text"}
+                                            className="flex-1 shadow-md text-2xl border-2 border-[#2E7D32] rounded-xl p-3"
+                                            value={field.value}
+                                            onChange={(e) => field.setter(e.target.value)}
+                                            placeholder={`${field.label}을 입력해 주세요.`}
+                                        />
+                                    )}
                                 </div>
                             ))}
-                        </div>
-                    </div>
-                    <div className="flex flex-col sm:flex-row w-full gap-0 sm:gap-10">
-                        <div className="flex items-center gap-3">
-                            <div className="text-sm sm:text-lg text-[#2E7D32]">▶</div>
-                            <div className="text-lg sm:text-2xl font-medium">변속기</div>
-                        </div>
-                        <div className="relative w-48">
-                            <button
-                                className="transition transform duration-200 active:scale-95 cursor-pointer w-full text-left border border-[#2E7D32] rounded-md px-3 py-2 text-xl"
-                                onClick={() => setIsOpen((prev) => !prev)}
-                            >
-                                {transmission || "전체"}
-                            </button>
-                            {isOpen && (
-                                <ul className="absolute z-10 bg-white border border-[#2E7D32] rounded-md w-full mt-1">
-                                    {["전체", "오토", "수동", "세미오토", "무단변속기"].map((item) => (
-                                        <li
-                                            key={item}
-                                            className="px-3 py-2 hover:bg-[#2E7D32]/10 cursor-pointer"
-                                            onClick={() => handleSelect(item)}
-                                        >
-                                            {item}
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
                         </div>
                     </div>
                 </div>
