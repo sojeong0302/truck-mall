@@ -29,12 +29,12 @@ export default function Sale({ transmission, priceRange, yearRange }: SaleCompon
     const { sales, setSales, clearSales } = useSaleStore();
     const isDefaultPrice = !priceRange || (priceRange[0] === PriceMIN && priceRange[1] === PriceMAX);
     const isDefaultYear = !yearRange || (yearRange[0] === YearMIN && yearRange[1] === YearMAX);
-    const { draft } = useFilterTagStore();
+    const { applied } = useFilterTagStore();
 
-    const manufacturer = draft.manufacturer;
-    const model = draft.models[0]?.name || "";
-    const subModel = draft.models[0]?.subModels[0]?.name || "";
-    const grade = draft.models[0]?.subModels[0]?.grades[0] || "";
+    const manufacturer = applied.manufacturer;
+    const model = applied.models[0]?.name || "";
+    const subModel = applied.models[0]?.subModels[0]?.name || "";
+    const grade = applied.models[0]?.subModels[0]?.grades[0] || "";
 
     // 최초 전체 조회
     useEffect(() => {
@@ -52,11 +52,61 @@ export default function Sale({ transmission, priceRange, yearRange }: SaleCompon
     }, []);
 
     // 검색(trigger) 시 필터 조회
+    // useEffect(() => {
+    //     const fetchFiltered = async () => {
+    //         try {
+    //             const qs = new URLSearchParams();
+
+    //             if (simpleTag) {
+    //                 if (simpleTag.type) qs.set("simple_type", simpleTag.type);
+    //                 if (simpleTag.grade) qs.set("simple_grade", simpleTag.grade);
+    //             }
+    //             if (!isDefaultPrice && priceRange) {
+    //                 qs.set("min_price", String(priceRange[0]));
+    //                 qs.set("max_price", String(priceRange[1]));
+    //             }
+    //             if (!isDefaultYear && yearRange) {
+    //                 qs.set("min_year", String(yearRange[0]));
+    //                 qs.set("max_year", String(yearRange[1]));
+    //             }
+    //             if (transmission) qs.set("transmission", transmission);
+    //             if (manufacturer) qs.set("manufacturer", manufacturer);
+    //             if (model) qs.set("model", model);
+    //             if (subModel) qs.set("sub_model", subModel);
+    //             if (grade) qs.set("grade", grade);
+
+    //             const url = qs.toString() ? `${BASE_URL}/sale/list?${qs.toString()}` : `${BASE_URL}/sale/list`;
+
+    //             const res = await api.get(url);
+    //             const data = Array.isArray(res.data) ? res.data : [];
+    //             setSales(data);
+    //         } catch (err) {
+    //             console.error("필터 조회 실패:", err);
+    //             clearSales();
+    //         }
+    //     };
+
+    //     fetchFiltered();
+    // }, [
+    //     trigger,
+    //     transmission,
+    //     priceRange,
+    //     yearRange,
+    //     simpleTag,
+    //     manufacturer,
+    //     model,
+    //     subModel,
+    //     grade,
+    //     BASE_URL,
+    //     setSales,
+    //     clearSales,
+    // ]);
     useEffect(() => {
         const fetchFiltered = async () => {
             try {
                 const qs = new URLSearchParams();
 
+                // ⬇ 필요 값은 여기서 '그때의 최신 값'을 읽어 사용
                 if (simpleTag) {
                     if (simpleTag.type) qs.set("simple_type", simpleTag.type);
                     if (simpleTag.grade) qs.set("simple_grade", simpleTag.grade);
@@ -76,7 +126,6 @@ export default function Sale({ transmission, priceRange, yearRange }: SaleCompon
                 if (grade) qs.set("grade", grade);
 
                 const url = qs.toString() ? `${BASE_URL}/sale/list?${qs.toString()}` : `${BASE_URL}/sale/list`;
-
                 const res = await api.get(url);
                 const data = Array.isArray(res.data) ? res.data : [];
                 setSales(data);
@@ -87,20 +136,8 @@ export default function Sale({ transmission, priceRange, yearRange }: SaleCompon
         };
 
         fetchFiltered();
-    }, [
-        trigger,
-        transmission,
-        priceRange,
-        yearRange,
-        simpleTag,
-        manufacturer,
-        model,
-        subModel,
-        grade,
-        BASE_URL,
-        setSales,
-        clearSales,
-    ]);
+        // ⬇ 의존성은 오직 trigger 하나
+    }, [trigger]);
 
     // 페이지네이션
     const pagedData = useMemo(() => {
