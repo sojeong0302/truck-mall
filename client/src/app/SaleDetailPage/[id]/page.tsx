@@ -103,6 +103,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
 
     return (
         <div className="w-full h-full flex justify-center flex-col items-center p-5 sm:p-15">
+            <div>공유</div>
             {isLoggedIn && (
                 <div className="flex w-[100%] sm:w-[80%] justify-end gap-2 p-4 text-sm">
                     <div onClick={handleGoCrystal} className="cursor-pointer">
