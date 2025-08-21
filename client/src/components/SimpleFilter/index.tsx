@@ -1,6 +1,6 @@
 "use client";
 import { data } from "./SimpleFilter.hooks";
-import { useSimpleTagStore } from "@/store/simpleTagStore";
+import { useSimpleTagStore } from "@/store/simpleTag/simpleTag.hooks";
 import { useSaleFormStore } from "@/store/saleForm/saleForm.hooks";
 
 export default function SimpleFilter({ skipReset = false }: { skipReset?: boolean }) {
