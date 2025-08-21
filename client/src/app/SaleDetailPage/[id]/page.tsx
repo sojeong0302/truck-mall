@@ -99,6 +99,33 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
         console.log("성능점검보기 클릭");
     };
 
+    const handleShareSMS = async () => {
+        const pageUrl = typeof window !== "undefined" ? window.location.href : "";
+        const title = post?.name ? `[매물] ${post.name}` : "새마일 트럭 매물";
+        const msg = `${title}\n관심 있으면 확인해보세요!\n${pageUrl}`;
+        const body = encodeURIComponent(msg);
+
+        const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+        const isIOS = /iPad|iPhone|iPod/.test(ua);
+
+        // 모바일 문자 앱 열기 (iOS는 &body, 안드로이드는 ?body)
+        const smsUrl = isIOS ? `sms:&body=${body}` : `sms:?body=${body}`;
+
+        try {
+            // 데스크톱에서는 sms: 스킴이 동작 안할 수 있으니 폴백
+            if (/Android|iPhone|iPad|iPod/i.test(ua)) {
+                window.location.href = smsUrl;
+            } else {
+                await navigator.clipboard.writeText(pageUrl);
+                alert("링크를 복사했습니다. 모바일에서 문자를 이용해 보내주세요.");
+            }
+        } catch {
+            // 마지막 폴백
+            await navigator.clipboard.writeText(pageUrl);
+            alert("링크를 복사했습니다.");
+        }
+    };
+
     if (!post) return <div className="p-10 text-red-500">해당 게시물을 찾을 수 없습니다.</div>;
 
     return (
@@ -119,7 +146,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                     <div className="w-full h-full font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2">
                         {post.name}
                     </div>
-                    <div className="cursor-pointer p-3 flex items-center">
+                    <div className="cursor-pointer p-3 flex items-center" onClick={handleShareSMS}>
                         <img
                             src="/images/sharing.png"
                             alt="공유하기"
