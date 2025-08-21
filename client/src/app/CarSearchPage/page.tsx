@@ -45,6 +45,7 @@ export default function CarSearchPage() {
         setPage(1);
         fire();
     }, [resetAll, clearFilterTags, setPage, fire]);
+
     return (
         <div className="w-[100%] flex flex-col items-center">
             <div className="hidden md:block">

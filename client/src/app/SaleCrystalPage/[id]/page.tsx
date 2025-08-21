@@ -255,6 +255,14 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
             alert("수정 중 오류가 발생했습니다.");
         }
     };
+    const clearAll = useFilterTagStore((s) => s.clearAll);
+    // 페이지 떠날 때(언마운트) 초기화
+    useEffect(() => {
+        return () => {
+            setSimpleTag("", "", true);
+            clearAll();
+        };
+    }, [setSimpleTag, clearAll]);
 
     return (
         <>
