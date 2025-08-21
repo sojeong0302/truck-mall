@@ -165,7 +165,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                                     <button
                                         type="button"
                                         onClick={copySuggestNumber}
-                                        className="ml-2 px-3 py-1 text-sm rounded-md border-[1.5px] border-[#2E7D32] text-[#2E7D32] hover:bg-[#2E7D32] hover:text-white transition"
+                                        className="cursor-pointer px-3 py-1 text-sm rounded-md border-[1.5px] border-[#2E7D32] text-[#2E7D32] hover:bg-[#2E7D32] hover:text-white transition"
                                     >
                                         성능점검보기(클릭)
                                     </button>
