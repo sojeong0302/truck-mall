@@ -2,14 +2,18 @@
 import { data } from "./SimpleFilter.hooks";
 import { useSimpleTagStore } from "@/store/simpleTag/simpleTag.hooks";
 import { useSaleFormStore } from "@/store/saleForm/saleForm.hooks";
+import { useFilterTagStore } from "../Filter/Filter.hooks";
 
 export default function SimpleFilter({ skipReset = false }: { skipReset?: boolean }) {
     const { simpleTag, setSimpleTag } = useSimpleTagStore();
     const setSaleFormField = useSaleFormStore((s) => s.setField);
 
+    const clearNormalFilter = useFilterTagStore((s) => s.clearAll);
+
     const handleSelect = (type: string, grade: string) => {
-        setSimpleTag(type, grade, skipReset); // 버튼 색깔 등 UI 상태
-        setSaleFormField("simple_tags", { type, grade }); // 서버로 보낼 값 저장
+        if (!skipReset) clearNormalFilter(); // ⬅ 먼저 Normal Filter 비우기
+        setSimpleTag(type, grade, true); // ⬅ 즉시 적용형이므로 skipReset은 true로 고정해도 OK
+        setSaleFormField("simple_tags", { type, grade });
     };
 
     return (

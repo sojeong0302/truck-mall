@@ -2,6 +2,8 @@
 
 import { useFilterTagStore } from "./Filter.hooks";
 import { truckFilterData } from "./Filter.datas";
+import { useSimpleTagStore } from "@/store/simpleTag/simpleTag.hooks";
+import { useCallback } from "react";
 
 function CheckBoxList({
     title,
@@ -139,15 +141,18 @@ function SelectBox({
 export default function Filter({ skipReset = false }: { skipReset?: boolean }) {
     const { draft, setDraftManufacturer, setDraftModel, setDraftSubModel, setDraftGrade } = useFilterTagStore();
 
+    // ⬇ SimpleFilter 리셋 함수
+    const setSimpleTag = useSimpleTagStore((s) => s.setSimpleTag);
+    const resetSimpleFilter = useCallback(() => {
+        setSimpleTag("", "", true); // (type, grade, skipReset)
+    }, [setSimpleTag]);
+
     const manufacturer = draft.manufacturer;
     const models = truckFilterData.find((d) => d.manufacturer === manufacturer)?.models || [];
-
     const model = draft.models[0]?.name || "";
     const subModels = models.find((m) => m.name === model)?.subModels || [];
-
     const subModel = draft.models[0]?.subModels[0]?.name || "";
     const grades = subModels.find((s) => s.name === subModel)?.grades || [];
-
     const selectedGrades = draft.models[0]?.subModels[0]?.grades || [];
 
     return (
@@ -156,25 +161,28 @@ export default function Filter({ skipReset = false }: { skipReset?: boolean }) {
                 title="제조사"
                 options={truckFilterData.map((d) => d.manufacturer)}
                 selected={manufacturer}
-                onChange={(v) => setDraftManufacturer(v, skipReset)}
+                onChange={(v) => {
+                    if (!skipReset) resetSimpleFilter(); // ✅ 제조사 바꿀 때만 SimpleFilter 초기화
+                    setDraftManufacturer(v, skipReset);
+                }}
             />
             <SelectBox
                 title="모델"
                 options={models.map((m) => m.name)}
                 selected={model}
-                onChange={(v) => setDraftModel(v, skipReset)}
+                onChange={(v) => setDraftModel(v, skipReset)} // ❌ 여기서는 리셋 안 함
             />
             <SelectBox
                 title="세부모델"
                 options={subModels.map((s) => s.name)}
                 selected={subModel}
-                onChange={(v) => setDraftSubModel(v, skipReset)}
+                onChange={(v) => setDraftSubModel(v, skipReset)} // ❌ 리셋 안 함
             />
             <CheckBoxList
                 title="등급"
                 options={grades}
                 selected={selectedGrades}
-                onChange={(v) => setDraftGrade(v, skipReset)}
+                onChange={(vals) => setDraftGrade(vals, skipReset)} // ❌ 리셋 안 함
             />
         </div>
     );
