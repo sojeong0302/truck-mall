@@ -119,7 +119,9 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
                     <div className="w-full h-full font-bold text-2xl sm:text-4xl border-b-2 border-[#575757] p-2">
                         {post.name}
                     </div>
-                    <div>공유</div>
+                    <div>
+                        <img src={"/images/sharing.png"} />
+                    </div>
                 </div>
                 <div className="w-full h-full flex flex-col sm:flex-row justify-center gap-5 sm:gap-10">
                     {post.thumbnail ? (
