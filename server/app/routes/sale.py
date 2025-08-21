@@ -269,108 +269,118 @@ def apply_if_present(val, current):
 
 
 # 특정 매물 수정
+from traceback import format_exc
+
+
 @sale_bp.route("/<int:sale_id>", methods=["PUT"])
 @jwt_required()
 def update_sale(sale_id):
-    sale = Sale.query.get_or_404(sale_id)
+    try:
+        # ⬇️ 기존 코드 전부 유지
+        sale = Sale.query.get_or_404(sale_id)
 
-    ct = (request.content_type or "").lower()
-    is_multipart = ct.startswith("multipart/form-data")
-    form = request.form if is_multipart else None
-    files = request.files if is_multipart else None
-    data = None if is_multipart else (request.get_json(silent=True) or {})
+        ct = (request.content_type or "").lower()
+        is_multipart = ct.startswith("multipart/form-data")
+        form = request.form if is_multipart else None
+        files = request.files if is_multipart else None
+        data = None if is_multipart else (request.get_json(silent=True) or {})
 
-    raw_status = form.get("status") if is_multipart else data.get("status")
-    parsed_status = parse_bool(raw_status)
-    if parsed_status is not None:
-        sale.status = parsed_status
+        raw_status = form.get("status") if is_multipart else data.get("status")
+        parsed_status = parse_bool(raw_status)
+        if parsed_status is not None:
+            sale.status = parsed_status
 
-    thumb_state = (
-        (
+        thumb_state = (
             (
-                form.get("thumbnail_state")
-                if is_multipart
-                else data.get("thumbnail_state")
+                (
+                    form.get("thumbnail_state")
+                    if is_multipart
+                    else data.get("thumbnail_state")
+                )
+                or "keep"
             )
-            or "keep"
+            .strip()
+            .lower()
         )
-        .strip()
-        .lower()
-    )
 
-    def get_val(key, default=""):
-        return (form.get(key) if is_multipart else data.get(key)) or default
+        def get_val(key, default=""):
+            return (form.get(key) if is_multipart else data.get(key)) or default
 
-    # 기본 정보 업데이트
-    sale.name = get_val("name", sale.name)
-    sale.fuel = get_val("fuel", sale.fuel)
-    sale.type = get_val("type", sale.type)
-    sale.trim = get_val("trim", sale.trim)
-    sale.year = to_int_or_none(get_val("year", sale.year))
-    sale.mileage = to_int_or_none(get_val("mileage", sale.mileage))
-    sale.color = get_val("color", sale.color)
-    sale.price = to_int_or_none(get_val("price", sale.price))
-    sale.content = get_val("content", sale.content)
-    sale.transmission = get_val("transmission", sale.transmission)
+        # 기본 정보
+        sale.name = get_val("name", sale.name)
+        sale.fuel = get_val("fuel", sale.fuel)
+        sale.type = get_val("type", sale.type)
+        sale.trim = get_val("trim", sale.trim)
+        sale.year = to_int_or_none(get_val("year", sale.year))
+        sale.mileage = to_int_or_none(get_val("mileage", sale.mileage))
+        sale.color = get_val("color", sale.color)
+        sale.price = to_int_or_none(get_val("price", sale.price))
+        sale.content = get_val("content", sale.content)
+        sale.transmission = get_val("transmission", sale.transmission)
 
-    # 추가된 필드 업데이트
-    sale.car_number = get_val("car_number", sale.car_number)
-    sale.vin = get_val("vin", sale.vin)
-    sale.suggest_number = get_val("suggest_number", sale.suggest_number)
-    sale.performance_number = get_val("performance_number", sale.performance_number)
-    sale.simple_content = get_val("simple_content", sale.simple_content)
+        # 추가 필드
+        sale.car_number = get_val("car_number", sale.car_number)
+        sale.vin = get_val("vin", sale.vin)
+        sale.suggest_number = get_val("suggest_number", sale.suggest_number)
+        sale.performance_number = get_val("performance_number", sale.performance_number)
+        sale.simple_content = get_val("simple_content", sale.simple_content)
 
-    # normal_tags 및 필터 정보
-    raw_tags = form.get("tags") if is_multipart else data.get("tags")
-    tags = parse_tag(raw_tags)
-    if tags:
-        sale.tags = tags
-        flat = flatten_tags(tags)
-        sale.manufacturer = flat["manufacturer"]
-        sale.model = flat["model"]
-        sale.sub_model = flat["subModel"]
-        sale.grade = flat["grade"]
+        # tags / normal_tags
+        raw_tags = form.get("tags") if is_multipart else data.get("tags")
+        tags = parse_tag(raw_tags)
+        if tags:
+            sale.tags = tags
+            flat = flatten_tags(tags)
+            sale.manufacturer = flat["manufacturer"]
+            sale.model = flat["model"]
+            sale.sub_model = flat["subModel"]
+            sale.grade = flat["grade"]
 
-    # simple_tags
-    raw_simple_tags = (
-        form.get("simple_tags") if is_multipart else data.get("simple_tags")
-    )
-    sale.simple_tags = parse_simple_tags(raw_simple_tags)
+        # simple_tags
+        raw_simple_tags = (
+            form.get("simple_tags") if is_multipart else data.get("simple_tags")
+        )
+        sale.simple_tags = parse_simple_tags(raw_simple_tags)
 
-    # 썸네일 처리
-    if thumb_state == "remove":
-        delete_file_if_exists(sale.thumbnail)
-        sale.thumbnail = None
-    elif is_multipart and thumb_state == "new" and files and files.get("thumbnail"):
-        delete_file_if_exists(sale.thumbnail)
-        sale.thumbnail = save_uploaded_file(files.get("thumbnail"))
-    elif not is_multipart and "thumbnail" in data:
-        tv = data.get("thumbnail")
-        if tv in (None, "", "null"):
+        # 썸네일
+        if thumb_state == "remove":
             delete_file_if_exists(sale.thumbnail)
             sale.thumbnail = None
-        else:
-            sale.thumbnail = tv
-
-    # 이미지 처리
-    if is_multipart:
-        existing_urls = form.getlist("originImages") or form.getlist("originURLs") or []
-        incoming_files = files.getlist("images") or []
-        valid_files = [f for f in incoming_files if getattr(f, "filename", None)]
-        new_urls = [save_uploaded_file(f) for f in valid_files]
-        sale.images = existing_urls + new_urls
-    else:
-        if "images" in data:
-            if isinstance(data["images"], list):
-                sale.images = data["images"]
+        elif is_multipart and thumb_state == "new" and files and files.get("thumbnail"):
+            delete_file_if_exists(sale.thumbnail)
+            sale.thumbnail = save_uploaded_file(files.get("thumbnail"))
+        elif not is_multipart and "thumbnail" in data:
+            tv = data.get("thumbnail")
+            if tv in (None, "", "null"):
+                delete_file_if_exists(sale.thumbnail)
+                sale.thumbnail = None
             else:
-                try:
-                    sale.images = json.loads(data["images"])
-                except Exception:
-                    pass
+                sale.thumbnail = tv
 
-    db.session.commit()
-    return jsonify({"message": "success", "sale": sale.to_dict()}), 200
+        # 이미지
+        if is_multipart:
+            # 🔑 프론트 키 불일치 대비
+            existing_urls = (
+                form.getlist("originImages") or form.getlist("originURLs") or []
+            )
+            incoming_files = files.getlist("images") or []
+            valid_files = [f for f in incoming_files if getattr(f, "filename", None)]
+            new_urls = [save_uploaded_file(f) for f in valid_files]
+            sale.images = existing_urls + new_urls
+        else:
+            if "images" in data:
+                if isinstance(data["images"], list):
+                    sale.images = data["images"]
+                else:
+                    sale.images = json.loads(data["images"])
+
+        db.session.commit()
+        return jsonify({"message": "success", "sale": sale.to_dict()}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error("update_sale error: %s\n%s", e, format_exc())
+        return jsonify({"error": str(e)}), 500
 
 
 # 삭제 api
