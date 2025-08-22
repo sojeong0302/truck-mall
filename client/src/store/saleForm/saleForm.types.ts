@@ -35,6 +35,9 @@ export interface SaleFormState {
         }[];
     } | null;
 
+    performance_sheet_preview: string; // 성능표 미리보기 URL (blob/data/원격)
+    performance_sheet_file: File | null; // 서버 전송용 파일
+
     // Zustand 메서드
     setField: (key: keyof SaleFormState, value: any) => void;
     setThumbnail: (url: string) => void;
@@ -44,4 +47,6 @@ export interface SaleFormState {
     setModel: (model: string) => void;
     setSubModel: (subModel: string) => void;
     setGrade: (grades: string[]) => void;
+    setPerformanceSheetPreview: (url: string) => void;
+    setPerformanceSheetFile: (file: File | null) => void;
 }

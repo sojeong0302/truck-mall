@@ -25,11 +25,14 @@ export const useSaleFormStore = create<SaleFormState>((set) => ({
     simple_content: "",
     status: true,
     simple_tags: null,
-
+    performance_sheet_preview: "",
+    performance_sheet_file: null,
     // 메서드들
     setField: (key, value) => set({ [key]: value } as Partial<SaleFormState>),
     setThumbnail: (url) => set({ thumbnail: url }),
     setThumbnailFile: (file) => set({ thumbnailFile: file }),
+    setPerformanceSheetPreview: (url) => set({ performance_sheet_preview: url }),
+    setPerformanceSheetFile: (file) => set({ performance_sheet_file: file }),
     clearForm: () =>
         set({
             thumbnail: "",
@@ -51,6 +54,8 @@ export const useSaleFormStore = create<SaleFormState>((set) => ({
             status: true,
             simple_tags: null,
             normal_tags: null,
+            performance_sheet_preview: "",
+            performance_sheet_file: null,
         }),
     setManufacturer: (manufacturer) =>
         set((state) => ({

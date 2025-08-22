@@ -44,6 +44,9 @@ export default function WritingUpload() {
     } = useSaleFormStore();
 
     const { draft } = useFilterTagStore();
+    const performanceFileRef = useRef<HTMLInputElement | null>(null);
+    const [performanceSheetFile, setPerformanceSheetFile] = useState<File | null>(null);
+    const [performancePdfUrl, setPerformancePdfUrl] = useState<string>("");
 
     const rawGrades = draft.models[0]?.subModels[0]?.grades as string | string[];
     const grades = typeof rawGrades === "string" ? rawGrades.split("/") : Array.isArray(rawGrades) ? rawGrades : [];
@@ -168,6 +171,52 @@ export default function WritingUpload() {
         draft.models[0]?.subModels[0]?.name,
         ...grades,
     ].filter(Boolean);
+
+    // 버튼 클릭 시 파일 탐색기 열기
+    const performanceInput = () => {
+        performanceFileRef.current?.click();
+    };
+
+    // 파일 선택 처리
+    const handlePerformanceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setPerformanceSheetFile(file);
+
+        if (file.type === "application/pdf") {
+            const url = URL.createObjectURL(file);
+            setPerformancePdfUrl(url); // iframe으로 보여줄 URL
+        } else if (file.type.startsWith("image/")) {
+            const url = URL.createObjectURL(file);
+            // 이미지로도 받을 계획이면 이미지 미리보기 상태를 따로 두어 표시해도 됨
+            setPerformancePdfUrl(url); // 이미지를 iframe에 넣어도 브라우저가 안 보여줄 수 있어요. 이미지는 <img>로 표시 권장.
+        } else {
+            setPerformancePdfUrl("");
+        }
+    };
+
+    // 선택 해제
+    const clearPerformance = () => {
+        if (performancePdfUrl.startsWith("blob:")) {
+            try {
+                URL.revokeObjectURL(performancePdfUrl);
+            } catch {}
+        }
+        setPerformanceSheetFile(null);
+        setPerformancePdfUrl("");
+        if (performanceFileRef.current) performanceFileRef.current.value = "";
+    };
+
+    useEffect(() => {
+        return () => {
+            if (performancePdfUrl.startsWith("blob:")) {
+                try {
+                    URL.revokeObjectURL(performancePdfUrl);
+                } catch {}
+            }
+        };
+    }, [performancePdfUrl]);
 
     return (
         <>
@@ -303,11 +352,41 @@ export default function WritingUpload() {
                                             placeholder={`${field.label}을 입력해 주세요.`}
                                         />
                                     )}
+                                    {field.label === "성능 번호" && (
+                                        <ShortButton
+                                            onClick={performanceInput}
+                                            className="whitespace-nowrap bg-white border-2 border-[#2E7D32] text-[#2E7D32]"
+                                        >
+                                            성능점검표
+                                        </ShortButton>
+                                    )}
                                 </div>
                             ))}
                         </div>
                     </div>
                 </div>
+
+                {/* ✅ 성능점검표 미리보기 (PDF/이미지 선택 시 표시) */}
+                {performancePdfUrl && (
+                    <div className="mt-6">
+                        <div className="flex items-center justify-between mb-2">
+                            <span className="font-semibold">성능점검표 미리보기</span>
+                            <button
+                                type="button"
+                                onClick={clearPerformance}
+                                className="text-sm px-3 py-1 border rounded"
+                            >
+                                제거
+                            </button>
+                        </div>
+                        <iframe
+                            src={performancePdfUrl}
+                            className="w-full h-[70vh] border rounded-lg"
+                            title="성능점검표"
+                        />
+                    </div>
+                )}
+
                 <EtcPoto />
                 <TextArea value={content} setContent={(v) => setField("content", v)} />
                 <div className="flex gap-3 justify-end">
@@ -325,6 +404,15 @@ export default function WritingUpload() {
                     />
                 )}
             </div>
+
+            {/* 숨김 파일 input (성능점검표) */}
+            <input
+                type="file"
+                ref={performanceFileRef}
+                onChange={handlePerformanceChange}
+                accept="application/pdf,image/*"
+                className="hidden"
+            />
         </>
     );
 }
