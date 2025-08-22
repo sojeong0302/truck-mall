@@ -31,19 +31,7 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
         fetchById(BASE_URL, id);
         return () => clear(); // 언마운트 시 상태 초기화
     }, [id]);
-    useEffect(() => {
-        if (typeof window === "undefined") return;
-        const key = process.env.NEXT_PUBLIC_KAKAO_JS_KEY;
-        if (key && window.Kakao && !window.Kakao.isInitialized()) {
-            window.Kakao.init(key);
-        }
-    }, []);
-    useEffect(() => {
-        if (post) {
-            console.log("✅ post 객체:", post);
-            console.log("✅ post.images:", post.images);
-        }
-    }, [post]);
+
     //수정 페이지 이동 URL
     const handleGoCrystal = () => router.push(`/SaleCrystalPage/${id}`);
     const openShareSheet = () => setShareOpen(true);
@@ -318,6 +306,24 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
                     </div>
                 </div>
             )}
+            <Script
+                src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
+                integrity="sha384-qGgmQSCwF30sJ2T2xBYA3Rrj3o0q8pBXcUSSYdWS3fOsbbiE5rHe+s2U9u8I+0ny"
+                crossOrigin="anonymous"
+                strategy="afterInteractive"
+                onLoad={() => {
+                    const key = process.env.NEXT_PUBLIC_KAKAO_JS_KEY;
+                    if (typeof window !== "undefined" && window.Kakao) {
+                        // 이미 초기화됐다면 재초기화하지 않음
+                        if (!window.Kakao.isInitialized()) {
+                            window.Kakao.init(key);
+                            console.log("Kakao initialized (page):", window.Kakao.isInitialized());
+                        }
+                    } else {
+                        console.warn("Kakao SDK not available. Check network/ad-block.");
+                    }
+                }}
+            />
         </div>
     );
 }
