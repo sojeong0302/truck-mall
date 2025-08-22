@@ -326,30 +326,14 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
             )}
             <Script
                 src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
-                integrity="sha384-qGgmQSCwF30sJ2T2xBYA3Rrj3o0q8pBXcUSSYdWS3fOsbbiE5rHe+s2U9u8I+0ny"
+                integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4"
                 crossOrigin="anonymous"
                 strategy="afterInteractive"
                 onLoad={() => {
                     const key = process.env.NEXT_PUBLIC_KAKAO_JS_KEY;
-
-                    console.log("[KAKAO] SDK loaded:", typeof window !== "undefined" && !!window.Kakao);
-                    console.log("[KAKAO] KEY present:", !!key);
-
-                    if (typeof window === "undefined" || !window.Kakao) {
-                        console.warn("[KAKAO] SDK not available. Check network/ad-block.");
-                        return;
-                    }
-                    if (!key) {
-                        console.warn("[KAKAO] NEXT_PUBLIC_KAKAO_JS_KEY is missing on client.");
-                        return;
-                    }
-                    if (!window.Kakao.isInitialized()) {
-                        try {
-                            window.Kakao.init(key);
-                            console.log("[KAKAO] initialized:", window.Kakao.isInitialized());
-                        } catch (e) {
-                            console.error("[KAKAO] init error:", e);
-                        }
+                    if (typeof window !== "undefined" && window.Kakao && key && !window.Kakao.isInitialized()) {
+                        window.Kakao.init(key);
+                        console.log("[KAKAO] initialized:", window.Kakao.isInitialized());
                     }
                 }}
             />
