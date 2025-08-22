@@ -15,6 +15,7 @@ from flask_jwt_extended import JWTManager
 import os
 import logging
 import sys
+from .routes.performance import bp as performance_bp
 
 load_dotenv()
 
@@ -45,15 +46,6 @@ def create_app():
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
 
-    # CORS: API 전반 허용
-    # CORS(
-    #     app,
-    #     origins=ALLOWED_ORIGINS,
-    #     supports_credentials=True,
-    #     allow_headers=["Content-Type", "Authorization"],  # 허용할 요청 헤더
-    #     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # 허용할 메서드
-    # )
-
     # 확장 모듈 초기화
     db.init_app(app)
     jwt.init_app(app)
@@ -66,6 +58,7 @@ def create_app():
     app.register_blueprint(sale_bp, url_prefix="/sale")
     app.register_blueprint(sms_bp)
     app.register_blueprint(ping_bp)
+    app.register_blueprint(performance_bp)
 
     # 이미지/정적 업로드 응답에 CORS/캐시 헤더 보강
     @app.after_request

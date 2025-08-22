@@ -2,6 +2,7 @@ from enum import Enum
 from sqlalchemy import Boolean, Column
 from ..extensions import db
 from sqlalchemy.dialects.sqlite import JSON
+from .performance_model import PerformanceInspection
 
 
 class Sale(db.Model):
@@ -20,7 +21,7 @@ class Sale(db.Model):
 
     # 추가
     suggest_number = db.Column(db.String(50))  # 제시 번호
-    performance_number = db.Column(db.String(50))  # 성능 번호
+    performance_number = db.Column(db.String(50), unique=True, index=True)  # 성능 번호
 
     # Filter
     manufacturer = db.Column(db.String(50))
@@ -37,6 +38,13 @@ class Sale(db.Model):
     images = db.Column(JSON)  # 기타 사진
     status = db.Column(Boolean, default=True, nullable=False)  # 판매 상태
     simple_tags = db.Column(JSON)  # SimpleFilter
+
+    performance = db.relationship(
+        "PerformanceInspection",
+        primaryjoin="Sale.performance_number==foreign(PerformanceInspection.performance_number)",
+        uselist=False,
+        viewonly=True,
+    )
 
     # json 형태로 변환
     def to_dict(self):
