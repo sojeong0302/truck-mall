@@ -200,17 +200,39 @@ export default function WritingUpload() {
     };
 
     // 파일 선택 처리
-    const handlePerformancePdfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // 파일 선택 처리 (PDF 견고 판별: 확장자 + MIME + 시그니처)
+    const handlePerformancePdfChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        if (file.type !== "application/pdf") {
+        const name = file.name || "";
+        const type = (file.type || "").toLowerCase();
+
+        const hasPdfExt = /\.pdf$/i.test(name);
+        const mimeLooksPdf =
+            type === "application/pdf" ||
+            type === "application/x-pdf" ||
+            type === "application/octet-stream" || // 일부 모바일/다운로드 경로
+            type === "application/force-download" ||
+            type === ""; // 빈 MIME도 종종 옴
+
+        // 파일 헤더 앞 5바이트 읽어서 %PDF 시그니처 확인
+        let headerIsPdf = false;
+        try {
+            const buf = await file.slice(0, 5).arrayBuffer();
+            const ascii = new TextDecoder("ascii").decode(new Uint8Array(buf));
+            headerIsPdf = ascii.startsWith("%PDF");
+        } catch (_) {
+            // 읽기 실패해도 무시
+        }
+
+        if (!(headerIsPdf || (hasPdfExt && mimeLooksPdf))) {
             alert("PDF 파일만 업로드할 수 있어요.");
             e.currentTarget.value = "";
             return;
         }
 
-        // 기존 blob URL 정리
+        // 이전 blob URL 정리
         if (performancePdfURL?.startsWith("blob:")) {
             try {
                 URL.revokeObjectURL(performancePdfURL);
@@ -429,7 +451,7 @@ export default function WritingUpload() {
             </div>
             <input
                 type="file"
-                accept="application/pdf"
+                accept="application/pdf,.pdf" // 확장자도 허용
                 ref={performancePdfRef}
                 onChange={handlePerformancePdfChange}
                 className="hidden"
