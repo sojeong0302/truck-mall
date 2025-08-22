@@ -44,13 +44,12 @@ export default function WritingUpload() {
     } = useSaleFormStore();
 
     const { draft } = useFilterTagStore();
-    const performanceFileRef = useRef<HTMLInputElement | null>(null);
-    const [performanceSheetFile, setPerformanceSheetFile] = useState<File | null>(null);
-    const [performancePdfUrl, setPerformancePdfUrl] = useState<string>("");
 
     const rawGrades = draft.models[0]?.subModels[0]?.grades as string | string[];
     const grades = typeof rawGrades === "string" ? rawGrades.split("/") : Array.isArray(rawGrades) ? rawGrades : [];
-
+    const performancePdfRef = useRef<HTMLInputElement | null>(null);
+    const [performancePdfFile, setPerformancePdfFile] = useState<File | null>(null);
+    const [performancePdfURL, setPerformancePdfURL] = useState<string>("");
     const normal_tags = {
         manufacturer: draft.manufacturer,
         models: [
@@ -134,14 +133,37 @@ export default function WritingUpload() {
 
         // api 연동
         try {
-            const { data } = await authApi.post(`${BASE_URL}/sale/uploadSale`, formData, {
+            // 1) 매물 업로드
+            const { data: saleRes } = await authApi.post(`${BASE_URL}/sale/uploadSale`, formData, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            console.log(simple_content);
-            // 잘못된 부분 수정!
-            router.push(`/SaleDetailPage/${data.sale.id}`);
-            console.log("성공");
-            console.log(data.sale);
+
+            // 2) (선택) 성능표 PDF 업로드 → URL
+            let perfUrl: string | null = null;
+            if (performancePdfFile) {
+                if (!performance_number) {
+                    alert("성능번호를 입력해 주세요.");
+                    return;
+                }
+                const f = new FormData();
+                f.append("file", performancePdfFile, performancePdfFile.name);
+                const { data: uploadRes } = await authApi.post(`${BASE_URL}/files/upload`, f, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                perfUrl = uploadRes?.url || null;
+            }
+
+            // 3) (선택) /performance 업서트
+            if (perfUrl && performance_number) {
+                await authApi.post(
+                    `${BASE_URL}/performance`,
+                    { performance_number, images: [perfUrl] }, // API 스펙 준수
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+            }
+
+            // 4) ✅ 전부 성공 후 이동
+            router.push(`/SaleDetailPage/${saleRes.sale.id}`);
         } catch (error) {
             console.error("업로드 중 에러 발생:", error);
         }
@@ -172,51 +194,45 @@ export default function WritingUpload() {
         ...grades,
     ].filter(Boolean);
 
-    // 버튼 클릭 시 파일 탐색기 열기
+    // 파일 탐색기 열기
     const performanceInput = () => {
-        performanceFileRef.current?.click();
+        performancePdfRef.current?.click();
     };
 
     // 파일 선택 처리
-    const handlePerformanceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handlePerformancePdfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        setPerformanceSheetFile(file);
-
-        if (file.type === "application/pdf") {
-            const url = URL.createObjectURL(file);
-            setPerformancePdfUrl(url); // iframe으로 보여줄 URL
-        } else if (file.type.startsWith("image/")) {
-            const url = URL.createObjectURL(file);
-            // 이미지로도 받을 계획이면 이미지 미리보기 상태를 따로 두어 표시해도 됨
-            setPerformancePdfUrl(url); // 이미지를 iframe에 넣어도 브라우저가 안 보여줄 수 있어요. 이미지는 <img>로 표시 권장.
-        } else {
-            setPerformancePdfUrl("");
+        if (file.type !== "application/pdf") {
+            alert("PDF 파일만 업로드할 수 있어요.");
+            e.currentTarget.value = "";
+            return;
         }
-    };
 
-    // 선택 해제
-    const clearPerformance = () => {
-        if (performancePdfUrl.startsWith("blob:")) {
+        // 기존 blob URL 정리
+        if (performancePdfURL?.startsWith("blob:")) {
             try {
-                URL.revokeObjectURL(performancePdfUrl);
+                URL.revokeObjectURL(performancePdfURL);
             } catch {}
         }
-        setPerformanceSheetFile(null);
-        setPerformancePdfUrl("");
-        if (performanceFileRef.current) performanceFileRef.current.value = "";
+
+        setPerformancePdfFile(file);
+        setPerformancePdfURL(URL.createObjectURL(file));
     };
 
-    useEffect(() => {
-        return () => {
-            if (performancePdfUrl.startsWith("blob:")) {
-                try {
-                    URL.revokeObjectURL(performancePdfUrl);
-                } catch {}
-            }
-        };
-    }, [performancePdfUrl]);
+    // 선택 제거
+    const clearPerformancePdf = (e?: React.MouseEvent) => {
+        e?.stopPropagation?.();
+        if (performancePdfURL?.startsWith("blob:")) {
+            try {
+                URL.revokeObjectURL(performancePdfURL);
+            } catch {}
+        }
+        setPerformancePdfFile(null);
+        setPerformancePdfURL("");
+        if (performancePdfRef.current) performancePdfRef.current.value = "";
+    };
 
     return (
         <>
@@ -310,13 +326,13 @@ export default function WritingUpload() {
                                 },
                                 {
                                     label: "제시 번호",
-                                    value: performance_number,
-                                    setter: (v: string) => setField("performance_number", v),
+                                    value: suggest_number,
+                                    setter: (v: string) => setField("suggest_number", v),
                                 },
                                 {
                                     label: "성능 번호",
-                                    value: suggest_number,
-                                    setter: (v: string) => setField("suggest_number", v),
+                                    value: performance_number,
+                                    setter: (v: string) => setField("performance_number", v),
                                 },
                                 {
                                     label: "가격",
@@ -353,40 +369,47 @@ export default function WritingUpload() {
                                         />
                                     )}
                                     {field.label === "성능 번호" && (
-                                        <ShortButton
-                                            onClick={performanceInput}
-                                            className="whitespace-nowrap bg-white border-2 border-[#2E7D32] text-[#2E7D32]"
-                                        >
-                                            성능점검표
-                                        </ShortButton>
+                                        <div className="relative group inline-flex">
+                                            <ShortButton
+                                                onClick={performanceInput}
+                                                className="whitespace-nowrap bg-white border-2 border-[#2E7D32] text-[#2E7D32]"
+                                            >
+                                                성능점검표
+                                            </ShortButton>
+
+                                            {/* 파일이 선택된 경우에만 호버 팝업 표시 */}
+                                            {performancePdfURL && (
+                                                <div
+                                                    className="
+              absolute bottom-full left-1/2 -translate-x-1/2 mb-2
+              hidden group-hover:block
+              z-50 w-[420px] h-[560px] max-w-[90vw] max-h-[70vh]
+              rounded-xl border border-gray-300 shadow-xl bg-white
+              overflow-hidden
+            "
+                                                >
+                                                    {/* 닫기(X) 버튼 */}
+                                                    <button
+                                                        type="button"
+                                                        aria-label="성능점검표 제거"
+                                                        onClick={clearPerformancePdf}
+                                                        className="absolute top-2 right-2 h-8 w-8 rounded-full bg-white/90 border border-gray-300 text-gray-700 hover:bg-white"
+                                                        title="삭제"
+                                                    >
+                                                        ×
+                                                    </button>
+
+                                                    {/* PDF 미리보기 (blob) */}
+                                                    <iframe src={performancePdfURL} className="w-full h-full" />
+                                                </div>
+                                            )}
+                                        </div>
                                     )}
                                 </div>
                             ))}
                         </div>
                     </div>
                 </div>
-
-                {/* ✅ 성능점검표 미리보기 (PDF/이미지 선택 시 표시) */}
-                {performancePdfUrl && (
-                    <div className="mt-6">
-                        <div className="flex items-center justify-between mb-2">
-                            <span className="font-semibold">성능점검표 미리보기</span>
-                            <button
-                                type="button"
-                                onClick={clearPerformance}
-                                className="text-sm px-3 py-1 border rounded"
-                            >
-                                제거
-                            </button>
-                        </div>
-                        <iframe
-                            src={performancePdfUrl}
-                            className="w-full h-[70vh] border rounded-lg"
-                            title="성능점검표"
-                        />
-                    </div>
-                )}
-
                 <EtcPoto />
                 <TextArea value={content} setContent={(v) => setField("content", v)} />
                 <div className="flex gap-3 justify-end">
@@ -404,13 +427,11 @@ export default function WritingUpload() {
                     />
                 )}
             </div>
-
-            {/* 숨김 파일 input (성능점검표) */}
             <input
                 type="file"
-                ref={performanceFileRef}
-                onChange={handlePerformanceChange}
-                accept="application/pdf,image/*"
+                accept="application/pdf"
+                ref={performancePdfRef}
+                onChange={handlePerformancePdfChange}
                 className="hidden"
             />
         </>
