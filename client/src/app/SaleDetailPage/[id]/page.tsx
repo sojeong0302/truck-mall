@@ -11,6 +11,7 @@ import { useSaleDetailStore } from "./saleDetailStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { api, authApi } from "@/lib/api";
 import Script from "next/script";
+import { ChatBubbleLeftEllipsisIcon } from "@heroicons/react/24/solid";
 
 declare global {
     interface Window {
@@ -304,8 +305,12 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
                             </button>
 
                             {/* 카카오톡 */}
-                            <button onClick={handleShareKakao} className="flex flex-col items-center gap-2 group">
-                                <div className="h-14 w-14 rounded-2xl shadow-md flex items-center justify-center group-hover:scale-105 transition bg-yellow-400 text-black">
+                            <button
+                                onClick={handleShareKakao}
+                                aria-label="카카오톡 공유"
+                                className="flex flex-col items-center gap-2 group"
+                            >
+                                <div className="h-14 w-14 rounded-2xl ring-1 ring-gray-200 shadow-md flex items-center justify-center group-hover:scale-105 transition bg-yellow-400 text-black">
                                     <ChatBubbleLeftEllipsisIcon className="w-3/4 h-3/4" />
                                 </div>
                                 <span className="text-sm">카카오톡</span>
