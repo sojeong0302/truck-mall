@@ -39,7 +39,7 @@ export default function Header() {
                     <img
                         src="/images/logo.png"
                         alt="로고"
-                        className="w-[50px] sm:w-[120px] h-auto rounded-full border-[5px] border-[#2E7D32] shadow-md"
+                        className="w-[50px] sm:w-[120px] h-auto rounded-full border-[3px] border-[#2E7D32] shadow-md"
                     />
 
                     {/* 로고 텍스트 */}

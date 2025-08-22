@@ -184,7 +184,7 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
                         <img
                             src="/images/sharing.png"
                             alt="공유하기"
-                            className="h-10 w-10 transition transform duration-200 hover:scale-110 active:scale-95"
+                            className="h-7 w-7 transition transform duration-200 hover:scale-110 active:scale-95"
                         />
                     </div>
                 </div>
