@@ -3,7 +3,7 @@ import React from "react";
 import { use, useEffect, useState } from "react";
 import SwiperWithLightbox from "@/components/SwiperWithLightbox";
 import ShortButton from "@/components/ShortButton";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthToggle } from "@/components/Header/Header.hooks";
 import Modal from "@/components/Modal";
 import { useModalStore } from "@/store/ModalStateStroe";
@@ -23,11 +23,17 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
     const { id } = use(params);
     const router = useRouter();
+    const searchParams = useSearchParams();
+
     const { isLoggedIn, toggleAuth, isHydrated } = useAuthToggle();
     const { isModalOpen, setIsModalOpen, isSaleCompleteModalOpen, setIsSaleCompleteModalOpen } = useModalStore();
     const token = useAuthStore((s) => s.token);
     const { post, loading, error, fetchById, clear } = useSaleDetailStore();
+
+    // 🔧 임시 가격(공유 전 미리보기) 상태
     const [shareOpen, setShareOpen] = useState(false);
+    const [tempPrice, setTempPrice] = useState<number | null>(null);
+
     useEffect(() => {
         fetchById(BASE_URL, id);
         return () => clear(); // 언마운트 시 상태 초기화
@@ -39,7 +45,6 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
 
     //삭제 API 연동
     const handleDelete = async () => {
-        // 토큰 없으면 로그인 페이지 이동
         if (!token) {
             alert("로그인이 필요합니다.");
             const here = window.location.pathname + window.location.search;
@@ -65,7 +70,6 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
 
     //판매완료 API 연동
     const salesCompleted = async () => {
-        // 토큰 없으면 로그인 페이지 이동
         if (!token) {
             alert("로그인이 필요합니다.");
             const here = window.location.pathname + window.location.search;
@@ -102,10 +106,22 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
     const copySuggestNumber = async () => {
         console.log("성능점검보기 클릭");
     };
+
+    // 🔧 공유용 URL 생성 (preview_price 쿼리 파라미터 적용)
+    const makeShareUrl = (override?: number | null) => {
+        const url = new URL(window.location.href);
+        if (override != null) {
+            url.searchParams.set("preview_price", String(override));
+        } else {
+            url.searchParams.delete("preview_price");
+        }
+        return url.toString();
+    };
+
     const handleShareSMS = async () => {
-        const pageUrl = typeof window !== "undefined" ? window.location.href : "";
+        const baseUrl = typeof window !== "undefined" ? makeShareUrl(currentPreview) : "";
         const title = post?.name ? `[매물] ${post.name}` : "새마일 트럭 매물";
-        const msg = `${title}\n관심 있으면 확인해보세요!\n${pageUrl}`;
+        const msg = `${title}\n관심 있으면 확인해보세요!\n${baseUrl}`;
         const body = encodeURIComponent(msg);
 
         const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
@@ -117,13 +133,13 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
             window.location.href = smsUrl;
             setShareOpen(false);
         } else {
-            await navigator.clipboard.writeText(pageUrl);
+            await navigator.clipboard.writeText(baseUrl);
             alert("링크를 복사했습니다. 모바일에서 문자로 보내주세요.");
         }
     };
 
     const handleShareKakao = () => {
-        const pageUrl = typeof window !== "undefined" ? window.location.href : "";
+        const pageUrl = typeof window !== "undefined" ? makeShareUrl(currentPreview) : "";
         const title = post?.name || "새마일 트럭";
         const text = "관심 있으면 확인해보세요!";
         const image = `${BASE_URL}/og.png`;
@@ -139,7 +155,6 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
             return;
         }
         if (!window.Kakao.isInitialized()) {
-            // 마지막 방어: 키가 있다면 즉시 초기화 시도
             try {
                 window.Kakao.init(key);
             } catch {}
@@ -168,6 +183,19 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
     };
 
     if (!post) return <div className="p-10 text-red-500">해당 게시물을 찾을 수 없습니다.</div>;
+
+    // 🔧 수신자 측 표시용: 쿼리의 preview_price가 있으면 표시만 덮어쓰기
+    const previewPriceParam = searchParams?.get("preview_price");
+    const previewPrice =
+        previewPriceParam && !Number.isNaN(Number(previewPriceParam)) ? Number(previewPriceParam) : null;
+    const displayPrice = previewPrice ?? post.price;
+
+    // 🔧 공유 전 슬라이더 범위/값 (만원 단위 가정)
+    const basePrice = post?.price ?? 0;
+    const minPreview = Math.max(0, Math.floor(basePrice * 0.8)); // -20%
+    const maxPreview = Math.max(minPreview, Math.ceil(basePrice * 1.2)); // +20%
+    const currentPreview = tempPrice ?? basePrice;
+    const formatPrice = (v: number) => `${v.toLocaleString()}만원`;
 
     return (
         <div className="w-full h-full flex justify-center flex-col items-center p-5 sm:p-15">
@@ -219,7 +247,7 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
                             { label: "제시번호", value: post.performance_number },
                             { label: "성능번호", value: post.suggest_number },
                             { label: "차량번호", value: post.car_number },
-                            { label: "가격", value: `${post.price}만원`, color: "text-[#C62828]" },
+                            { label: "가격", value: `${displayPrice}만원`, color: "text-[#C62828]" },
                             { label: "사고정보", value: "성능점검 참조" },
                             { label: "조합번호", value: "경기도자동차매매사업조합\n031-242-8940" },
                         ].map((item, idx) => (
@@ -292,11 +320,58 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
                         <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-gray-300" />
                         <div className="text-center text-lg font-bold mb-2">공유하기</div>
 
+                        {/* 🔧 가격 미리보기 슬라이더 */}
+                        <div className="mt-1 mb-2 p-3 rounded-xl border bg-gray-50">
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-sm font-semibold">가격 미리보기</span>
+                                <button
+                                    type="button"
+                                    className="text-xs underline text-gray-600"
+                                    onClick={() => setTempPrice(null)} // 원래 가격으로 리셋
+                                >
+                                    원래 가격으로
+                                </button>
+                            </div>
+
+                            <div className="text-sm text-gray-700 mb-1">
+                                현재: <span className="font-bold text-[#C62828]">{formatPrice(currentPreview)}</span>
+                                <span className="ml-2 text-xs text-gray-500">(링크로만 적용)</span>
+                            </div>
+
+                            <input
+                                type="range"
+                                min={minPreview}
+                                max={maxPreview}
+                                step={10} // 10만원 단위 조절
+                                value={currentPreview}
+                                onChange={(e) => setTempPrice(Number(e.target.value))}
+                                className="w-full"
+                            />
+
+                            <div className="mt-2 flex items-center gap-2">
+                                <input
+                                    type="number"
+                                    min={minPreview}
+                                    max={maxPreview}
+                                    step={10}
+                                    value={currentPreview}
+                                    onChange={(e) => {
+                                        const v = Number(e.target.value);
+                                        if (Number.isFinite(v)) {
+                                            const clamped = Math.min(Math.max(v, minPreview), maxPreview);
+                                            setTempPrice(clamped);
+                                        }
+                                    }}
+                                    className="w-40 rounded-md border px-2 py-1 text-sm"
+                                />
+                                <span className="text-sm text-gray-500">만원</span>
+                            </div>
+                        </div>
+
                         <div className="grid grid-cols-2 gap-4 py-3">
                             {/* 문자 */}
                             <button onClick={handleShareSMS} className="flex flex-col items-center gap-2 group">
                                 <div className="h-14 w-14 rounded-2xl ring-1 ring-gray-200 shadow-md flex items-center justify-center group-hover:scale-105 transition bg-white">
-                                    {/* 말풍선 아이콘 (SVG) */}
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-7 w-7">
                                         <path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z" />
                                     </svg>
