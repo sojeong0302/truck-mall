@@ -119,17 +119,35 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
             await navigator.clipboard.writeText(pageUrl);
             alert("링크를 복사했습니다. 모바일에서 문자로 보내주세요.");
         }
-    }; // 카카오톡으로 공유
+    };
+
     const handleShareKakao = () => {
         const pageUrl = typeof window !== "undefined" ? window.location.href : "";
         const title = post?.name || "새마일 트럭";
         const text = "관심 있으면 확인해보세요!";
-        const image = `${BASE_URL}/og.png`; // 썸네일 없으면 대체 이미지
+        const image = `${BASE_URL}/og.png`;
 
-        if (!window.Kakao || !window.Kakao.isInitialized()) {
-            alert("카카오 공유를 사용할 수 없습니다. (도메인/JS키 확인)");
+        const key = process.env.NEXT_PUBLIC_KAKAO_JS_KEY;
+
+        if (!window.Kakao) {
+            alert("카카오 SDK가 로드되지 않았습니다. (애드블록/네트워크 확인)");
             return;
         }
+        if (!key) {
+            alert("Kakao JS 키가 클라이언트에 주입되지 않았습니다. (NEXT_PUBLIC_KAKAO_JS_KEY 확인)");
+            return;
+        }
+        if (!window.Kakao.isInitialized()) {
+            // 마지막 방어: 키가 있다면 즉시 초기화 시도
+            try {
+                window.Kakao.init(key);
+            } catch {}
+        }
+        if (!window.Kakao.isInitialized()) {
+            alert("카카오 공유를 사용할 수 없습니다. (도메인/JS키/초기화 확인)");
+            return;
+        }
+
         window.Kakao.Share.sendDefault({
             objectType: "feed",
             content: {
@@ -313,14 +331,25 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
                 strategy="afterInteractive"
                 onLoad={() => {
                     const key = process.env.NEXT_PUBLIC_KAKAO_JS_KEY;
-                    if (typeof window !== "undefined" && window.Kakao) {
-                        // 이미 초기화됐다면 재초기화하지 않음
-                        if (!window.Kakao.isInitialized()) {
+
+                    console.log("[KAKAO] SDK loaded:", typeof window !== "undefined" && !!window.Kakao);
+                    console.log("[KAKAO] KEY present:", !!key);
+
+                    if (typeof window === "undefined" || !window.Kakao) {
+                        console.warn("[KAKAO] SDK not available. Check network/ad-block.");
+                        return;
+                    }
+                    if (!key) {
+                        console.warn("[KAKAO] NEXT_PUBLIC_KAKAO_JS_KEY is missing on client.");
+                        return;
+                    }
+                    if (!window.Kakao.isInitialized()) {
+                        try {
                             window.Kakao.init(key);
-                            console.log("Kakao initialized (page):", window.Kakao.isInitialized());
+                            console.log("[KAKAO] initialized:", window.Kakao.isInitialized());
+                        } catch (e) {
+                            console.error("[KAKAO] init error:", e);
                         }
-                    } else {
-                        console.warn("Kakao SDK not available. Check network/ad-block.");
                     }
                 }}
             />
