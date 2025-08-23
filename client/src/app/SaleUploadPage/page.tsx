@@ -290,8 +290,11 @@ export default function WritingUpload() {
 
             try {
                 // 클라이언트에서만 pdf.js 동적 로드 (SSR 빌드 에러 방지)
-                const pdfjs: any = await import("pdfjs-dist"); // ✅ 경로 변경
-                (pdfjs as any).GlobalWorkerOptions.workerSrc = PDF_WORKER_SRC;
+                const pdfjs: any = await import("pdfjs-dist");
+                const version = (pdfjs as any).version; // e.g. "5.4.54"
+                (
+                    pdfjs as any
+                ).GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${version}/build/pdf.worker.min.js`;
 
                 const data = await performancePdfFile.arrayBuffer();
                 const loadingTask = (pdfjs as any).getDocument({ data });
