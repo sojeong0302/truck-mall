@@ -256,6 +256,8 @@ export default function WritingUpload() {
         if (performancePdfRef.current) performancePdfRef.current.value = "";
     };
 
+    const isIOS = typeof navigator !== "undefined" && /iPad|iPhone|iPod/.test(navigator.userAgent);
+
     return (
         <>
             <SimpleFilter skipReset={true} />
@@ -394,35 +396,66 @@ export default function WritingUpload() {
                                         <div className="relative group inline-flex">
                                             <ShortButton
                                                 onClick={performanceInput}
-                                                className="whitespace-nowrap bg-white border-2 border-[#2E7D32] text-[#2E7D32]"
+                                                className="whitespace-nowrap bg-white border-2 border-[#2E7D32] text-[#2E7D2]
+    "
                                             >
                                                 성능점검표
                                             </ShortButton>
 
-                                            {/* 파일이 선택된 경우에만 호버 팝업 표시 */}
                                             {performancePdfURL && (
                                                 <div
                                                     className="
-              absolute bottom-full left-1/2 -translate-x-1/2 mb-2
-              hidden group-hover:block
-              z-50 w-[420px] h-[560px] max-w-[90vw] max-h-[70vh]
-              rounded-xl border border-gray-300 shadow-xl bg-white
-              overflow-hidden
-            "
+          absolute bottom-full left-1/2 -translate-x-1/2 mb-2
+          z-[9999] w-[420px] h-[560px] max-w-[90vw] max-h-[70vh]
+          rounded-xl border border-gray-300 shadow-xl bg-white overflow-hidden
+          opacity-0 pointer-events-none
+          group-hover:opacity-100 group-hover:pointer-events-auto
+          transition-opacity duration-150
+        "
                                                 >
-                                                    {/* 닫기(X) 버튼 */}
+                                                    {/* 닫기 버튼 */}
                                                     <button
                                                         type="button"
-                                                        aria-label="성능점검표 제거"
                                                         onClick={clearPerformancePdf}
-                                                        className="absolute top-2 right-2 h-8 w-8 rounded-full bg-white/90 border border-gray-300 text-gray-700 hover:bg-white"
+                                                        className="absolute top-2 right-2 h-8 w-8 rounded-full bg-white/90 border border-gray-300 hover:bg-white"
                                                         title="삭제"
+                                                        aria-label="성능점검표 제거"
                                                     >
                                                         ×
                                                     </button>
 
-                                                    {/* PDF 미리보기 (blob) */}
-                                                    <iframe src={performancePdfURL} className="w-full h-full" />
+                                                    {/* 1차: iframe (iOS가 아닌 경우) */}
+                                                    {!isIOS && (
+                                                        <iframe
+                                                            key={performancePdfURL}
+                                                            src={`${performancePdfURL}#toolbar=0&zoom=page-fit`}
+                                                            className="w-full h-full"
+                                                            title="성능점검표 미리보기"
+                                                        />
+                                                    )}
+
+                                                    {/* 2차: object (iOS 등 iframe 미표시 브라우저) */}
+                                                    {isIOS && (
+                                                        <object
+                                                            key={performancePdfURL}
+                                                            data={performancePdfURL}
+                                                            type="application/pdf"
+                                                            className="w-full h-full"
+                                                        >
+                                                            {/* 3차: 최종 폴백 - 새 창에서 열기 */}
+                                                            <div className="w-full h-full flex items-center justify-center text-gray-600">
+                                                                미리보기가 지원되지 않아요.
+                                                                <a
+                                                                    href={performancePdfURL}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="underline ml-2"
+                                                                >
+                                                                    새 창에서 열기
+                                                                </a>
+                                                            </div>
+                                                        </object>
+                                                    )}
                                                 </div>
                                             )}
                                         </div>
