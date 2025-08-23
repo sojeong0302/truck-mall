@@ -15,8 +15,6 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { authApi } from "@/lib/api";
 
-const PDF_WORKER_SRC = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-
 export default function WritingUpload() {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
     const modalStore = useModalStore();
@@ -289,15 +287,15 @@ export default function WritingUpload() {
             if (!showPerfPreview || !performancePdfFile || !pdfCanvasRef.current) return;
 
             try {
-                // 클라이언트에서만 pdf.js 동적 로드 (SSR 빌드 에러 방지)
+                // 클라이언트에서만 동적 로드 (SSR 방지)
                 const pdfjs: any = await import("pdfjs-dist");
-                const version = (pdfjs as any).version; // e.g. "5.4.54"
-                (
-                    pdfjs as any
-                ).GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${version}/build/pdf.worker.min.js`;
 
+                // ✅ 워커 사용 끔: 작은 1페이지 미리보기에는 충분
                 const data = await performancePdfFile.arrayBuffer();
-                const loadingTask = (pdfjs as any).getDocument({ data });
+                const loadingTask = (pdfjs as any).getDocument({
+                    data,
+                    disableWorker: true, // <-- 핵심
+                });
 
                 const pdf = await loadingTask.promise;
                 const page = await pdf.getPage(1);
@@ -319,8 +317,8 @@ export default function WritingUpload() {
 
                 await page.render({
                     canvasContext: ctx,
-                    canvas, // pdf.js v3 요구사항
                     viewport: scaled,
+                    canvas, // v3+에서 요구
                 }).promise;
             } catch (err: any) {
                 console.error("PDF preview error:", err);
