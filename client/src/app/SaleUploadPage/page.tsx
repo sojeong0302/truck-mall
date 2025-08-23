@@ -258,6 +258,35 @@ export default function WritingUpload() {
 
     const isIOS = typeof navigator !== "undefined" && /iPad|iPhone|iPod/.test(navigator.userAgent);
 
+    const [showPerfPreview, setShowPerfPreview] = useState(false);
+    const closeTimerRef = useRef<number | null>(null);
+
+    const openPreview = () => {
+        if (closeTimerRef.current) {
+            window.clearTimeout(closeTimerRef.current);
+            closeTimerRef.current = null;
+        }
+        setShowPerfPreview(true);
+    };
+
+    const scheduleClose = () => {
+        if (closeTimerRef.current) {
+            window.clearTimeout(closeTimerRef.current);
+        }
+        // 버튼→팝업 사이 간격을 건널 수 있게 약간의 딜레이
+        closeTimerRef.current = window.setTimeout(() => {
+            setShowPerfPreview(false);
+        }, 120);
+    };
+
+    useEffect(() => {
+        return () => {
+            if (closeTimerRef.current) {
+                window.clearTimeout(closeTimerRef.current);
+            }
+        };
+    }, []);
+
     return (
         <>
             <SimpleFilter skipReset={true} />
@@ -393,33 +422,43 @@ export default function WritingUpload() {
                                         />
                                     )}
                                     {field.label === "성능 번호" && (
-                                        <div className="relative group inline-flex">
+                                        <div
+                                            className="relative inline-flex"
+                                            onMouseEnter={openPreview}
+                                            onMouseLeave={scheduleClose}
+                                        >
                                             <ShortButton
                                                 onClick={performanceInput}
-                                                className="whitespace-nowrap bg-white border-2 border-[#2E7D32] text-[#2E7D2]
-    "
+                                                className="whitespace-nowrap bg-white border-2 border-[#2E7D32] text-[#2E7D32]"
                                             >
                                                 성능점검표
                                             </ShortButton>
 
                                             {performancePdfURL && (
                                                 <div
-                                                    className="
-          absolute bottom-full left-1/2 -translate-x-1/2 mb-2
-          z-[9999] w-[420px] h-[560px] max-w-[90vw] max-h-[70vh]
-          rounded-xl border border-gray-300 shadow-xl bg-white overflow-hidden
-          opacity-0 pointer-events-none
-          group-hover:opacity-100 group-hover:pointer-events-auto
-          transition-opacity duration-150
-        "
+                                                    onMouseEnter={openPreview}
+                                                    onMouseLeave={scheduleClose}
+                                                    className={[
+                                                        "absolute bottom-full left-1/2 -translate-x-1/2", // 버튼 위에 위치
+                                                        // 필요하면 간격 조금: "mb-1" (간격이 클수록 hover 끊길 수 있음)
+                                                        "z-[9999] w-[420px] h-[560px] max-w-[90vw] max-h-[70vh]",
+                                                        "rounded-xl border border-gray-300 shadow-xl bg-white overflow-hidden",
+                                                        "transition-opacity duration-150",
+                                                        showPerfPreview
+                                                            ? "opacity-100 pointer-events-auto"
+                                                            : "opacity-0 pointer-events-none",
+                                                    ].join(" ")}
                                                 >
-                                                    {/* 닫기 버튼 */}
+                                                    {/* 닫기(X) */}
                                                     <button
                                                         type="button"
-                                                        onClick={clearPerformancePdf}
+                                                        aria-label="성능점검표 제거"
+                                                        onClick={(e) => {
+                                                            clearPerformancePdf(e);
+                                                            setShowPerfPreview(false);
+                                                        }}
                                                         className="absolute top-2 right-2 h-8 w-8 rounded-full bg-white/90 border border-gray-300 hover:bg-white"
                                                         title="삭제"
-                                                        aria-label="성능점검표 제거"
                                                     >
                                                         ×
                                                     </button>
@@ -434,7 +473,7 @@ export default function WritingUpload() {
                                                         />
                                                     )}
 
-                                                    {/* 2차: object (iOS 등 iframe 미표시 브라우저) */}
+                                                    {/* 2차: object (iOS 등) */}
                                                     {isIOS && (
                                                         <object
                                                             key={performancePdfURL}
@@ -442,7 +481,7 @@ export default function WritingUpload() {
                                                             type="application/pdf"
                                                             className="w-full h-full"
                                                         >
-                                                            {/* 3차: 최종 폴백 - 새 창에서 열기 */}
+                                                            {/* 3차 폴백: 새 창으로 열기 */}
                                                             <div className="w-full h-full flex items-center justify-center text-gray-600">
                                                                 미리보기가 지원되지 않아요.
                                                                 <a
