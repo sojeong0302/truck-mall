@@ -14,17 +14,14 @@ import { useImageStore } from "@/store/imageStore";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { authApi } from "@/lib/api";
-import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
 
-// pdf.js 워커 (CDN 사용)
-GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+const PDF_WORKER_SRC = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
 export default function WritingUpload() {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
     const modalStore = useModalStore();
     const { isModalOpen, setIsModalOpen } = modalStore;
     const router = useRouter();
-
     const {
         thumbnail,
         thumbnailFile,
@@ -94,6 +91,7 @@ export default function WritingUpload() {
 
     // 등록 시도
     const handleSubmit = async () => {
+        // 토큰 없으면 로그인 페이지 이동
         if (!token) {
             alert("로그인이 만료되었어요. \n다시 로그인해 주세요.");
             const here = window.location.pathname + window.location.search;
@@ -101,6 +99,7 @@ export default function WritingUpload() {
             return;
         }
 
+        //formData=서버로 보낼 데이터 묶음
         const formData = new FormData();
         formData.append("simple_tags", JSON.stringify(simple_tags));
         formData.append("normal_tags", JSON.stringify(normal_tags));
@@ -132,7 +131,11 @@ export default function WritingUpload() {
         });
 
         formData.append("content", content);
+        for (const [key, value] of formData.entries()) {
+            console.log("formData key:", key, value);
+        }
 
+        // api 연동
         try {
             // 1) 매물 업로드
             const { data: saleRes } = await authApi.post(`${BASE_URL}/sale/uploadSale`, formData, {
@@ -158,12 +161,12 @@ export default function WritingUpload() {
             if (perfUrl && performance_number) {
                 await authApi.post(
                     `${BASE_URL}/performance`,
-                    { performance_number, images: [perfUrl] },
+                    { performance_number, images: [perfUrl] }, // API 스펙 준수
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
             }
 
-            // 4) 완료 후 이동
+            // 4) 전부 성공 후 이동
             router.push(`/SaleDetailPage/${saleRes.sale.id}`);
         } catch (error) {
             console.error("업로드 중 에러 발생:", error);
@@ -187,7 +190,7 @@ export default function WritingUpload() {
         router.back();
     };
 
-    // 사용자 선택 태그
+    // 사용자가 선택한 Filter를 보여지게 하기 위한 용도
     const selectedTags = [
         draft.manufacturer,
         draft.models[0]?.name,
@@ -195,12 +198,12 @@ export default function WritingUpload() {
         ...grades,
     ].filter(Boolean);
 
-    // 성능표 파일 탐색기 열기
+    // 파일 탐색기 열기
     const performanceInput = () => {
         performancePdfRef.current?.click();
     };
 
-    // PDF 선택 처리 (확장자 + MIME + 시그니처)
+    // 파일 선택 처리 (PDF 견고 판별: 확장자 + MIME + 시그니처)
     const handlePerformancePdfChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -239,7 +242,7 @@ export default function WritingUpload() {
         setPerformancePdfURL(URL.createObjectURL(file));
     };
 
-    // 성능표 선택 제거
+    // 선택 제거
     const clearPerformancePdf = (e?: React.MouseEvent) => {
         e?.stopPropagation?.();
         if (performancePdfURL?.startsWith("blob:")) {
@@ -253,9 +256,10 @@ export default function WritingUpload() {
         setShowPerfPreview(false);
     };
 
-    // 호버로 미리보기 on/off
+    // Hover 미리보기 상태
     const [showPerfPreview, setShowPerfPreview] = useState(false);
     const closeTimerRef = useRef<number | null>(null);
+
     const openPreview = () => {
         if (closeTimerRef.current) {
             window.clearTimeout(closeTimerRef.current);
@@ -263,10 +267,12 @@ export default function WritingUpload() {
         }
         setShowPerfPreview(true);
     };
+
     const scheduleClose = () => {
         if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
         closeTimerRef.current = window.setTimeout(() => setShowPerfPreview(false), 120);
     };
+
     useEffect(() => {
         return () => {
             if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
@@ -275,47 +281,52 @@ export default function WritingUpload() {
 
     // pdf.js 캔버스 렌더링
     const pdfCanvasRef = useRef<HTMLCanvasElement | null>(null);
+    const [pdfError, setPdfError] = useState<string | null>(null);
+
     useEffect(() => {
-        if (!performancePdfFile || !pdfCanvasRef.current) return;
+        const render = async () => {
+            setPdfError(null);
+            if (!showPerfPreview || !performancePdfFile || !pdfCanvasRef.current) return;
 
-        let cancelled = false;
-        (async () => {
             try {
-                const arrayBuf = await performancePdfFile.arrayBuffer();
-                const pdf = await getDocument({ data: arrayBuf }).promise;
-                if (cancelled) return;
+                // 클라이언트에서만 pdf.js 동적 로드 (SSR 빌드 에러 방지)
+                const pdfjs: any = await import("pdfjs-dist"); // ✅ 경로 변경
+                (pdfjs as any).GlobalWorkerOptions.workerSrc = PDF_WORKER_SRC;
 
+                const data = await performancePdfFile.arrayBuffer();
+                const loadingTask = (pdfjs as any).getDocument({ data });
+
+                const pdf = await loadingTask.promise;
                 const page = await pdf.getPage(1);
 
                 const canvas = pdfCanvasRef.current!;
                 const ctx = canvas.getContext("2d")!;
 
                 const parent = canvas.parentElement as HTMLElement | null;
-                const targetWidth = Math.min(parent?.clientWidth || 420, 420); // 팝업 폭 기준
+                const targetWidth = Math.min(parent?.clientWidth || 420, 420);
+
                 const viewport = page.getViewport({ scale: 1 });
                 const scale = targetWidth / viewport.width;
                 const scaled = page.getViewport({ scale });
 
                 canvas.width = Math.ceil(scaled.width);
                 canvas.height = Math.ceil(scaled.height);
-                canvas.style.width = `${Math.ceil(scaled.width)}px`;
-                canvas.style.height = `${Math.ceil(scaled.height)}px`;
+                canvas.style.width = `${canvas.width}px`;
+                canvas.style.height = `${canvas.height}px`;
 
-                // ✅ pdf.js v3 타입 요구사항 충족: canvas 함께 전달
                 await page.render({
                     canvasContext: ctx,
-                    canvas, // ← 이 줄 추가
+                    canvas, // pdf.js v3 요구사항
                     viewport: scaled,
                 }).promise;
-            } catch (err) {
-                console.error("PDF preview render error:", err);
+            } catch (err: any) {
+                console.error("PDF preview error:", err);
+                setPdfError(err?.message || "미리보기를 표시할 수 없어요.");
             }
-        })();
-
-        return () => {
-            cancelled = true;
         };
-    }, [performancePdfFile]);
+
+        render();
+    }, [showPerfPreview, performancePdfFile]);
 
     return (
         <>
@@ -453,7 +464,6 @@ export default function WritingUpload() {
                                         />
                                     )}
 
-                                    {/* 성능 번호 옆 버튼 + 미리보기 */}
                                     {field.label === "성능 번호" && (
                                         <div
                                             className="relative inline-flex"
@@ -485,20 +495,32 @@ export default function WritingUpload() {
                                                     <button
                                                         type="button"
                                                         aria-label="성능점검표 제거"
-                                                        onClick={(e) => {
-                                                            clearPerformancePdf(e);
-                                                            setShowPerfPreview(false);
-                                                        }}
+                                                        onClick={clearPerformancePdf}
                                                         className="absolute top-2 right-2 h-8 w-8 rounded-full bg-white/90 border border-gray-300 hover:bg-white"
                                                         title="삭제"
                                                     >
                                                         ×
                                                     </button>
 
-                                                    {/* pdf.js 캔버스 미리보기 (첫 페이지) */}
-                                                    <div className="w-[420px] h-[560px] max-w-[90vw] max-h-[70vh]">
-                                                        <canvas ref={pdfCanvasRef} className="block mx-auto" />
+                                                    {/* PDF 미리보기 (canvas) */}
+                                                    <div className="w-full h-full flex items-center justify-center">
+                                                        <canvas ref={pdfCanvasRef} />
                                                     </div>
+
+                                                    {/* 폴백 링크 (문제 시 새 창 열기) */}
+                                                    {pdfError && (
+                                                        <div className="absolute inset-0 flex items-center justify-center text-gray-600 bg-white/70">
+                                                            미리보기를 표시할 수 없어요.&nbsp;
+                                                            <a
+                                                                href={performancePdfURL}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="underline"
+                                                            >
+                                                                새 창에서 열기
+                                                            </a>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             )}
                                         </div>
@@ -529,7 +551,7 @@ export default function WritingUpload() {
                 )}
             </div>
 
-            {/* 성능표 파일 선택 input */}
+            {/* 성능점검표 파일 선택 input (숨김) */}
             <input
                 type="file"
                 accept="application/pdf,.pdf"
