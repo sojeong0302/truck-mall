@@ -13,6 +13,7 @@
     "axios": "^1.11.0",
     "framer-motion": "^12.23.11",
     "next": "15.4.4",
+    "pdfjs-dist": "^5.4.54",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-range": "^1.10.0",

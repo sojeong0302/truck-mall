@@ -14,12 +14,17 @@ import { useImageStore } from "@/store/imageStore";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { authApi } from "@/lib/api";
+import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
+
+// pdf.js 워커 (CDN 사용)
+GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
 export default function WritingUpload() {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
     const modalStore = useModalStore();
     const { isModalOpen, setIsModalOpen } = modalStore;
     const router = useRouter();
+
     const {
         thumbnail,
         thumbnailFile,
@@ -47,9 +52,11 @@ export default function WritingUpload() {
 
     const rawGrades = draft.models[0]?.subModels[0]?.grades as string | string[];
     const grades = typeof rawGrades === "string" ? rawGrades.split("/") : Array.isArray(rawGrades) ? rawGrades : [];
+
     const performancePdfRef = useRef<HTMLInputElement | null>(null);
     const [performancePdfFile, setPerformancePdfFile] = useState<File | null>(null);
     const [performancePdfURL, setPerformancePdfURL] = useState<string>("");
+
     const normal_tags = {
         manufacturer: draft.manufacturer,
         models: [
@@ -87,7 +94,6 @@ export default function WritingUpload() {
 
     // 등록 시도
     const handleSubmit = async () => {
-        // 토큰 없으면 로그인 페이지 이동
         if (!token) {
             alert("로그인이 만료되었어요. \n다시 로그인해 주세요.");
             const here = window.location.pathname + window.location.search;
@@ -95,7 +101,6 @@ export default function WritingUpload() {
             return;
         }
 
-        //formData=서버로 보낼 데이터 묶음
         const formData = new FormData();
         formData.append("simple_tags", JSON.stringify(simple_tags));
         formData.append("normal_tags", JSON.stringify(normal_tags));
@@ -127,11 +132,7 @@ export default function WritingUpload() {
         });
 
         formData.append("content", content);
-        for (const [key, value] of formData.entries()) {
-            console.log("formData key:", key, value);
-        }
 
-        // api 연동
         try {
             // 1) 매물 업로드
             const { data: saleRes } = await authApi.post(`${BASE_URL}/sale/uploadSale`, formData, {
@@ -157,12 +158,12 @@ export default function WritingUpload() {
             if (perfUrl && performance_number) {
                 await authApi.post(
                     `${BASE_URL}/performance`,
-                    { performance_number, images: [perfUrl] }, // API 스펙 준수
+                    { performance_number, images: [perfUrl] },
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
             }
 
-            // 4) ✅ 전부 성공 후 이동
+            // 4) 완료 후 이동
             router.push(`/SaleDetailPage/${saleRes.sale.id}`);
         } catch (error) {
             console.error("업로드 중 에러 발생:", error);
@@ -186,7 +187,7 @@ export default function WritingUpload() {
         router.back();
     };
 
-    // 사용자가 선택한 Filter를 보여지게 하기 위한 용도
+    // 사용자 선택 태그
     const selectedTags = [
         draft.manufacturer,
         draft.models[0]?.name,
@@ -194,13 +195,12 @@ export default function WritingUpload() {
         ...grades,
     ].filter(Boolean);
 
-    // 파일 탐색기 열기
+    // 성능표 파일 탐색기 열기
     const performanceInput = () => {
         performancePdfRef.current?.click();
     };
 
-    // 파일 선택 처리
-    // 파일 선택 처리 (PDF 견고 판별: 확장자 + MIME + 시그니처)
+    // PDF 선택 처리 (확장자 + MIME + 시그니처)
     const handlePerformancePdfChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -212,19 +212,16 @@ export default function WritingUpload() {
         const mimeLooksPdf =
             type === "application/pdf" ||
             type === "application/x-pdf" ||
-            type === "application/octet-stream" || // 일부 모바일/다운로드 경로
+            type === "application/octet-stream" ||
             type === "application/force-download" ||
-            type === ""; // 빈 MIME도 종종 옴
+            type === "";
 
-        // 파일 헤더 앞 5바이트 읽어서 %PDF 시그니처 확인
         let headerIsPdf = false;
         try {
             const buf = await file.slice(0, 5).arrayBuffer();
             const ascii = new TextDecoder("ascii").decode(new Uint8Array(buf));
             headerIsPdf = ascii.startsWith("%PDF");
-        } catch (_) {
-            // 읽기 실패해도 무시
-        }
+        } catch {}
 
         if (!(headerIsPdf || (hasPdfExt && mimeLooksPdf))) {
             alert("PDF 파일만 업로드할 수 있어요.");
@@ -232,7 +229,6 @@ export default function WritingUpload() {
             return;
         }
 
-        // 이전 blob URL 정리
         if (performancePdfURL?.startsWith("blob:")) {
             try {
                 URL.revokeObjectURL(performancePdfURL);
@@ -243,7 +239,7 @@ export default function WritingUpload() {
         setPerformancePdfURL(URL.createObjectURL(file));
     };
 
-    // 선택 제거
+    // 성능표 선택 제거
     const clearPerformancePdf = (e?: React.MouseEvent) => {
         e?.stopPropagation?.();
         if (performancePdfURL?.startsWith("blob:")) {
@@ -254,13 +250,12 @@ export default function WritingUpload() {
         setPerformancePdfFile(null);
         setPerformancePdfURL("");
         if (performancePdfRef.current) performancePdfRef.current.value = "";
+        setShowPerfPreview(false);
     };
 
-    const isIOS = typeof navigator !== "undefined" && /iPad|iPhone|iPod/.test(navigator.userAgent);
-
+    // 호버로 미리보기 on/off
     const [showPerfPreview, setShowPerfPreview] = useState(false);
     const closeTimerRef = useRef<number | null>(null);
-
     const openPreview = () => {
         if (closeTimerRef.current) {
             window.clearTimeout(closeTimerRef.current);
@@ -268,24 +263,59 @@ export default function WritingUpload() {
         }
         setShowPerfPreview(true);
     };
-
     const scheduleClose = () => {
-        if (closeTimerRef.current) {
-            window.clearTimeout(closeTimerRef.current);
-        }
-        // 버튼→팝업 사이 간격을 건널 수 있게 약간의 딜레이
-        closeTimerRef.current = window.setTimeout(() => {
-            setShowPerfPreview(false);
-        }, 120);
+        if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
+        closeTimerRef.current = window.setTimeout(() => setShowPerfPreview(false), 120);
     };
-
     useEffect(() => {
         return () => {
-            if (closeTimerRef.current) {
-                window.clearTimeout(closeTimerRef.current);
-            }
+            if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
         };
     }, []);
+
+    // pdf.js 캔버스 렌더링
+    const pdfCanvasRef = useRef<HTMLCanvasElement | null>(null);
+    useEffect(() => {
+        if (!performancePdfFile || !pdfCanvasRef.current) return;
+
+        let cancelled = false;
+        (async () => {
+            try {
+                const arrayBuf = await performancePdfFile.arrayBuffer();
+                const pdf = await getDocument({ data: arrayBuf }).promise;
+                if (cancelled) return;
+
+                const page = await pdf.getPage(1);
+
+                const canvas = pdfCanvasRef.current!;
+                const ctx = canvas.getContext("2d")!;
+
+                const parent = canvas.parentElement as HTMLElement | null;
+                const targetWidth = Math.min(parent?.clientWidth || 420, 420); // 팝업 폭 기준
+                const viewport = page.getViewport({ scale: 1 });
+                const scale = targetWidth / viewport.width;
+                const scaled = page.getViewport({ scale });
+
+                canvas.width = Math.ceil(scaled.width);
+                canvas.height = Math.ceil(scaled.height);
+                canvas.style.width = `${Math.ceil(scaled.width)}px`;
+                canvas.style.height = `${Math.ceil(scaled.height)}px`;
+
+                // ✅ pdf.js v3 타입 요구사항 충족: canvas 함께 전달
+                await page.render({
+                    canvasContext: ctx,
+                    canvas, // ← 이 줄 추가
+                    viewport: scaled,
+                }).promise;
+            } catch (err) {
+                console.error("PDF preview render error:", err);
+            }
+        })();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [performancePdfFile]);
 
     return (
         <>
@@ -335,6 +365,7 @@ export default function WritingUpload() {
                             />
                         )}
                     </div>
+
                     {/* 상세란 */}
                     <div className="flex flex-col justify-around">
                         <input
@@ -421,6 +452,8 @@ export default function WritingUpload() {
                                             placeholder={`${field.label}을 입력해 주세요.`}
                                         />
                                     )}
+
+                                    {/* 성능 번호 옆 버튼 + 미리보기 */}
                                     {field.label === "성능 번호" && (
                                         <div
                                             className="relative inline-flex"
@@ -439,8 +472,7 @@ export default function WritingUpload() {
                                                     onMouseEnter={openPreview}
                                                     onMouseLeave={scheduleClose}
                                                     className={[
-                                                        "absolute bottom-full left-1/2 -translate-x-1/2", // 버튼 위에 위치
-                                                        // 필요하면 간격 조금: "mb-1" (간격이 클수록 hover 끊길 수 있음)
+                                                        "absolute bottom-full left-1/2 -translate-x-1/2",
                                                         "z-[9999] w-[420px] h-[560px] max-w-[90vw] max-h-[70vh]",
                                                         "rounded-xl border border-gray-300 shadow-xl bg-white overflow-hidden",
                                                         "transition-opacity duration-150",
@@ -463,38 +495,10 @@ export default function WritingUpload() {
                                                         ×
                                                     </button>
 
-                                                    {/* 1차: iframe (iOS가 아닌 경우) */}
-                                                    {!isIOS && (
-                                                        <iframe
-                                                            key={performancePdfURL}
-                                                            src={`${performancePdfURL}#toolbar=0&zoom=page-fit`}
-                                                            className="w-full h-full"
-                                                            title="성능점검표 미리보기"
-                                                        />
-                                                    )}
-
-                                                    {/* 2차: object (iOS 등) */}
-                                                    {isIOS && (
-                                                        <object
-                                                            key={performancePdfURL}
-                                                            data={performancePdfURL}
-                                                            type="application/pdf"
-                                                            className="w-full h-full"
-                                                        >
-                                                            {/* 3차 폴백: 새 창으로 열기 */}
-                                                            <div className="w-full h-full flex items-center justify-center text-gray-600">
-                                                                미리보기가 지원되지 않아요.
-                                                                <a
-                                                                    href={performancePdfURL}
-                                                                    target="_blank"
-                                                                    rel="noopener noreferrer"
-                                                                    className="underline ml-2"
-                                                                >
-                                                                    새 창에서 열기
-                                                                </a>
-                                                            </div>
-                                                        </object>
-                                                    )}
+                                                    {/* pdf.js 캔버스 미리보기 (첫 페이지) */}
+                                                    <div className="w-[420px] h-[560px] max-w-[90vw] max-h-[70vh]">
+                                                        <canvas ref={pdfCanvasRef} className="block mx-auto" />
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>
@@ -504,8 +508,10 @@ export default function WritingUpload() {
                         </div>
                     </div>
                 </div>
+
                 <EtcPoto />
                 <TextArea value={content} setContent={(v) => setField("content", v)} />
+
                 <div className="flex gap-3 justify-end">
                     <ShortButton onClick={handleSubmit} className="bg-[#2E7D32] text-white">
                         등록하기
@@ -514,6 +520,7 @@ export default function WritingUpload() {
                         취소
                     </ShortButton>
                 </div>
+
                 {isModalOpen && (
                     <Modal
                         onConfirm={handleCancel}
@@ -521,9 +528,11 @@ export default function WritingUpload() {
                     />
                 )}
             </div>
+
+            {/* 성능표 파일 선택 input */}
             <input
                 type="file"
-                accept="application/pdf,.pdf" // 확장자도 허용
+                accept="application/pdf,.pdf"
                 ref={performancePdfRef}
                 onChange={handlePerformancePdfChange}
                 className="hidden"

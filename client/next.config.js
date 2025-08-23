@@ -17,14 +17,11 @@ const nextConfig = {
                             "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
                             "style-src 'self' 'unsafe-inline' https:",
                             "connect-src *",
-                            // ⬇️ 핵심: blob: (필요시 data:) 명시
                             "frame-src 'self' blob: data: https: http:",
-                            // 일부 브라우저/구버전 호환
                             "child-src 'self' blob: data: https: http:",
-                            // <object>/<embed>로 열 때 대비
                             "object-src 'self' blob: data:",
-                            // pdf.js/워커 대비
-                            "worker-src 'self' blob:",
+                            // ⬇️ 이 줄이 중요 (pdf.js 워커용)
+                            "worker-src 'self' blob: https:",
                         ].join("; "),
                     },
                 ],
