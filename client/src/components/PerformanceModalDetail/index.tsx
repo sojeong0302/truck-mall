@@ -32,11 +32,10 @@ export default function PerformanceDetail() {
         };
         fetchPDF();
     }, [isOpen, performanceNumber]);
-
-    if (!isOpen) return null;
-
     // 첫 번째 PDF만 표시 (여러 개면 슬라이더/탭 등으로 확장 가능)
     const firstPdf = useMemo(() => (pdfUrls[0] ? resolveUrl(pdfUrls[0]) : null), [pdfUrls]);
+
+    if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 z-[1000] grid place-items-center">
