@@ -208,6 +208,11 @@ def register_sale():
         return jsonify({"message": "등록 성공", "sale": sale.to_dict()}), 201
 
     except Exception as e:
+        import traceback
+
+        current_app.logger.error(
+            "register_sale error: %s\n%s", e, traceback.format_exc()
+        )
         return jsonify({"error": str(e)}), 400
 
 
