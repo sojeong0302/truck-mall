@@ -26,12 +26,24 @@ export default function PerformanceModal() {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        if (file.type !== "application/pdf") {
+        // ✅ 다양한 경우 허용: 확장자 .pdf || MIME에 pdf 포함
+        const isPdf =
+            /\.pdf$/i.test(file.name) ||
+            file.type === "application/pdf" ||
+            file.type === "application/x-pdf" ||
+            file.type === "application/acrobat" ||
+            file.type === "applications/vnd.pdf" ||
+            file.type === "text/pdf" ||
+            file.type.includes("pdf"); // 혹시 모를 변종 MIME
+
+        if (!isPdf) {
             alert("PDF만 선택 가능합니다");
+            // 잘못 선택했으면 초기화
+            e.currentTarget.value = "";
             return;
         }
 
-        // ✅ 브라우저 메모리 blob URL 생성
+        // ✅ 미리보기용 blob URL 생성
         const url = URL.createObjectURL(file);
         setPdfUrl(url);
     };
@@ -55,7 +67,7 @@ export default function PerformanceModal() {
 
                 <input
                     type="file"
-                    accept="application/pdf"
+                    accept=".pdf,application/pdf" // 확장자/타입 둘 다 허용
                     ref={fileInputRef}
                     onChange={handleFileChange}
                     className="hidden"
