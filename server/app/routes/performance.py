@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from ..extensions import db
 from ..models.sale_model import Sale
-from ..models.inspection_model import PerformanceInspection
+from ..models.performance_model import PerformanceInspection
 
 bp = Blueprint("performance", __name__, url_prefix="/performance")
 
