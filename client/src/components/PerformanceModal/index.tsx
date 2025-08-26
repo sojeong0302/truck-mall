@@ -26,12 +26,12 @@ export default function PerformanceModal() {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
-            alert("PDF 파일만 선택해주세요.");
-            if (fileInputRef.current) fileInputRef.current.value = "";
+        if (file.type !== "application/pdf") {
+            alert("PDF만 선택 가능합니다");
             return;
         }
 
+        // ✅ 브라우저 메모리 blob URL 생성
         const url = URL.createObjectURL(file);
         setPdfUrl(url);
     };
