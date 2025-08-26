@@ -5,6 +5,7 @@ from werkzeug.utils import secure_filename
 import os, json, datetime
 from flask_jwt_extended import jwt_required
 from urllib.parse import urlparse
+from ..models.performance_model import PerformanceInspection
 
 sale_bp = Blueprint("sale", __name__)
 
@@ -165,8 +166,44 @@ def register_sale():
 
         sale.images = image_paths
 
+        pdf_file = files.get("performance_pdf")  # 프론트에서 같이 보낼 키
+        perf_no = (form.get("performance_number") or "").strip()
+
+        # 먼저 sale 저장(UNIQUE 검증 포함) → FK가 가리킬 대상 보장
         db.session.add(sale)
         db.session.commit()
+
+        if pdf_file and getattr(pdf_file, "filename", ""):
+            # 확장자 가드(환경에 따라 MIME이 `application/haansoftpdf` 등으로 올 수 있음)
+            if not pdf_file.filename.lower().endswith(".pdf"):
+                return jsonify({"error": "performance_pdf must be .pdf"}), 400
+
+            # PDF 저장(정적 경로 반환)
+            pdf_url = save_uploaded_file(
+                pdf_file
+            )  # 예: /static/uploads/2025..._xxx.pdf
+
+            # perf_no가 있어야 FK 연결 가능 (없으면 업서트 생략)
+            if perf_no:
+                pi = PerformanceInspection.query.filter_by(
+                    performance_number=perf_no
+                ).first()
+
+                if pi:
+                    # 기존 레코드면 images 갱신(중복 방지)
+                    imgs = pi.images or []
+                    if pdf_url not in imgs:
+                        imgs = imgs + [pdf_url] if isinstance(imgs, list) else [pdf_url]
+                    pi.images = imgs
+                else:
+                    # 새 레코드 생성 (FK: sale.performance_number)
+                    pi = PerformanceInspection(
+                        performance_number=perf_no,
+                        images=[pdf_url],
+                    )
+                    db.session.add(pi)
+
+                db.session.commit()
 
         return jsonify({"message": "등록 성공", "sale": sale.to_dict()}), 201
 

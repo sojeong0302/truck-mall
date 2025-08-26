@@ -97,11 +97,11 @@ export default function WritingUpload() {
             return;
         }
 
-        //formData=서버로 보낼 데이터 묶음
+        // formData = 서버로 보낼 데이터 묶음
         const formData = new FormData();
-        formData.append("simple_tags", JSON.stringify(simple_tags));
-        formData.append("normal_tags", JSON.stringify(normal_tags));
-        formData.append("transmission", transmission);
+        formData.append("simple_tags", JSON.stringify(simple_tags ?? []));
+        formData.append("normal_tags", JSON.stringify(normal_tags ?? {}));
+        formData.append("transmission", transmission ?? "");
 
         if (thumbnailFile) {
             formData.append("thumbnail", thumbnailFile, thumbnailFile.name);
@@ -110,17 +110,17 @@ export default function WritingUpload() {
             formData.append("thumbnail", new File([blob], "thumbnail.jpg", { type: blob.type }));
         }
 
-        formData.append("name", name);
-        formData.append("fuel", fuel);
-        formData.append("year", year);
-        formData.append("mileage", mileage);
-        formData.append("color", color);
-        formData.append("price", price);
-        formData.append("simple_content", simple_content);
-        formData.append("vin", vin);
-        formData.append("performance_number", performance_number);
-        formData.append("suggest_number", suggest_number);
-        formData.append("car_number", car_number);
+        formData.append("name", name ?? "");
+        formData.append("fuel", fuel ?? "");
+        formData.append("year", year ?? "");
+        formData.append("mileage", mileage ?? "");
+        formData.append("color", color ?? "");
+        formData.append("price", price ?? "");
+        formData.append("simple_content", simple_content ?? "");
+        formData.append("vin", vin ?? "");
+        formData.append("performance_number", performance_number ?? "");
+        formData.append("suggest_number", suggest_number ?? "");
+        formData.append("car_number", car_number ?? "");
 
         files.forEach((file) => {
             if (file instanceof File && file.name) {
@@ -128,40 +128,26 @@ export default function WritingUpload() {
             }
         });
 
-        formData.append("content", content);
+        // ✅ 성능점검 PDF를 같은 요청에 포함
+        if (pdfFile) {
+            formData.append("performance_pdf", pdfFile, pdfFile.name);
+        }
+
+        formData.append("content", content ?? "");
+
+        // 디버그 로그
         for (const [key, value] of formData.entries()) {
             console.log("formData key:", key, value);
         }
 
-        // api 연동
+        // api 연동 (한 번의 요청으로 끝)
         try {
             const { data } = await authApi.post(`${BASE_URL}/sale/uploadSale`, formData, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            if (pdfFile) {
-                const f = new FormData();
-                f.append("file", pdfFile, pdfFile.name);
 
-                const { data: uploadRes } = await authApi.post(`${BASE_URL}/files/upload`, f, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-
-                const perfUrl = uploadRes?.url;
-                if (performance_number && perfUrl) {
-                    await authApi.post(
-                        `${BASE_URL}/performance`,
-                        {
-                            performance_number, // 사용자가 입력한 성능 번호
-                            sale_id: data.sale.id, // 연동하고 싶으면 같이 보내기(백엔드 스펙에 따라)
-                            images: [perfUrl], // PDF지만 파일 서버가 url로 주면 그대로 저장
-                        },
-                        { headers: { Authorization: `Bearer ${token}` } }
-                    );
-                }
-            }
-
-            // 성공 후 정리
-            resetPerfModal(); // ✅ 모달 상태 초기화
+            // ✅ 성공 후 모달 상태 초기화 & 페이지 이동
+            resetPerfModal();
             router.push(`/SaleDetailPage/${data.sale.id}`);
         } catch (error) {
             console.error("업로드 중 에러 발생:", error);
