@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef } from "react";
 import EtcPoto from "@/components/EtcPoto";
 import TextArea from "@/components/TextArea";
 import ShortButton from "@/components/ShortButton";
@@ -14,6 +14,8 @@ import { useImageStore } from "@/store/imageStore";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { authApi } from "@/lib/api";
+import PerformanceModal from "@/components/PerformanceModal";
+import { openPerformanceModal } from "@/components/PerformanceModal/PerformanceModal.hooks";
 
 export default function WritingUpload() {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -47,9 +49,7 @@ export default function WritingUpload() {
 
     const rawGrades = draft.models[0]?.subModels[0]?.grades as string | string[];
     const grades = typeof rawGrades === "string" ? rawGrades.split("/") : Array.isArray(rawGrades) ? rawGrades : [];
-    const performancePdfRef = useRef<HTMLInputElement | null>(null);
-    const [performancePdfFile, setPerformancePdfFile] = useState<File | null>(null);
-    const [performancePdfURL, setPerformancePdfURL] = useState<string>("");
+
     const normal_tags = {
         manufacturer: draft.manufacturer,
         models: [
@@ -144,24 +144,6 @@ export default function WritingUpload() {
         } catch (error) {
             console.error("업로드 중 에러 발생:", error);
         }
-
-        // 성능점검표 파일 첨부(파일 자체를 업로드하는 경우)
-        if (performancePdfFile) {
-            const f = new FormData();
-            f.append("file", performancePdfFile, performancePdfFile.name);
-            const { data: uploadRes } = await authApi.post(`${BASE_URL}/files/upload`, f, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            const perfUrl = uploadRes?.url;
-
-            if (performance_number && perfUrl) {
-                await authApi.post(
-                    `${BASE_URL}/performance`,
-                    { performance_number, images: [perfUrl] },
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
-            }
-        }
     };
 
     // 썸네일 삭제
@@ -188,46 +170,6 @@ export default function WritingUpload() {
         draft.models[0]?.subModels[0]?.name,
         ...grades,
     ].filter(Boolean);
-
-    // 파일 탐색기 열기
-    const performanceInput = () => {
-        performancePdfRef.current?.click();
-    };
-
-    // 파일 선택 처리
-    const handlePerformancePdfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        if (file.type !== "application/pdf") {
-            alert("PDF 파일만 업로드할 수 있어요.");
-            e.currentTarget.value = "";
-            return;
-        }
-
-        // 기존 blob URL 정리
-        if (performancePdfURL?.startsWith("blob:")) {
-            try {
-                URL.revokeObjectURL(performancePdfURL);
-            } catch {}
-        }
-
-        setPerformancePdfFile(file);
-        setPerformancePdfURL(URL.createObjectURL(file));
-    };
-
-    // 선택 제거
-    const clearPerformancePdf = (e?: React.MouseEvent) => {
-        e?.stopPropagation?.();
-        if (performancePdfURL?.startsWith("blob:")) {
-            try {
-                URL.revokeObjectURL(performancePdfURL);
-            } catch {}
-        }
-        setPerformancePdfFile(null);
-        setPerformancePdfURL("");
-        if (performancePdfRef.current) performancePdfRef.current.value = "";
-    };
 
     return (
         <>
@@ -366,38 +308,11 @@ export default function WritingUpload() {
                                     {field.label === "성능 번호" && (
                                         <div className="relative group inline-flex">
                                             <ShortButton
-                                                onClick={performanceInput}
+                                                onClick={() => openPerformanceModal()}
                                                 className="whitespace-nowrap bg-white border-2 border-[#2E7D32] text-[#2E7D32]"
                                             >
                                                 성능점검표
                                             </ShortButton>
-
-                                            {/* 파일이 선택된 경우에만 호버 팝업 표시 */}
-                                            {performancePdfURL && (
-                                                <div
-                                                    className="
-              absolute bottom-full left-1/2 -translate-x-1/2 mb-2
-              hidden group-hover:block
-              z-50 w-[420px] h-[560px] max-w-[90vw] max-h-[70vh]
-              rounded-xl border border-gray-300 shadow-xl bg-white
-              overflow-hidden
-            "
-                                                >
-                                                    {/* 닫기(X) 버튼 */}
-                                                    <button
-                                                        type="button"
-                                                        aria-label="성능점검표 제거"
-                                                        onClick={clearPerformancePdf}
-                                                        className="absolute top-2 right-2 h-8 w-8 rounded-full bg-white/90 border border-gray-300 text-gray-700 hover:bg-white"
-                                                        title="삭제"
-                                                    >
-                                                        ×
-                                                    </button>
-
-                                                    {/* PDF 미리보기 (blob) */}
-                                                    <iframe src={performancePdfURL} className="w-full h-full" />
-                                                </div>
-                                            )}
                                         </div>
                                     )}
                                 </div>
@@ -421,14 +336,8 @@ export default function WritingUpload() {
                         text={"작성 중인 내용이 모두 삭제됩니다.\n그래도 취소하시겠습니까?"}
                     />
                 )}
+                <PerformanceModal />
             </div>
-            <input
-                type="file"
-                accept="application/pdf"
-                ref={performancePdfRef}
-                onChange={handlePerformancePdfChange}
-                className="hidden"
-            />
         </>
     );
 }
