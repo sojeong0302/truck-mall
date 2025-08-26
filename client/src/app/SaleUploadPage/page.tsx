@@ -16,6 +16,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { authApi } from "@/lib/api";
 import PerformanceModal from "@/components/PerformanceModal";
 import { openPerformanceModal } from "@/components/PerformanceModal/PerformanceModal.hooks";
+import { usePerformanceModal } from "@/components/PerformanceModal/PerformanceModal.hooks";
 
 export default function WritingUpload() {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -49,6 +50,7 @@ export default function WritingUpload() {
 
     const rawGrades = draft.models[0]?.subModels[0]?.grades as string | string[];
     const grades = typeof rawGrades === "string" ? rawGrades.split("/") : Array.isArray(rawGrades) ? rawGrades : [];
+    const { pdfFile, reset: resetPerfModal } = usePerformanceModal();
 
     const normal_tags = {
         manufacturer: draft.manufacturer,
@@ -136,11 +138,31 @@ export default function WritingUpload() {
             const { data } = await authApi.post(`${BASE_URL}/sale/uploadSale`, formData, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            console.log(simple_content);
-            // 잘못된 부분 수정!
+            if (pdfFile) {
+                const f = new FormData();
+                f.append("file", pdfFile, pdfFile.name);
+
+                const { data: uploadRes } = await authApi.post(`${BASE_URL}/files/upload`, f, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                const perfUrl = uploadRes?.url;
+                if (performance_number && perfUrl) {
+                    await authApi.post(
+                        `${BASE_URL}/performance`,
+                        {
+                            performance_number, // 사용자가 입력한 성능 번호
+                            sale_id: data.sale.id, // 연동하고 싶으면 같이 보내기(백엔드 스펙에 따라)
+                            images: [perfUrl], // PDF지만 파일 서버가 url로 주면 그대로 저장
+                        },
+                        { headers: { Authorization: `Bearer ${token}` } }
+                    );
+                }
+            }
+
+            // 성공 후 정리
+            resetPerfModal(); // ✅ 모달 상태 초기화
             router.push(`/SaleDetailPage/${data.sale.id}`);
-            console.log("성공");
-            console.log(data.sale);
         } catch (error) {
             console.error("업로드 중 에러 발생:", error);
         }

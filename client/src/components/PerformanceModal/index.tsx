@@ -5,7 +5,7 @@ import ShortButton from "../ShortButton";
 import { usePerformanceModal } from "./PerformanceModal.hooks";
 
 export default function PerformanceModal() {
-    const { isOpen, close } = usePerformanceModal();
+    const { isOpen, close, setPdfFile } = usePerformanceModal();
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     // 미리보기 URL (blob 전용)
@@ -26,41 +26,25 @@ export default function PerformanceModal() {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // 확장자 체크 (이름 기준)
         const isPdfName = /\.pdf$/i.test(file.name);
-
-        // 일부 환경은 file.type === "application/haansoftpdf" 또는 빈 문자열로 옴
         const looksLikePdf = isPdfName || file.type === "application/pdf" || file.type.includes("pdf");
-
         if (!looksLikePdf) {
             alert("PDF만 선택 가능합니다.");
             e.currentTarget.value = "";
             return;
         }
 
-        // 👉 핵심: 'application/pdf'로 강제 래핑해서 blob URL 생성
-        let blob: Blob;
-
-        try {
-            // 파일을 바이트로 읽은 뒤, 올바른 MIME으로 새 Blob 생성
-            const buf = await file.arrayBuffer();
-            blob = new Blob([buf], { type: "application/pdf" });
-        } catch {
-            // 혹시 arrayBuffer가 막히면 slice로 추출
-            blob = file.slice(0, file.size, "application/pdf");
-        }
-
+        // 미리보기용 Blob(URL)
+        const buf = await file.arrayBuffer();
+        const blob = new Blob([buf], { type: "application/pdf" });
         const url = URL.createObjectURL(blob);
         setPdfUrl((prev) => {
             if (prev) URL.revokeObjectURL(prev);
             return url;
         });
-    };
 
-    const clearPdf = () => {
-        if (fileInputRef.current) fileInputRef.current.value = "";
-        if (pdfUrl) URL.revokeObjectURL(pdfUrl);
-        setPdfUrl(null);
+        // ✅ 업로드용 원본 File은 Zustand에 보관
+        setPdfFile(file);
     };
 
     return (
