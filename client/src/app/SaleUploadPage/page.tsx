@@ -149,6 +149,7 @@ export default function WritingUpload() {
             // ✅ 성공 후 모달 상태 초기화 & 페이지 이동
             resetPerfModal();
             router.push(`/SaleDetailPage/${data.sale.id}`);
+            console.log(data.data);
         } catch (error) {
             console.error("업로드 중 에러 발생:", error);
         }
