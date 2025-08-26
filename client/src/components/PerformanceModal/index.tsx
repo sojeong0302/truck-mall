@@ -6,19 +6,19 @@ import { usePerformanceModal } from "./PerformanceModal.hooks";
 
 export default function PerformanceModal() {
     const { isOpen, close } = usePerformanceModal();
-
-    // ✅ 훅은 최상단에서 항상 호출
     const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+    // 미리보기 URL (blob 전용)
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
-    // ✅ URL 정리도 최상단 훅으로
+    // 훅은 항상 최상단에서 호출
     useEffect(() => {
         return () => {
             if (pdfUrl) URL.revokeObjectURL(pdfUrl);
         };
     }, [pdfUrl]);
 
-    if (!isOpen) return null; // ✅ 훅들 아래에 위치
+    if (!isOpen) return null;
 
     const handleOpenFileDialog = () => fileInputRef.current?.click();
 
@@ -26,24 +26,16 @@ export default function PerformanceModal() {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // ✅ 다양한 경우 허용: 확장자 .pdf || MIME에 pdf 포함
-        const isPdf =
-            /\.pdf$/i.test(file.name) ||
-            file.type === "application/pdf" ||
-            file.type === "application/x-pdf" ||
-            file.type === "application/acrobat" ||
-            file.type === "applications/vnd.pdf" ||
-            file.type === "text/pdf" ||
-            file.type.includes("pdf"); // 혹시 모를 변종 MIME
+        // 관대한 PDF 판별
+        const isPdf = /\.pdf$/i.test(file.name) || file.type === "application/pdf" || file.type.includes("pdf");
 
         if (!isPdf) {
             alert("PDF만 선택 가능합니다");
-            // 잘못 선택했으면 초기화
             e.currentTarget.value = "";
             return;
         }
 
-        // ✅ 미리보기용 blob URL 생성
+        // ✅ 서버 URL 쓰지 말고 blob URL 생성
         const url = URL.createObjectURL(file);
         setPdfUrl(url);
     };
@@ -65,14 +57,6 @@ export default function PerformanceModal() {
                     </button>
                 </div>
 
-                <input
-                    type="file"
-                    accept=".pdf,application/pdf" // 확장자/타입 둘 다 허용
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    className="hidden"
-                />
-
                 <div className="flex gap-2 mb-4">
                     <ShortButton className="bg-[#2E7D32] text-white" onClick={handleOpenFileDialog}>
                         PDF 선택
@@ -84,8 +68,21 @@ export default function PerformanceModal() {
                     )}
                 </div>
 
+                <input
+                    type="file"
+                    accept=".pdf,application/pdf"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    className="hidden"
+                />
+
+                {/* ✅ object + iframe 병행 (브라우저 호환) */}
                 {pdfUrl ? (
-                    <iframe src={pdfUrl} className="w-full h-[70vh] border rounded-xl" />
+                    <div className="w-full h-[70vh] border rounded-xl overflow-hidden">
+                        <object data={pdfUrl} type="application/pdf" className="w-full h-full">
+                            <iframe src={pdfUrl} className="w-full h-full" />
+                        </object>
+                    </div>
                 ) : (
                     <div className="w-full h-[40vh] grid place-items-center border rounded-xl text-gray-500">
                         PDF를 선택하면 여기에서 미리보기됩니다.
