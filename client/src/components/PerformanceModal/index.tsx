@@ -66,7 +66,7 @@ export default function PerformanceModal() {
     return (
         <div className="fixed inset-0 z-[1000] grid place-items-center">
             <div className="absolute inset-0 bg-black/40" onClick={close} />
-            <div className="relative z-10 w-[92vw] max-w-3xl rounded-2xl bg-white p-6 shadow-xl">
+            <div className="relative z-10 w-[92vw] max-w-none rounded-2xl bg-white p-6 shadow-xl">
                 <div className="flex items-center justify-between mb-4">
                     <div className="text-xl font-semibold">성능점검표</div>
                     <button onClick={close} className="cursor-pointer text-sm text-gray-500">
