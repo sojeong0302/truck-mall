@@ -6,12 +6,19 @@ import { usePerformanceModal } from "./PerformanceModal.hooks";
 
 export default function PerformanceModal() {
     const { isOpen, close } = usePerformanceModal();
-    const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-    // ✅ PDF 미리보기용 상태
+    // ✅ 훅은 최상단에서 항상 호출
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
-    if (!isOpen) return null;
+    // ✅ URL 정리도 최상단 훅으로
+    useEffect(() => {
+        return () => {
+            if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+        };
+    }, [pdfUrl]);
+
+    if (!isOpen) return null; // ✅ 훅들 아래에 위치
 
     const handleOpenFileDialog = () => fileInputRef.current?.click();
 
@@ -19,10 +26,8 @@ export default function PerformanceModal() {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // PDF만 허용
         if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
             alert("PDF 파일만 선택해주세요.");
-            // 잘못 선택했으면 input 초기화
             if (fileInputRef.current) fileInputRef.current.value = "";
             return;
         }
@@ -30,13 +35,6 @@ export default function PerformanceModal() {
         const url = URL.createObjectURL(file);
         setPdfUrl(url);
     };
-
-    // ✅ URL 메모리 해제
-    useEffect(() => {
-        return () => {
-            if (pdfUrl) URL.revokeObjectURL(pdfUrl);
-        };
-    }, [pdfUrl]);
 
     const clearPdf = () => {
         if (fileInputRef.current) fileInputRef.current.value = "";
@@ -55,10 +53,9 @@ export default function PerformanceModal() {
                     </button>
                 </div>
 
-                {/* 숨김 input */}
                 <input
                     type="file"
-                    accept="application/pdf" // ✅ PDF만 선택 가능
+                    accept="application/pdf"
                     ref={fileInputRef}
                     onChange={handleFileChange}
                     className="hidden"
@@ -75,14 +72,8 @@ export default function PerformanceModal() {
                     )}
                 </div>
 
-                {/* ✅ PDF 미리보기 */}
                 {pdfUrl ? (
-                    <iframe
-                        src={pdfUrl}
-                        className="w-full h-[70vh] border rounded-xl"
-                        // 일부 브라우저에서 다운로드 대신 보기만 원하면 아래 속성 활용 가능
-                        // sandbox="allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
-                    />
+                    <iframe src={pdfUrl} className="w-full h-[70vh] border rounded-xl" />
                 ) : (
                     <div className="w-full h-[40vh] grid place-items-center border rounded-xl text-gray-500">
                         PDF를 선택하면 여기에서 미리보기됩니다.
