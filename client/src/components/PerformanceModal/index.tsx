@@ -18,6 +18,7 @@ export default function PerformanceModal() {
             // 여기서 상태에 저장하거나 FormData에 append 하면 됨
         }
     };
+    console.log("클릭");
 
     return (
         <div className="flex justify-center items-center">
