@@ -12,6 +12,8 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { api, authApi } from "@/lib/api";
 import Script from "next/script";
 import { ChatBubbleLeftEllipsisIcon } from "@heroicons/react/24/solid";
+import PerformanceDetail from "@/components/PerformanceModalDetail";
+import { openPerformanceDetail } from "@/components/PerformanceModalDetail/PerformanceModalDetail.hooks";
 
 declare global {
     interface Window {
@@ -103,10 +105,6 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
         );
     }
 
-    const copySuggestNumber = async () => {
-        console.log("성능점검보기 클릭");
-    };
-
     // 🔧 공유용 URL 생성 (preview_price 쿼리 파라미터 적용)
     const makeShareUrl = (override?: number | null) => {
         const url = new URL(window.location.href);
@@ -197,6 +195,15 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
     const currentPreview = tempPrice ?? basePrice;
     const formatPrice = (v: number) => `${v.toLocaleString()}만원`;
 
+    const openPerformance = () => {
+        const no = post?.performance_number; // ✅ 성능번호
+        if (!no) {
+            alert("성능번호가 없습니다.");
+            return;
+        }
+        openPerformanceDetail(no);
+    };
+
     return (
         <div className="w-full h-full flex justify-center flex-col items-center p-5 sm:p-15">
             {isLoggedIn && (
@@ -269,7 +276,7 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
                                 {item.label === "성능번호" && (
                                     <button
                                         type="button"
-                                        onClick={copySuggestNumber}
+                                        onClick={openPerformance}
                                         className="cursor-pointer px-3 py-1 text-sm rounded-md border-[1.5px] border-[#2E7D32] text-[#2E7D32] hover:bg-[#2E7D32] hover:text-white transition"
                                     >
                                         성능점검보기(클릭)
@@ -414,6 +421,7 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
                     }
                 }}
             />
+            <PerformanceDetail />
         </div>
     );
 }
