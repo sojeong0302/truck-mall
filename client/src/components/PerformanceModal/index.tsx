@@ -68,8 +68,8 @@ export default function PerformanceModal() {
             <div className="absolute inset-0 bg-black/40" onClick={close} />
             <div className="relative z-10 w-[92vw] max-w-none rounded-2xl bg-white p-6 shadow-xl">
                 <div className="flex items-center justify-between mb-4">
-                    <div className="text-xl font-semibold">성능점검표</div>
-                    <button onClick={close} className="cursor-pointer text-sm text-gray-500">
+                    <div className="text-2xl font-semibold">성능점검표</div>
+                    <button onClick={close} className="cursor-pointer text-2xl text-gray-500">
                         x
                     </button>
                 </div>
@@ -78,11 +78,6 @@ export default function PerformanceModal() {
                     <ShortButton className="bg-[#2E7D32] text-white" onClick={handleOpenFileDialog}>
                         PDF 선택
                     </ShortButton>
-                    {pdfUrl && (
-                        <ShortButton className="bg-white border-2 border-[#2E7D32] text-[#2E7D32]" onClick={clearPdf}>
-                            미리보기 지우기
-                        </ShortButton>
-                    )}
                 </div>
 
                 <input
@@ -92,8 +87,6 @@ export default function PerformanceModal() {
                     onChange={handleFileChange}
                     className="hidden"
                 />
-
-                {/* ✅ object + iframe 병행 (브라우저 호환) */}
                 {pdfUrl ? (
                     <div className="w-full h-[70vh] border rounded-xl overflow-hidden">
                         <object data={pdfUrl} type="application/pdf" className="w-full h-full">
