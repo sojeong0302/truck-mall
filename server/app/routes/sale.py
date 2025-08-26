@@ -121,7 +121,7 @@ def register_sale():
         # string -> dict
         normal_tags = parse_tag(form.get("normal_tags"))
         simple_tags = parse_tag(form.get("simple_tags"))
-
+        flat = flatten_tags(normal_tags)  # {"manufacturer","model","subModel","grade"}
         sale = Sale(
             # 차량 정보
             name=form.get("name"),
@@ -137,10 +137,10 @@ def register_sale():
             suggest_number=form.get("suggest_number"),
             performance_number=form.get("performance_number"),
             # 필터 정보
-            manufacturer=form.get("manufacturer"),
-            model=form.get("model"),
-            sub_model=form.get("sub_model"),
-            grade=form.get("grade"),
+            manufacturer=flat.get("manufacturer", ""),
+            model=flat.get("model", ""),
+            sub_model=flat.get("subModel", ""),
+            grade=flat.get("grade", ""),
             normal_tags=normal_tags,
             simple_tags=simple_tags,
             # 기타 정보
