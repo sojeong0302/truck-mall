@@ -5,10 +5,10 @@ import ShortButton from "../ShortButton";
 import { usePerformanceModal } from "./PerformanceModal.hooks";
 
 export default function PerformanceModal() {
-    const { isOpen, close } = usePerformanceModal(); // ✅ 열림 상태 사용
+    const { isOpen, close } = usePerformanceModal();
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-    if (!isOpen) return null; // ✅ 닫혀 있으면 렌더하지 않음
+    if (!isOpen) return null;
 
     const handleOpenFileDialog = () => fileInputRef.current?.click();
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,14 +24,16 @@ export default function PerformanceModal() {
             <div className="absolute inset-0 bg-black/40" onClick={close} />
             <div className="relative z-10 w-[90vw] max-w-xl rounded-2xl bg-white p-6 shadow-xl">
                 <div className="flex justify-between items-center mb-4">
-                    <div className="text-lg font-semibold">성능점검표</div>
-                    <button onClick={close} className="text-sm text-gray-500">
-                        닫기
+                    <div className="text-xl font-semibold">성능점검표</div>
+                    <button onClick={close} className="cursor-pointer text-sm text-gray-500">
+                        x
                     </button>
                 </div>
 
                 <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
-                <ShortButton onClick={handleOpenFileDialog}>파일 선택</ShortButton>
+                <ShortButton className="bg-[#2E7D32] text-white" onClick={handleOpenFileDialog}>
+                    파일 선택
+                </ShortButton>
             </div>
         </div>
     );
