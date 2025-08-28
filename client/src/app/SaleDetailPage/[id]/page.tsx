@@ -23,7 +23,7 @@ declare global {
 
 export default function SaleDetailPage({ params }: { params: { id: string } }) {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
-    const { id } = params;
+    const id = params.id;
     const router = useRouter();
     const searchParams = useSearchParams();
 
