@@ -20,7 +20,7 @@ export default function PerformanceDetail() {
             setError(null);
             try {
                 // 서버: GET /performance/<number>  →  { performance_number, images: ["...pdf", ...] }
-                const { data } = await api.get(`${BASE_URL}/performance/${encodeURIComponent(performanceNumber)}`);
+                const { data } = await api.get(`${BASE_URL}/${encodeURIComponent(performanceNumber)}`);
                 const urls: string[] = Array.isArray(data?.images) ? data.images : [];
                 setPdfUrls(urls);
             } catch (e: any) {

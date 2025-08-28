@@ -9,13 +9,6 @@ bp = Blueprint("performance", __name__, url_prefix="/performance")
 # ▶ 등록/수정 (업서트)
 @bp.post("")
 def upsert_performance():
-    """
-    JSON Body:
-    {
-      "performance_number": "P-2025-0001",  # 필수
-      "images": ["url1", "url2"]            # 1~2장, 필수
-    }
-    """
     data = request.get_json(silent=True) or {}
     perf_no = (data.get("performance_number") or "").strip()
     images = data.get("images")
