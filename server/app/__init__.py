@@ -58,7 +58,7 @@ def create_app():
     app.register_blueprint(sale_bp, url_prefix="/sale")
     app.register_blueprint(sms_bp)
     app.register_blueprint(ping_bp)
-    app.register_blueprint(performance_bp)
+    app.register_blueprint(performance_bp, url_prefix="/performance")
 
     # 이미지/정적 업로드 응답에 CORS/캐시 헤더 보강
     @app.after_request
