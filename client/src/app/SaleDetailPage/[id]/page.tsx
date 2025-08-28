@@ -195,13 +195,22 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
     const currentPreview = tempPrice ?? basePrice;
     const formatPrice = (v: number) => `${v.toLocaleString()}만원`;
 
+    // const openPerformance = () => {
+    //     const no = post?.performance_number;
+    //     if (!no) {
+    //         alert("성능번호가 없습니다.");
+    //         return;
+    //     }
+    //     openPerformanceDetail(no);
+    // };
+
     const openPerformance = () => {
         const no = post?.performance_number;
-        if (!no) {
-            alert("성능번호가 없습니다.");
-            return;
-        }
-        openPerformanceDetail(no);
+        if (!no) return alert("성능번호가 없습니다.");
+        // 서버가 response로 돌려주는 실제 URL 사용이 가장 안전
+        // 예: post.performance_pdf_url 이 있다면 그걸 사용
+        const url = `${BASE_URL}/performance/${no}`;
+        window.open(url, "_blank", "noopener,noreferrer");
     };
 
     return (
