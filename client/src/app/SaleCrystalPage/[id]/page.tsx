@@ -16,6 +16,7 @@ import { useSaleFormStore } from "@/store/saleForm/saleForm.hooks";
 import { useAuthStore } from "@/store/useAuthStore";
 import { api, authApi } from "@/lib/api";
 import { useFilterTagStore } from "@/components/Filter/Filter.hooks";
+import { openPerformanceModal } from "@/components/PerformanceModal/PerformanceModal.hooks";
 
 export default function SaleCrystalPage({ params }: { params: Promise<{ id: string }> }) {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
@@ -366,7 +367,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                                     {field.customType === "select" ? (
                                         <select
                                             className={`flex-1 shadow-md text-2xl border-2 border-[#2E7D32] rounded-xl p-3.5
-    ${!field.value ? "text-gray-500" : "text-black"}`}
+                                ${!field.value ? "text-gray-500" : "text-black"}`}
                                             value={field.value}
                                             onChange={(e) => field.setter(e.target.value)}
                                         >
@@ -387,6 +388,16 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                                             onChange={(e) => field.setter(e.target.value)}
                                             placeholder={`${field.label}을 입력해 주세요.`}
                                         />
+                                    )}
+                                    {field.label === "성능 번호" && (
+                                        <div className="relative group inline-flex">
+                                            <ShortButton
+                                                onClick={() => openPerformanceModal()}
+                                                className="whitespace-nowrap bg-white border-2 border-[#2E7D32] text-[#2E7D32]"
+                                            >
+                                                성능점검표
+                                            </ShortButton>
+                                        </div>
                                     )}
                                 </div>
                             ))}
