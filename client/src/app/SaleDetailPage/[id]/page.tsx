@@ -179,6 +179,14 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
         });
         setShareOpen(false);
     };
+    useEffect(() => {
+        if (post) {
+            console.log("[DEBUG] post 데이터:", post);
+            console.log("성능번호:", post.performance_number);
+            console.log("제시번호:", post.suggest_number);
+            console.log("가격:", post.price);
+        }
+    }, [post]);
 
     if (!post) return <div className="p-10 text-red-500">해당 게시물을 찾을 수 없습니다.</div>;
 
@@ -203,15 +211,6 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
         }
         openPerformanceDetail(no);
     };
-
-    useEffect(() => {
-        if (post) {
-            console.log("[DEBUG] post 데이터:", post);
-            console.log("성능번호:", post.performance_number);
-            console.log("제시번호:", post.suggest_number);
-            console.log("가격:", post.price);
-        }
-    }, [post]);
 
     return (
         <div className="w-full h-full flex justify-center flex-col items-center p-5 sm:p-15">
