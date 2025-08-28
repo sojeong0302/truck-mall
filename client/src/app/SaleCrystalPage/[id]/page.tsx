@@ -16,7 +16,9 @@ import { useSaleFormStore } from "@/store/saleForm/saleForm.hooks";
 import { useAuthStore } from "@/store/useAuthStore";
 import { api, authApi } from "@/lib/api";
 import { useFilterTagStore } from "@/components/Filter/Filter.hooks";
+import PerformanceModal from "@/components/PerformanceModal";
 import { openPerformanceModal } from "@/components/PerformanceModal/PerformanceModal.hooks";
+import { usePerformanceModal } from "@/components/PerformanceModal/PerformanceModal.hooks";
 
 export default function SaleCrystalPage({ params }: { params: Promise<{ id: string }> }) {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
@@ -55,7 +57,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
 
     const rawGrades = draft.models[0]?.subModels[0]?.grades as string | string[];
     const grades = typeof rawGrades === "string" ? rawGrades.split("/") : Array.isArray(rawGrades) ? rawGrades : [];
-
+    const { pdfFile, reset: resetPerfModal } = usePerformanceModal();
     const normal_tags = {
         manufacturer: draft.manufacturer,
         models: [
@@ -226,7 +228,6 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         // 기본 필드
         formData.append("name", name);
         formData.append("fuel", fuel);
-
         formData.append("year", year);
         formData.append("mileage", mileage);
         formData.append("color", color);
@@ -237,6 +238,10 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         formData.append("suggest_number", suggest_number);
         formData.append("car_number", car_number);
         formData.append("content", content);
+
+        if (pdfFile) {
+            formData.append("performance_pdf", pdfFile, pdfFile.name);
+        }
 
         // 기존 이미지(유지)
         prevImages.forEach((url) => formData.append("originImages", url));
@@ -250,6 +255,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                 headers: { Authorization: `Bearer ${token}` },
             });
             alert("수정되었습니다.");
+            resetPerfModal();
             router.push(`/SaleDetailPage/${id}`);
         } catch (error) {
             console.error("수정 실패", error);
