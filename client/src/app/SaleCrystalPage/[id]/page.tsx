@@ -420,6 +420,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                         text={"수정 중인 내용이 모두 삭제됩니다.\n그래도 취소하시겠습니까?"}
                     />
                 )}
+                <PerformanceModal />
             </div>
         </>
     );
