@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import SwiperWithLightbox from "@/components/SwiperWithLightbox";
 import ShortButton from "@/components/ShortButton";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -21,9 +21,9 @@ declare global {
     }
 }
 
-export default function SaleDetailPage({ params }: { params: { id: string } }) {
+export default function SaleDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
-    const id = params.id;
+    const { id } = use(params);
     const router = useRouter();
     const searchParams = useSearchParams();
 
