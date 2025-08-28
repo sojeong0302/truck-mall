@@ -3,7 +3,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 import SwiperWithLightbox from "@/components/SwiperWithLightbox";
 import ShortButton from "@/components/ShortButton";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, useParams } from "next/navigation";
 import { useAuthToggle } from "@/components/Header/Header.hooks";
 import Modal from "@/components/Modal";
 import { useModalStore } from "@/store/ModalStateStroe";
@@ -21,9 +21,9 @@ declare global {
     }
 }
 
-export default function SaleDetailPage({ params }: { params: { id: string } }) {
+export default function SaleDetailPage() {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
-    const { id } = params;
+    const { id } = useParams<{ id: string }>();
     const router = useRouter();
     const searchParams = useSearchParams();
 
