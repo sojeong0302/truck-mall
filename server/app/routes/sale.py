@@ -415,6 +415,50 @@ def update_sale(sale_id):
                 else:
                     sale.images = json.loads(data["images"])
 
+        if is_multipart:
+            pdf_file = (
+                files.get("performance_pdf")
+                or files.get("performancePdf")
+                or files.get("performance")  # 혹시라도 프론트 키가 다를 때 대안
+            )
+            new_perf_no = (
+                sale.performance_number or ""
+            ).strip()  # 위에서 이미 갱신된 값 기준
+
+        if pdf_file and getattr(pdf_file, "filename", ""):
+            # 번호 없이 PDF만 오면 거부
+            if not new_perf_no:
+                return (
+                    jsonify(
+                        {
+                            "error": "performance_number가 있어야 PDF를 업로드할 수 있습니다."
+                        }
+                    ),
+                    400,
+                )
+
+            # 확장자 가드 (환경별 mimetype 차이를 피하려면 확장자 체크가 안전)
+            if not pdf_file.filename.lower().endswith(".pdf"):
+                return jsonify({"error": "performance_pdf must be .pdf"}), 400
+
+            pdf_url = save_uploaded_file(pdf_file)  # /static/uploads/xxxx.pdf
+
+            # upsert PerformanceInspection by performance_number
+            pi = PerformanceInspection.query.filter_by(
+                performance_number=new_perf_no
+            ).first()
+            if pi:
+                imgs = pi.images or []
+                if pdf_url not in imgs:
+                    imgs = imgs + [pdf_url] if isinstance(imgs, list) else [pdf_url]
+                pi.images = imgs
+            else:
+                pi = PerformanceInspection(
+                    performance_number=new_perf_no,
+                    images=[pdf_url],
+                )
+                db.session.add(pi)
+
         db.session.commit()
         return jsonify({"message": "success", "sale": sale.to_dict()}), 200
 
