@@ -96,20 +96,17 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                 const t = data.thumbnail;
                 const absThumb = t && !t.startsWith("blob:") ? (t.startsWith("http") ? t : `${BASE_URL}${t}`) : "";
                 setThumbnail(absThumb);
-                // 기존 썸네일이 있으면 keep으로 시작
                 setThumbnailState(absThumb ? "keep" : "remove");
 
-                // ✅ 이미지 (화면 표기용 & 서버 유지용 각각 세팅)
+                // ✅ 이미지 (화면표시/서버유지 분리)
                 const rawImgs: string[] = Array.isArray(data.images) ? data.images : [];
-                // 화면용(절대경로)
                 const absImgs = rawImgs
                     .filter((u) => typeof u === "string" && !u.startsWith("blob:"))
                     .map((u) => (u.startsWith("http") ? u : `${BASE_URL}${u}`));
-                setSanitizedImages(absImgs);
-                // 서버 유지용(있는 그대로) —> 수정 안 해도 유지되도록
-                setPrevImages(rawImgs);
+                setSanitizedImages(absImgs); // 화면용 절대경로
+                setPrevImages(rawImgs); // 서버에 보낼 원본 경로(유지)
 
-                // ✅ 폼 기본/숫자 필드 (숫자는 문자열로 넣어두면 input=number에서도 안전)
+                // ✅ 폼 필드 (숫자는 문자열로)
                 setField("name", data.name ?? "");
                 setField("fuel", data.fuel ?? "");
                 setField("year", data.year != null ? String(data.year) : "");
@@ -131,35 +128,31 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                     }
                 }
 
-                // ✅ 계층형 태그 (서버 to_dict가 tags/normal_tags 어떤 키를 주든 대비)
-                const tags = data.tags || data.normal_tags || null;
-                if (tags) {
-                    const manufacturer = tags.manufacturer || "";
-                    const model = tags.models?.[0]?.name || "";
-                    const subModel = tags.models?.[0]?.subModels?.[0]?.name || "";
-                    const grades = tags.models?.[0]?.subModels?.[0]?.grades || [];
+                // ✅ normal_tags → 필터 draft 주입 (평탄화 필드 우선, 없으면 normal_tags fallback)
+                const mf = data.manufacturer ?? data.normal_tags?.manufacturer ?? "";
+                const md = data.model ?? data.normal_tags?.models?.[0]?.name ?? "";
+                const sm = data.sub_model ?? data.normal_tags?.models?.[0]?.subModels?.[0]?.name ?? "";
+                const gsrc = data.normal_tags?.models?.[0]?.subModels?.[0]?.grades;
+                const gs: string[] = Array.isArray(gsrc)
+                    ? gsrc
+                    : typeof gsrc === "string"
+                    ? gsrc.split("/")
+                    : data.grade
+                    ? [data.grade]
+                    : [];
 
-                    setManufacturer(manufacturer);
-                    setModel(model);
-                    setSubModel(subModel);
-                    setGrade(Array.isArray(grades) ? grades : typeof grades === "string" ? grades.split("/") : []);
-                }
-                console.log("콘솔 찍힘?");
-                console.log("hi", data);
-
-                // 혹은 보기 좋게 JSON으로
-                console.log("hi", JSON.stringify(data, null, 2));
-
-                // 구조 깊게 보기 (중첩 객체 디버깅)
-                console.dir(data, { depth: null });
-
-                // 배열(이미지 등) 표로 보기
-                console.table(Array.isArray(data.images) ? data.images.map((u: string) => ({ url: u })) : []);
+                // ⬇️ 타입 오류 회피 + 존재하는 액션만 호출
+                const store = useFilterTagStore.getState() as any;
+                store.setDraftManufacturer?.(mf);
+                store.setDraftModel?.(md);
+                store.setDraftSubModel?.(sm);
+                (store.setDraftGrades ?? store.setDraftGrade)?.(gs);
             } catch (error) {
                 console.error("데이터 가져오기 실패:", error);
             }
         };
         fetchPost();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [BASE_URL, id]);
 
     // 썸네일 삭제
