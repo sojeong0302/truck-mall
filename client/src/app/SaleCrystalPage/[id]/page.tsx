@@ -91,48 +91,65 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
             try {
                 const res = await api.get(`${BASE_URL}/sale/${id}`);
                 const data = res.data;
-                // 썸네일 처리
-                const t = data.thumbnail;
-                setThumbnail(t && !t.startsWith("blob:") ? `${BASE_URL}${t}` : "");
-                // 이미지 배열 처리
-                const imgs = (data.images ?? [])
-                    .filter((u: string) => typeof u === "string" && !u.startsWith("blob:"))
-                    .map((u: string) => (u.startsWith("http") ? u : `${BASE_URL}${u}`));
-                setSanitizedImages(imgs);
-                // 나머지 필드
-                setField("name", name);
-                setField("fuel", fuel);
-                setField("year", year);
-                setField("mileage", mileage);
-                setField("color", color);
-                setField("price", price);
-                setField("simple_content", simple_content);
-                setField("vin", vin);
-                setField("performance_number", performance_number);
-                setField("suggest_number", suggest_number);
-                setField("car_number", car_number);
-                setField("content", data.content);
-                setField("transmission", data.transmission);
 
-                if (data.simple_tags?.type && data.simple_tags?.grade) {
-                    setSimpleTag(data.simple_tags.type, data.simple_tags.grade, true);
+                // ✅ 썸네일
+                const t = data.thumbnail;
+                const absThumb = t && !t.startsWith("blob:") ? (t.startsWith("http") ? t : `${BASE_URL}${t}`) : "";
+                setThumbnail(absThumb);
+                // 기존 썸네일이 있으면 keep으로 시작
+                setThumbnailState(absThumb ? "keep" : "remove");
+
+                // ✅ 이미지 (화면 표기용 & 서버 유지용 각각 세팅)
+                const rawImgs: string[] = Array.isArray(data.images) ? data.images : [];
+                // 화면용(절대경로)
+                const absImgs = rawImgs
+                    .filter((u) => typeof u === "string" && !u.startsWith("blob:"))
+                    .map((u) => (u.startsWith("http") ? u : `${BASE_URL}${u}`));
+                setSanitizedImages(absImgs);
+                // 서버 유지용(있는 그대로) —> 수정 안 해도 유지되도록
+                setPrevImages(rawImgs);
+
+                // ✅ 폼 기본/숫자 필드 (숫자는 문자열로 넣어두면 input=number에서도 안전)
+                setField("name", data.name ?? "");
+                setField("fuel", data.fuel ?? "");
+                setField("year", data.year != null ? String(data.year) : "");
+                setField("mileage", data.mileage != null ? String(data.mileage) : "");
+                setField("color", data.color ?? "");
+                setField("price", data.price != null ? String(data.price) : "");
+                setField("simple_content", data.simple_content ?? "");
+                setField("vin", data.vin ?? "");
+                setField("performance_number", data.performance_number ?? "");
+                setField("suggest_number", data.suggest_number ?? "");
+                setField("car_number", data.car_number ?? "");
+                setField("content", data.content ?? "");
+                setField("transmission", data.transmission ?? "");
+
+                // ✅ simple_tags
+                if (data.simple_tags && typeof data.simple_tags === "object") {
+                    if ("type" in data.simple_tags && "grade" in data.simple_tags) {
+                        setSimpleTag((data.simple_tags as any).type, (data.simple_tags as any).grade, true);
+                    }
                 }
-                if (data.tags) {
-                    const { manufacturer, models } = data.tags;
-                    const model = models?.[0]?.name || "";
-                    const subModel = models?.[0]?.subModels?.[0]?.name || "";
-                    const grades = models?.[0]?.subModels?.[0]?.grades || [];
+
+                // ✅ 계층형 태그 (서버 to_dict가 tags/normal_tags 어떤 키를 주든 대비)
+                const tags = data.tags || data.normal_tags || null;
+                if (tags) {
+                    const manufacturer = tags.manufacturer || "";
+                    const model = tags.models?.[0]?.name || "";
+                    const subModel = tags.models?.[0]?.subModels?.[0]?.name || "";
+                    const grades = tags.models?.[0]?.subModels?.[0]?.grades || [];
 
                     setManufacturer(manufacturer);
                     setModel(model);
                     setSubModel(subModel);
-                    setGrade(grades);
+                    setGrade(Array.isArray(grades) ? grades : typeof grades === "string" ? grades.split("/") : []);
                 }
             } catch (error) {
                 console.error("데이터 가져오기 실패:", error);
             }
         };
         fetchPost();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [BASE_URL, id]);
 
     // 썸네일 삭제
@@ -352,12 +369,12 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                                     setter: (v: string) => setField("car_number", v),
                                 },
                                 {
-                                    label: "제시 번호",
+                                    label: "성능 번호",
                                     value: performance_number,
                                     setter: (v: string) => setField("performance_number", v),
                                 },
                                 {
-                                    label: "성능 번호",
+                                    label: "제시 번호",
                                     value: suggest_number,
                                     setter: (v: string) => setField("suggest_number", v),
                                 },
