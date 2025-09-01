@@ -144,14 +144,23 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                     setSubModel(subModel);
                     setGrade(Array.isArray(grades) ? grades : typeof grades === "string" ? grades.split("/") : []);
                 }
+                console.log("콘솔 찍힘?");
+                console.log("hi", data);
+
+                // 혹은 보기 좋게 JSON으로
+                console.log("hi", JSON.stringify(data, null, 2));
+
+                // 구조 깊게 보기 (중첩 객체 디버깅)
+                console.dir(data, { depth: null });
+
+                // 배열(이미지 등) 표로 보기
+                console.table(Array.isArray(data.images) ? data.images.map((u: string) => ({ url: u })) : []);
             } catch (error) {
                 console.error("데이터 가져오기 실패:", error);
             }
         };
         fetchPost();
     }, [BASE_URL, id]);
-
-    console.log("hi" + data);
 
     // 썸네일 삭제
     const handleClearThumbnail = () => {
