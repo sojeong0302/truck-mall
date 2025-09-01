@@ -132,18 +132,42 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                 }
 
                 // ✅ 계층형 태그 (서버 to_dict가 tags/normal_tags 어떤 키를 주든 대비)
-                const tags = data.tags || data.normal_tags || null;
-                if (tags) {
-                    const manufacturer = tags.manufacturer || "";
-                    const model = tags.models?.[0]?.name || "";
-                    const subModel = tags.models?.[0]?.subModels?.[0]?.name || "";
-                    const grades = tags.models?.[0]?.subModels?.[0]?.grades || [];
+                const rawTags = data.normal_tags ?? data.tags ?? null;
 
-                    setManufacturer(manufacturer);
-                    setModel(model);
-                    setSubModel(subModel);
-                    setGrade(Array.isArray(grades) ? grades : typeof grades === "string" ? grades.split("/") : []);
+                // 문자열로 오는 경우도 대비
+                const parsed =
+                    typeof rawTags === "string"
+                        ? (() => {
+                              try {
+                                  return JSON.parse(rawTags);
+                              } catch {
+                                  return null;
+                              }
+                          })()
+                        : rawTags;
+
+                let manufacturer = "";
+                let model = "";
+                let subModel = "";
+                let gradesArr: string[] = [];
+
+                if (parsed && typeof parsed === "object") {
+                    manufacturer = parsed.manufacturer || "";
+                    model = parsed.models?.[0]?.name || "";
+                    subModel = parsed.models?.[0]?.subModels?.[0]?.name || "";
+                    const g = parsed.models?.[0]?.subModels?.[0]?.grades;
+                    gradesArr = Array.isArray(g) ? g : typeof g === "string" ? g.split("/") : [];
+                } else {
+                    // 🔁 fallback: 서버가 평탄화해둔 필드만 줄 때
+                    manufacturer = data.manufacturer || "";
+                    model = data.model || "";
+                    subModel = data.sub_model || "";
+                    gradesArr = data.grade ? [data.grade] : [];
                 }
+                setManufacturer(manufacturer);
+                setModel(model);
+                setSubModel(subModel);
+                setGrade(gradesArr);
             } catch (error) {
                 console.error("데이터 가져오기 실패:", error);
             }
