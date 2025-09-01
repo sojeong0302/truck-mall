@@ -144,13 +144,14 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                     setSubModel(subModel);
                     setGrade(Array.isArray(grades) ? grades : typeof grades === "string" ? grades.split("/") : []);
                 }
-                console.log("hi" + data);
             } catch (error) {
                 console.error("데이터 가져오기 실패:", error);
             }
         };
         fetchPost();
     }, [BASE_URL, id]);
+
+    console.log("hi" + data);
 
     // 썸네일 삭제
     const handleClearThumbnail = () => {
