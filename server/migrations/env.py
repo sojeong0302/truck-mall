@@ -1,12 +1,13 @@
 # migrations/env.py
-import os
-import sys
-import logging
 from logging.config import fileConfig
 from importlib import import_module
 
 from flask import current_app
 from alembic import context
+import os
+import sys
+import logging
+
 
 # Alembic Config
 config = context.config
