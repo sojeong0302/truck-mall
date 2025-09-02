@@ -2,70 +2,78 @@ import logging
 from logging.config import fileConfig
 
 from flask import current_app
-
 from alembic import context
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
+# Alembic Config
 config = context.config
 
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
+# Logging
 fileConfig(config.config_file_name)
-logger = logging.getLogger('alembic.env')
+logger = logging.getLogger("alembic.env")
 
 
 def get_engine():
     try:
-        # this works with Flask-SQLAlchemy<3 and Alchemical
-        return current_app.extensions['migrate'].db.get_engine()
+        # Flask-SQLAlchemy < 3, Alchemical
+        return current_app.extensions["migrate"].db.get_engine()
     except (TypeError, AttributeError):
-        # this works with Flask-SQLAlchemy>=3
-        return current_app.extensions['migrate'].db.engine
+        # Flask-SQLAlchemy >= 3
+        return current_app.extensions["migrate"].db.engine
 
 
 def get_engine_url():
     try:
-        return get_engine().url.render_as_string(hide_password=False).replace(
-            '%', '%%')
+        return get_engine().url.render_as_string(hide_password=False).replace("%", "%%")
     except AttributeError:
-        return str(get_engine().url).replace('%', '%%')
+        return str(get_engine().url).replace("%", "%%")
 
 
-# add your model's MetaData object here
-# for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
-config.set_main_option('sqlalchemy.url', get_engine_url())
-target_db = current_app.extensions['migrate'].db
+# --- ✅ 모델 강제 import: 오토제너레이트가 모델을 로드하도록 보장 ---
+def _import_models():
+    """
+    프로젝트의 모델 모듈을 여기서 import 해서
+    Alembic autogenerate가 메타데이터를 인식하도록 한다.
+    실제 경로/파일명에 맞게 수정해도 됨.
+    """
+    try:
+        import server.models.sale  # ← 예: server/models/sale.py
+        import server.models.performance_model  # ← 예: server/models/performance_model.py
+    except ModuleNotFoundError:
+        # 대안 경로(필요 시 추가/수정)
+        try:
+            import models.sale
+            import models.performance_model
+        except ModuleNotFoundError:
+            # 그래도 실패하면 여기서 경로를 네 프로젝트 구조에 맞게 수정해줘.
+            pass
 
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
-# ... etc.
+
+# SQLAlchemy URL 주입
+config.set_main_option("sqlalchemy.url", get_engine_url())
+target_db = current_app.extensions["migrate"].db
 
 
 def get_metadata():
-    if hasattr(target_db, 'metadatas'):
+    # Flask-Migrate가 multi-bind를 쓸 때 대응
+    if hasattr(target_db, "metadatas"):
         return target_db.metadatas[None]
     return target_db.metadata
 
 
 def run_migrations_offline():
-    """Run migrations in 'offline' mode.
-
-    This configures the context with just a URL
-    and not an Engine, though an Engine is acceptable
-    here as well.  By skipping the Engine creation
-    we don't even need a DBAPI to be available.
-
-    Calls to context.execute() here emit the given string to the
-    script output.
-
-    """
+    """Run migrations in 'offline' mode."""
     url = config.get_main_option("sqlalchemy.url")
+
+    # ✅ 모델 로드
+    _import_models()
+
     context.configure(
-        url=url, target_metadata=get_metadata(), literal_binds=True
+        url=url,
+        target_metadata=get_metadata(),
+        literal_binds=True,
+        compare_type=True,
+        compare_server_default=True,
+        render_as_batch=True,  # SQLite 안전
     )
 
     with context.begin_transaction():
@@ -73,34 +81,33 @@ def run_migrations_offline():
 
 
 def run_migrations_online():
-    """Run migrations in 'online' mode.
+    """Run migrations in 'online' mode'."""
 
-    In this scenario we need to create an Engine
-    and associate a connection with the context.
-
-    """
-
-    # this callback is used to prevent an auto-migration from being generated
-    # when there are no changes to the schema
-    # reference: http://alembic.zzzcomputing.com/en/latest/cookbook.html
+    # 자동 생성 시 변경 없을 때 리비전 생성을 막는 콜백
     def process_revision_directives(context, revision, directives):
-        if getattr(config.cmd_opts, 'autogenerate', False):
+        if getattr(config.cmd_opts, "autogenerate", False):
             script = directives[0]
             if script.upgrade_ops.is_empty():
                 directives[:] = []
-                logger.info('No changes in schema detected.')
+                logger.info("No changes in schema detected.")
 
-    conf_args = current_app.extensions['migrate'].configure_args
+    conf_args = current_app.extensions["migrate"].configure_args
     if conf_args.get("process_revision_directives") is None:
         conf_args["process_revision_directives"] = process_revision_directives
 
     connectable = get_engine()
 
     with connectable.connect() as connection:
+        # ✅ 모델 로드
+        _import_models()
+
         context.configure(
             connection=connection,
             target_metadata=get_metadata(),
-            **conf_args
+            compare_type=True,
+            compare_server_default=True,
+            render_as_batch=True,  # ✅ SQLite ALTER 대응
+            **conf_args,
         )
 
         with context.begin_transaction():
