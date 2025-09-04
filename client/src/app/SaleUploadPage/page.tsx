@@ -152,8 +152,12 @@ export default function WritingUpload() {
             resetPerfModal();
             // router.push(`/SaleDetailPage/${data.sale.id}`);
             console.log(data.sale);
-        } catch (error) {
-            console.error("업로드 중 에러 발생:", error);
+        } catch (error: any) {
+            if (error.response) {
+                console.error("서버응답:", error.response.status, error.response.data); // ← 여기서 {"error": "..."}가 보임
+            } else {
+                console.error(error);
+            }
         }
     };
 
