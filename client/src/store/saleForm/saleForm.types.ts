@@ -5,6 +5,7 @@ export interface SaleFormState {
     car_number: string;
     price: string;
     year: string;
+    month: string;
     fuel: string;
     transmission: string;
     color: string;
