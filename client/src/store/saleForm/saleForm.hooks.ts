@@ -42,6 +42,7 @@ export const useSaleFormStore = create<SaleFormState>((set) => ({
             name: "",
             fuel: "",
             year: "",
+            month: "",
             mileage: "",
             color: "",
             price: "",
