@@ -203,6 +203,7 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
         }
         openPerformanceDetail(no);
     };
+    console.log(post);
 
     return (
         <div className="w-full h-full flex justify-center flex-col items-center p-5 sm:p-15">

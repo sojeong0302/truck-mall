@@ -260,12 +260,6 @@ export default function WritingUpload() {
                                     customType: "monthSelect",
                                     options: Array.from({ length: 12 }, (_, i) => `${i + 1}월`),
                                 },
-                                {
-                                    label: "연식(월)",
-                                    value: year,
-                                    setter: (v: string) => setField("year", v),
-                                    type: "number",
-                                },
                                 { label: "연료", value: fuel, setter: (v: string) => setField("fuel", v) },
                                 {
                                     label: "변속기",
