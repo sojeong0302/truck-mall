@@ -13,7 +13,7 @@ class Sale(db.Model):
     car_number = db.Column(db.String(50))  # 차량번호
     price = db.Column(db.Integer)  # 가격
     year = db.Column(db.Integer)  # 연식
-    month = db.Column(db.Integer)  # 월
+    month = db.Column(db.String(10))  # 월
     fuel = db.Column(db.String(50))  # 연료
     transmission = db.Column(db.String(20))  # 변속기
     color = db.Column(db.String(30))  # 색상
