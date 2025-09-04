@@ -32,6 +32,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         name,
         fuel,
         year,
+        month,
         mileage,
         color,
         price,
@@ -110,6 +111,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                 setField("name", data.name ?? "");
                 setField("fuel", data.fuel ?? "");
                 setField("year", data.year != null ? String(data.year) : "");
+                setField("month", data.month ?? "");
                 setField("mileage", data.mileage != null ? String(data.mileage) : "");
                 setField("color", data.color ?? "");
                 setField("price", data.price != null ? String(data.price) : "");
@@ -249,6 +251,7 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
         formData.append("name", name);
         formData.append("fuel", fuel);
         formData.append("year", year);
+        formData.append("month", month);
         formData.append("mileage", mileage);
         formData.append("color", color);
         formData.append("price", price);
@@ -345,6 +348,13 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                                     setter: (v: string) => setField("year", v),
                                     type: "number",
                                 },
+                                {
+                                    label: "연식(월)",
+                                    value: month,
+                                    setter: (v: string) => setField("month", v),
+                                    customType: "monthSelect",
+                                    options: Array.from({ length: 12 }, (_, i) => `${i + 1}월`),
+                                },
                                 { label: "연료", value: fuel, setter: (v: string) => setField("fuel", v) },
                                 {
                                     label: "변속기",
@@ -390,10 +400,10 @@ export default function SaleCrystalPage({ params }: { params: Promise<{ id: stri
                             ].map((field, idx) => (
                                 <div className="flex gap-1 sm:gap-3 sm:items-center flex-col sm:flex-row" key={idx}>
                                     <div className="font-bold">{field.label}</div>
-                                    {field.customType === "select" ? (
+                                    {field.customType === "select" || field.customType === "monthSelect" ? (
                                         <select
                                             className={`flex-1 shadow-md text-2xl border-2 border-[#2E7D32] rounded-xl p-3.5
-                                ${!field.value ? "text-gray-500" : "text-black"}`}
+                ${!field.value ? "text-gray-500" : "text-black"}`}
                                             value={field.value}
                                             onChange={(e) => field.setter(e.target.value)}
                                         >
