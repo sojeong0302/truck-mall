@@ -128,6 +128,7 @@ def register_sale():
             car_number=form.get("car_number"),
             price=to_int_or_none(form.get("price")),
             year=to_int_or_none(form.get("year")),
+            month=to_int_or_none(form.get("month")),
             fuel=form.get("fuel"),
             transmission=form.get("transmission"),
             color=form.get("color"),
