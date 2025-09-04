@@ -205,7 +205,7 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
     };
 
     const formatYearMonth = (year?: number | null, month?: string | null) => {
-        if (year && month) return `${year}년 (${month}월)`;
+        if (year && month) return `${year}년 (${month})`;
         if (year) return `${year}년`;
         if (month) return `${month}월`;
         return "";
