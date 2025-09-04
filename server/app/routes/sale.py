@@ -110,6 +110,13 @@ def create_normal_tags(manufacturer, model, sub_model, grade):
     }
 
 
+def empty_to_none(v):
+    if v is None:
+        return None
+    s = str(v).strip()
+    return None if s == "" else s
+
+
 # 매물 등록 api
 @sale_bp.route("/uploadSale", methods=["POST"])
 @jwt_required()
@@ -135,8 +142,8 @@ def register_sale():
             mileage=to_int_or_none(form.get("mileage")),
             vin=form.get("vin"),
             # 제시/성능 번호
-            suggest_number=form.get("suggest_number"),
-            performance_number=form.get("performance_number"),
+            suggest_number=empty_to_none(form.get("suggest_number")),
+            performance_number=empty_to_none(form.get("performance_number")),
             # 필터 정보
             manufacturer=flat.get("manufacturer", ""),
             model=flat.get("model", ""),

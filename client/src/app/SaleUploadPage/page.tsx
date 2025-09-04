@@ -120,7 +120,10 @@ export default function WritingUpload() {
         formData.append("price", price ?? "");
         formData.append("simple_content", simple_content ?? "");
         formData.append("vin", vin ?? "");
-        formData.append("performance_number", performance_number ?? "");
+        if (performance_number) {
+            formData.append("performance_number", performance_number);
+        }
+
         formData.append("suggest_number", suggest_number ?? "");
         formData.append("car_number", car_number ?? "");
 
