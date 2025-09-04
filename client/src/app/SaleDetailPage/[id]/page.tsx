@@ -203,6 +203,14 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
         }
         openPerformanceDetail(no);
     };
+
+    const formatYearMonth = (year?: number | null, month?: string | null) => {
+        if (year && month) return `${year}년 (${month}월)`;
+        if (year) return `${year}년`;
+        if (month) return `${month}월`;
+        return "";
+    };
+
     console.log(post);
 
     return (
@@ -246,7 +254,7 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
 
                     <div className="flex flex-col text-xl sm:text-2xl p-2 sm:gap-5 gap-3">
                         {[
-                            { label: "연식", value: post.year },
+                            { label: "연식", value: formatYearMonth(post.year, post.month) },
                             { label: "연료", value: post.fuel },
                             { label: "변속기", value: post.transmission },
                             { label: "색상", value: post.color },

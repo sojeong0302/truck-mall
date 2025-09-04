@@ -4,6 +4,7 @@ export interface SaleProps {
     name?: string;
     fuel?: string;
     year?: number;
+    month?: string;
     mileage?: string;
     color?: string;
     price?: number;
