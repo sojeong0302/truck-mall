@@ -135,7 +135,7 @@ def register_sale():
             car_number=form.get("car_number"),
             price=to_int_or_none(form.get("price")),
             year=to_int_or_none(form.get("year")),
-            month=to_int_or_none(form.get("month")),
+            month=form.get("month"),
             fuel=form.get("fuel"),
             transmission=form.get("transmission"),
             color=form.get("color"),
@@ -360,6 +360,7 @@ def update_sale(sale_id):
         sale.name = get_val("name", sale.name)
         sale.fuel = get_val("fuel", sale.fuel)
         sale.year = to_int_or_none(get_val("year", sale.year))
+        sale.month = get_val("month", sale.month)
         sale.mileage = to_int_or_none(get_val("mileage", sale.mileage))
         sale.color = get_val("color", sale.color)
         sale.price = to_int_or_none(get_val("price", sale.price))
