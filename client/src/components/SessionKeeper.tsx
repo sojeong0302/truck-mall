@@ -60,6 +60,7 @@ export default function SessionKeeper() {
                 {
                     headers: {
                         "X-CSRF-TOKEN": Cookies.get("csrf_refresh_token") || "",
+                        Authorization: "",
                     },
                     withCredentials: true,
                 }
