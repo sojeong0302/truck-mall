@@ -26,12 +26,15 @@ migrate = Migrate()
 ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://truck-mall-truck-mall.vercel.app",
+    "https://saemaeultruck.pics",  # ✅ 운영 도메인 추가
 ]
 
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+    CORS(app, supports_credentials=True, origins=ALLOWED_ORIGINS)
+
     handler = logging.StreamHandler(sys.stdout)
     handler.setLevel(logging.DEBUG)
     app.logger.addHandler(handler)
