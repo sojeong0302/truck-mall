@@ -1,8 +1,13 @@
 from flask import Blueprint, request, jsonify, current_app
 from app.models.user import User
 from app.extensions import db
-from flask_jwt_extended import create_access_token
-
+from flask_jwt_extended import (
+    create_access_token,
+    create_refresh_token,
+    set_refresh_cookies,
+    jwt_required,
+    get_jwt_identity,
+)
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -44,9 +49,25 @@ def login():
         if not user or not user.check_password(password):
             return jsonify({"error": "아이디 또는 비밀번호가 올바르지 않습니다."}), 401
 
+        # ✅ 액세스 + 리프레시 발급
         access_token = create_access_token(identity=str(user.id))
-        return jsonify({"message": "로그인 성공", "access_token": access_token}), 200
-    except Exception as e:
-        # 로그 남기기(운영 시 꼭 권장)
+        refresh_token = create_refresh_token(identity=str(user.id))
+
+        # ✅ 리프레시 토큰을 httpOnly 쿠키에 심어줌
+        resp = jsonify({"message": "로그인 성공", "access_token": access_token})
+        # (만료는 설정값(JWT_REFRESH_TOKEN_EXPIRES)을 따름. 필요 시 max_age 지정 가능)
+        set_refresh_cookies(resp, refresh_token)
+        return resp, 200
+
+    except Exception:
         current_app.logger.exception("login failed")
         return jsonify({"error": "server error"}), 500
+
+
+# ✅ 새 토큰 발급 엔드포인트 (모달 '확인'이 여기로 POST)
+@auth_bp.route("/refresh", methods=["POST"])
+@jwt_required(refresh=True)  # 리프레시 쿠키 필요
+def refresh():
+    user_id = get_jwt_identity()
+    new_access = create_access_token(identity=user_id)
+    return jsonify({"access_token": new_access}), 200
