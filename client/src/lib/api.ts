@@ -2,12 +2,19 @@
 import axios, { AxiosHeaders, RawAxiosRequestHeaders, InternalAxiosRequestConfig } from "axios";
 import Cookies from "js-cookie";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://saemaeultruck.pics";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+if (!BASE_URL) {
+    throw new Error("ENV NEXT_PUBLIC_API_URL가 설정되지 않았습니다.");
+}
 
-/** 공개용 axios 인스턴스 */
+// prefix가 없으면 공백으로 안전 처리
+const RAW_PREFIX = process.env.NEXT_PUBLIC_API_PREFIX ?? "";
+const PREFIX = RAW_PREFIX ? `/${RAW_PREFIX.replace(/^\/|\/$/g, "")}` : "";
+
 export const api = axios.create({
-    baseURL: BASE_URL,
+    baseURL: `${BASE_URL}${PREFIX}`, // 예: https://saemaeultruck.pics
     withCredentials: true,
+    headers: { "Content-Type": "application/json" },
 });
 
 /** 보호용 axios 인스턴스 (이제 Authorization 헤더는 사용 안 함: 쿠키+CSRF만) */
