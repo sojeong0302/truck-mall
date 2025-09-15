@@ -62,10 +62,6 @@ export default function SessionKeeper() {
                 {},
                 {
                     withCredentials: true,
-                    headers: {
-                        "X-CSRF-TOKEN": csrf || "", // 여기서 값이 실제로 찍혀야 함
-                        // Authorization: ""  ← 이 라인은 아예 빼는 게 좋아요
-                    },
                 }
             );
             const newAccess = data?.access_token || data?.accessToken || data?.token;
