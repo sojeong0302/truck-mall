@@ -12,6 +12,7 @@
     "@heroicons/react": "^2.2.0",
     "axios": "^1.11.0",
     "framer-motion": "^12.23.11",
+    "js-cookie": "^3.0.5",
     "next": "15.4.4",
     "pdfjs-dist": "^5.4.54",
     "react": "19.1.0",
@@ -24,6 +25,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/js-cookie": "^3.0.6",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
