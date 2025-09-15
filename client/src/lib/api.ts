@@ -4,7 +4,10 @@ import { useAuthStore } from "@/store/useAuthStore";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export const api = axios.create({ baseURL: BASE_URL }); // 공개용
+export const api = axios.create({
+    baseURL: "https://saemaeultruck.pics",
+    withCredentials: true, // ✅ 전역 설정
+}); // 공개용
 export const authApi = axios.create({ baseURL: BASE_URL }); // 보호용
 
 let redirecting = false;
