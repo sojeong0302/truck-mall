@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import { useAuthStore } from "@/store/useAuthStore";
 import { readToken, isExpired } from "@/utils/token";
+import Cookies from "js-cookie";
 
 type JwtPayload = { exp?: number };
 const parseJwt = (t: string): JwtPayload => {
@@ -53,7 +54,16 @@ export default function SessionKeeper() {
             setExtending(true);
             // ✅ 백엔드 정책에 맞게 택 1:
             // 1) httpOnly 쿠키 방식(권장)
-            const { data } = await axios.post(`${BASE_URL}/auth/refresh`, {}, { withCredentials: true });
+            const { data } = await axios.post(
+                `${BASE_URL}/auth/refresh`,
+                {},
+                {
+                    headers: {
+                        "X-CSRF-TOKEN": Cookies.get("csrf_refresh_token") || "",
+                    },
+                    withCredentials: true,
+                }
+            );
 
             // 2) 로컬 리프레시 토큰 방식이라면:
             // const refreshToken = localStorage.getItem("refresh_token");
