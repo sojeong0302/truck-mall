@@ -28,7 +28,7 @@ authApi.interceptors.request.use((config) => {
         // Raw 객체 형태인 경우
         (config.headers as RawAxiosRequestHeaders)["Authorization"] = `Bearer ${token}`;
     }
-
+    config.withCredentials = true;
     return config;
 });
 
