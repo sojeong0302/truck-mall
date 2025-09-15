@@ -18,12 +18,11 @@ function LoginContent() {
     const handleLogin = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
         try {
-            const { data } = await api.post(
+            const { data } = await axios.post(
                 `${BASE_URL}/auth/login`,
                 { username, password },
-                { headers: { "Content-Type": "application/json" } }
+                { withCredentials: true }
             );
-
             const token = data.access_token as string;
             localStorage.setItem("token", token);
             setToken(token);
