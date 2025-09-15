@@ -54,23 +54,20 @@ export default function SessionKeeper() {
             setExtending(true);
             // ✅ 백엔드 정책에 맞게 택 1:
             // 1) httpOnly 쿠키 방식(권장)
+            const csrf = Cookies.get("csrf_refresh_token");
+            console.log("csrf_refresh_token from cookie:", csrf);
+
             const { data } = await axios.post(
                 `${BASE_URL}/auth/refresh`,
                 {},
                 {
-                    headers: {
-                        "X-CSRF-TOKEN": Cookies.get("csrf_refresh_token") || "",
-                        Authorization: "",
-                    },
                     withCredentials: true,
+                    headers: {
+                        "X-CSRF-TOKEN": csrf || "", // 여기서 값이 실제로 찍혀야 함
+                        // Authorization: ""  ← 이 라인은 아예 빼는 게 좋아요
+                    },
                 }
             );
-
-            // 2) 로컬 리프레시 토큰 방식이라면:
-            // const refreshToken = localStorage.getItem("refresh_token");
-            // const { data } = await axios.post(`${BASE_URL}/auth/refresh`, { refresh_token: refreshToken });
-
-            // 응답에서 새 access_token 추출(필드명은 백엔드에 맞게 조정)
             const newAccess = data?.access_token || data?.accessToken || data?.token;
             if (!newAccess) throw new Error("No access token in refresh response");
 
