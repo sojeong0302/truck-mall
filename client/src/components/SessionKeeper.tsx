@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import { useAuthStore } from "@/store/useAuthStore";
 import { readToken, isExpired } from "@/utils/token";
-import Cookies from "js-cookie";
 
 type JwtPayload = { exp?: number };
 const parseJwt = (t: string): JwtPayload => {
@@ -14,6 +13,10 @@ const parseJwt = (t: string): JwtPayload => {
         return {};
     }
 };
+
+// 만료 얼마 전에 자동 갱신할지 / 경고 모달은 언제 띄울지
+const SILENT_BEFORE_MS = 60_000; // 만료 60초 전 무음 리프레시
+const WARN_BEFORE_MS = 10_000; // (무음 실패 시) 만료 10초 전 모달
 
 export default function SessionKeeper() {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
@@ -26,6 +29,7 @@ export default function SessionKeeper() {
     const warnTimerRef = useRef<number | null>(null);
     const hardExpireTimerRef = useRef<number | null>(null);
     const askedRef = useRef(false); // 중복 모달 방지
+    const refreshingRef = useRef(false); // 동시 리프레시 방지
 
     // 현재 토큰과 만료시각
     const { token, expMs } = useMemo(() => {
@@ -33,6 +37,7 @@ export default function SessionKeeper() {
         if (!t) return { token: null as string | null, expMs: null as number | null };
         const { exp } = parseJwt(t);
         return { token: t, expMs: exp ? exp * 1000 : null };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [useAuthStore((s) => s.isLoggedIn), readToken()]); // isLoggedIn 변동 시 재계산
 
     // 타이머 정리
@@ -47,40 +52,32 @@ export default function SessionKeeper() {
         }
     };
 
-    // 세션 연장(리프레시)
-    const extendSession = async () => {
-        if (extending) return;
+    // 무음(자동) 리프레시
+    async function refreshSilently(): Promise<boolean> {
+        if (refreshingRef.current) return true;
+        refreshingRef.current = true;
         try {
-            setExtending(true);
-            // ✅ 백엔드 정책에 맞게 택 1:
-            // 1) httpOnly 쿠키 방식(권장)
-            const csrf = Cookies.get("csrf_refresh_token");
-            console.log("csrf_refresh_token from cookie:", csrf);
-
             const { data } = await axios.post(
                 `${BASE_URL}/auth/refresh`,
                 {},
-                {
-                    withCredentials: true,
-                }
+                { withCredentials: true } // CSRF 검사 끈 상태
             );
             const newAccess = data?.access_token || data?.accessToken || data?.token;
-            if (!newAccess) throw new Error("No access token in refresh response");
-
-            setToken(newAccess); // Zustand + localStorage에 저장(프로젝트의 setToken 동작에 맞게)
-            askedRef.current = false; // 다음 사이클을 위해 초기화
-            setOpen(false);
-            setExtending(false);
-            setupTimers(newAccess); // 새 만료시각 기준으로 타이머 재설정
-        } catch (e) {
-            setExtending(false);
-            // 리프레시 실패 → 로그아웃 처리
-            logout();
+            if (!newAccess) throw new Error("No access token");
+            setToken(newAccess);
+            // 혹시 모달이 떠 있었다면 닫고 초기화
+            if (open) setOpen(false);
+            askedRef.current = false;
+            return true;
+        } catch {
+            return false;
+        } finally {
+            refreshingRef.current = false;
         }
-    };
+    }
 
-    // 만료 30초 전 모달 띄우기 + 만료 시 강제 로그아웃
-    const setupTimers = (t?: string | null) => {
+    // 타이머/자동리프레시 스케줄
+    const setupTimers = async (t?: string | null) => {
         clearTimers();
         const cur = t ?? token;
         if (!cur) return;
@@ -90,62 +87,61 @@ export default function SessionKeeper() {
 
         const now = Date.now();
         const expireAt = exp * 1000;
-        if (now >= expireAt) {
-            logout();
+        const remain = expireAt - now;
+
+        // 이미 만료 → 즉시 무음 리프레시 시도
+        if (remain <= 0) {
+            const ok = await refreshSilently();
+            if (!ok) logout();
             return;
         }
 
-        const warnAt = expireAt - 30_000; // 만료 30초 전
-        const msToWarn = warnAt - now;
-        const msToHardExpire = expireAt - now;
+        // 만료 임박이면 먼저 무음 리프레시 시도
+        if (remain <= SILENT_BEFORE_MS) {
+            const ok = await refreshSilently();
+            if (ok) return; // 새 토큰으로 useEffect가 재실행되며 타이머 재설정됨
+            // 실패한 경우에만 아래 경고/만료 타이머 세팅
+        }
 
-        // 30초 전 경고
-        if (msToWarn > 0) {
-            warnTimerRef.current = window.setTimeout(() => {
-                if (!askedRef.current) {
-                    askedRef.current = true;
-                    setOpen(true);
-                }
-            }, msToWarn) as unknown as number;
-        } else {
-            // 이미 경고 시점 지남 → 즉시 알림
+        const warnIn = Math.max(remain - WARN_BEFORE_MS, 0);
+
+        // 경고(실패 시 대비)
+        warnTimerRef.current = window.setTimeout(() => {
             if (!askedRef.current) {
                 askedRef.current = true;
                 setOpen(true);
             }
-        }
+        }, warnIn) as unknown as number;
 
-        // 만료 시 하드 로그아웃(모달 무시한 경우)
+        // 하드 만료
         hardExpireTimerRef.current = window.setTimeout(() => {
             logout();
-        }, msToHardExpire) as unknown as number;
+        }, remain) as unknown as number;
     };
 
     // 토큰 바뀔 때마다 타이머 재설정
     useEffect(() => {
-        setupTimers();
+        (async () => {
+            await setupTimers();
+        })();
         return clearTimers;
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [token, expMs]);
 
-    // 탭 비활성→활성 전환 시 만료 임박 체크(백그라운드에서 시간 흐른 경우)
+    // 탭 활성화/포커스 시에도 동일 로직 실행 (백그라운드 경과 보정)
     useEffect(() => {
         const onVisible = () => {
             const t = readToken();
             if (!t) return;
-            if (isExpired(t)) {
-                logout();
-                return;
-            }
-            // 남은 시간이 30초 이하이면 모달
-            const { exp } = parseJwt(t);
-            if (exp) {
-                const remain = exp * 1000 - Date.now();
-                if (remain <= 30_000 && !askedRef.current) {
-                    askedRef.current = true;
-                    setOpen(true);
+            (async () => {
+                // 만료됐으면 조용히 시도, 실패 시 로그아웃
+                if (isExpired(t)) {
+                    const ok = await refreshSilently();
+                    if (!ok) logout();
+                    return;
                 }
-            }
+                await setupTimers(t);
+            })();
         };
         document.addEventListener("visibilitychange", onVisible, false);
         window.addEventListener("focus", onVisible, false);
@@ -158,12 +154,12 @@ export default function SessionKeeper() {
 
     if (!open) return null;
 
-    // 간단 모달(세션 전용, 기존 Modal과 충돌 방지)
+    // 모달: 자동 리프레시가 실패한 경우에만 노출
     return (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40">
             <div className="w-[92%] max-w-[420px] rounded-2xl bg-white p-6 shadow-xl">
                 <div className="text-lg font-semibold text-gray-900">로그인 연장</div>
-                <p className="mt-2 text-sm text-gray-600">세션이 30초 뒤 만료됩니다. 계속 이용하시겠습니까?</p>
+                <p className="mt-2 text-sm text-gray-600">세션이 곧 만료됩니다. 계속 이용하시겠습니까?</p>
                 <div className="mt-5 flex gap-3 justify-end">
                     <button
                         onClick={() => setOpen(false)}
@@ -173,7 +169,21 @@ export default function SessionKeeper() {
                         아니요
                     </button>
                     <button
-                        onClick={extendSession}
+                        onClick={async () => {
+                            if (extending) return;
+                            try {
+                                setExtending(true);
+                                const ok = await refreshSilently();
+                                if (ok) {
+                                    askedRef.current = false;
+                                    setOpen(false);
+                                } else {
+                                    logout();
+                                }
+                            } finally {
+                                setExtending(false);
+                            }
+                        }}
                         disabled={extending}
                         className="rounded-xl px-4 py-2 bg-[#2E7D32] text-white hover:opacity-90"
                     >
