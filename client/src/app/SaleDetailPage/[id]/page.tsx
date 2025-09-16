@@ -299,7 +299,15 @@ export default function SaleDetailPage({ params }: { params: Promise<{ id: strin
                     <SwiperWithLightbox images={post.images.map((img) => getImageUrl(img))} />
                 )}
 
-                <div className="whitespace-pre text-xl h-[200px] sm:text-2xl w-full bg-white border-4 border-[#2E7D32] p-4 rounded-md">
+                <div
+                    className=" w-full max-w-full
+    bg-white border-4 border-[#2E7D32] p-4 rounded-md
+    text-base sm:text-2xl
+    whitespace-pre-wrap sm:whitespace-pre
+    break-words
+    h-auto sm:h-[200px]
+    overflow-auto"
+                >
                     {post.content}
                 </div>
                 <div className="flex justify-end gap-3">
